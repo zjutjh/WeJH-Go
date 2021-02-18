@@ -1,2 +1,5 @@
 # wejh-go
-The wejh-server written in go
+一个用 go 写成的微精弘后端服务项目
+
+## 配置系统说明
+采用了viper这个配置文件库，方便读取配置信息。
