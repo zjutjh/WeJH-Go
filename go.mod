@@ -1,4 +1,4 @@
-module github.com/lixiao189/wejh-go
+module wejh-go
 
 go 1.15
 
