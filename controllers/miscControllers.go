@@ -18,8 +18,9 @@ func TimeController(c *gin.Context) {
 	week := (currentTime.Unix()-startTime.Unix())/3600/24/7 + 1
 
 	c.JSON(http.StatusOK, gin.H{
-		"errcode": 1,
-		"errmsg":  "获取时间成功",
+		"errcode":  1,
+		"errmsg":   "获取时间成功",
+		"redirect": nil,
 		"data": gin.H{
 			"day":      time.Now().Weekday(),
 			"is_begin": week > 0,
@@ -27,5 +28,22 @@ func TimeController(c *gin.Context) {
 			"term":     currentTerm,
 			"week":     week,
 		},
+	})
+}
+
+func AnnouncementController(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"data": gin.H{
+			"clipboard":    conf.Config.GetString("announcement.clipboard"),
+			"clipboardTip": conf.Config.GetString("announcement.clipboardTip"),
+			"content":      conf.Config.GetString("announcement.content"),
+			"footer":       conf.Config.GetString("announcement.footer"),
+			"id":           conf.Config.GetString("announcement.id"),
+			"show":         conf.Config.GetString("announcement.show"),
+			"title":        conf.Config.GetString("announcement.title"),
+		},
+		"errcode":  1,
+		"errmsg":   "ok",
+		"redirect": nil,
 	})
 }

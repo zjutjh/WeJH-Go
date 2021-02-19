@@ -8,3 +8,12 @@ database:
 term: # 学期相关配置
   current_term: 2020/2021(1)
   term_start_date: 2020-09-28
+
+announcement: # 通知信息
+  id: 36
+  show: true
+  title: 公告
+  content: 由于学校寒假期间正在进行停电检修及网络维护，目前微精弘无法查询到最新的课表、成绩等信息，敬请谅解。
+  footer: 有任何微精弘问题，请加QQ群:462530805（一群）282402782（二群）
+  clipboard: ""
+  clipboardTip: ""
