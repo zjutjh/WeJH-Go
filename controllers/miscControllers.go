@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -22,7 +23,7 @@ func TimeController(c *gin.Context) {
 		"data": gin.H{
 			"day":      time.Now().Weekday(),
 			"is_begin": week > 0,
-			"month":    time.Now().Month(),
+			"month":    fmt.Sprintf("%d", time.Now().Month()),
 			"term":     currentTerm,
 			"week":     week,
 		},
