@@ -32,15 +32,35 @@ func TimeController(c *gin.Context) {
 }
 
 func AnnouncementController(c *gin.Context) {
+	var announcement map[string]interface{}
+	err := conf.Config.UnmarshalKey("announcement", &announcement)
+	if err != nil {
+		panic(fmt.Errorf("配置读取失败, 请检查配置格式！\n %v", err))
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"data":     announcement,
+		"errcode":  1,
+		"errmsg":   "ok",
+		"redirect": nil,
+	})
+}
+
+func AppListController(c *gin.Context) {
+	var appList []map[string]interface{}
+	var icons map[string]interface{}
+	err := conf.Config.UnmarshalKey("applicationsList", &appList)
+	if err != nil {
+		panic(fmt.Errorf("配置读取失败, 请检查配置格式！\n %v", err))
+	}
+	err = conf.Config.UnmarshalKey("icons", &icons)
+	if err != nil {
+		panic(fmt.Errorf("配置读取失败, 请检查配置格式！\n %v", err))
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
-			"clipboard":    conf.Config.GetString("announcement.clipboard"),
-			"clipboardTip": conf.Config.GetString("announcement.clipboardTip"),
-			"content":      conf.Config.GetString("announcement.content"),
-			"footer":       conf.Config.GetString("announcement.footer"),
-			"id":           conf.Config.GetString("announcement.id"),
-			"show":         conf.Config.GetString("announcement.show"),
-			"title":        conf.Config.GetString("announcement.title"),
+			"app-list": appList,
+			"icons":    icons,
 		},
 		"errcode":  1,
 		"errmsg":   "ok",

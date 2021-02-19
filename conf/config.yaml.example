@@ -17,3 +17,71 @@ announcement: # 通知信息
   footer: 有任何微精弘问题，请加QQ群:462530805（一群）282402782（二群）
   clipboard: ""
   clipboardTip: ""
+
+icons: # 小程序可能要用到的图标
+  timetable:
+    bg: blue
+    icon: https://gw.alicdn.com/tfs/TB1zXRm4uL2gK0jSZPhXXahvXXa-652-652.png
+    card: https://gw.alicdn.com/tfs/TB1DBJr4EH1gK0jSZSyXXXtlpXa-1125-300.png
+  score:
+    bg: red
+    icon: https://gw.alicdn.com/tfs/TB1bYcjpODsXe8jSZR0XXXK6FXa-652-652.png
+  exam:
+    bg: green
+    icon: https://gw.alicdn.com/tfs/TB1oPcIrSR26e4jSZFEXXbwuXXa-652-652.png
+  freeroom:
+    bg: red
+    icon: https://gw.alicdn.com/tfs/TB1ZG8t4EY1gK0jSZFCXXcwqXXa-652-652.png
+  student:
+    bg: purple
+    icon: https://gw.alicdn.com/tfs/TB1HilgsRFR4u4jSZFPXXanzFXa-652-652.png
+  teacher:
+    bg: purple
+    icon: https://gw.alicdn.com/tfs/TB1nqRMt8Bh1e4jSZFhXXcC9VXa-652-652.png
+  card:
+    bg: yellow
+    icon: https://gw.alicdn.com/tfs/TB10a8t4EY1gK0jSZFCXXcwqXXa-652-652.png
+    card: https://gw.alicdn.com/tfs/TB1De6Xn4vbeK8jSZPfXXariXXa-1125-300.png
+  borrow:
+    bg: blue
+    icon: https://gw.alicdn.com/tfs/TB13t8D4ET1gK0jSZFrXXcNCXXa-652-652.png
+    card: https://gw.alicdn.com/tfs/TB1xf0m4Ez1gK0jSZLeXXb9kVXa-1125-300.png
+  questionnaire:
+    bg: red
+    icon: https://assets.gettoset.cn/wejh/icon-questionnaire-652-652.png
+  tri:
+    bg: blue
+    icon: ""
+    card: https://gw.alicdn.com/tfs/TB1I4FMptTfau8jSZFwXXX1mVXa-2055-702.png
+  publicity:
+    bg: blue
+    icon: https://gw.alicdn.com/tfs/TB1EFNu4EY1gK0jSZFMXXaWcVXa-425-400.png
+  square:
+    bg: blue
+    icon: https://gw.alicdn.com/tfs/TB1Hp0i4AL0gK0jSZFtXXXQCXXa-400-400.png
+
+applicationsList: # 小程序首页的应用程序列表
+  - title: 课表查询
+    route: /pages/timetable/timetable
+    bg: blue
+    icon: https://gw.alicdn.com/tfs/TB1DBJr4EH1gK0jSZSyXXXtlpXa-1125-300.png
+  - title: 成绩查询
+    route: /pages/score/score
+    bg: red
+    icon: https://gw.alicdn.com/tfs/TB1bYcjpODsXe8jSZR0XXXK6FXa-652-652.png
+  - title: 考试安排
+    route: /pages/exam/exam
+    bg: green
+    icon: https://gw.alicdn.com/tfs/TB1oPcIrSR26e4jSZFEXXbwuXXa-652-652.png
+  - title: 空教室
+    route: /pages/freeroom/freeroom
+    bg: red
+    icon: https://gw.alicdn.com/tfs/TB1ZG8t4EY1gK0jSZFCXXcwqXXa-652-652.png
+    badge:
+      type: static
+      path: /index/freeroom
+      content: 莫干山
+  - title: 借阅信息
+    route: /pages/borrow/borrow
+    bg: blue
+    icon: https://gw.alicdn.com/tfs/TB13t8D4ET1gK0jSZFrXXcNCXXa-652-652.png
