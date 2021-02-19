@@ -4,17 +4,15 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"wejh-go/conf"
+	"wejh-go/routers"
 )
 
 func main() {
-	conf.Init()                                         // 初始化配置
-	fmt.Println(conf.Config.GetInt("database.port"))    // debug
-	fmt.Println(conf.Config.GetString("database.host")) // debug
+	conf.Init() // 初始化配置
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	_ = r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	routers.MiscRoutersInit(r) // 将路由绑定到服务器引擎上
+	err := r.Run(":8090")
+	if err != nil {
+		fmt.Printf("启动失败了，错误信息: %v \n", err)
+	}
 }
