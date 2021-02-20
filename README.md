@@ -45,7 +45,7 @@ y.SetDefault("ContentDir", "foobar")
 通过在conf文件夹下执行以下命令来生成配置文件
 
 ```bash
-cp config.yaml.example config.yaml
+cp config.example.yaml config.yaml
 ```
 
 yaml 的格式就自己百度/Google吧，建议学会了以后在看下面的内容
