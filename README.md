@@ -117,3 +117,114 @@ yaml 的格式就自己百度/Google吧，建议学会了以后在看下面的�
 }
 ```
 
+**获取小程序首页列表**
+
+接口信息
+
+| | 内容 |
+|--- | --- |
+| 接口 | /api/app-list |
+| 参数 | 无 |
+
+返回值样例
+
+```json
+{
+    "data": {
+        "app-list": [
+            {
+                "bg": "blue",
+                "icon": "https://gw.alicdn.com/tfs/TB1DBJr4EH1gK0jSZSyXXXtlpXa-1125-300.png",
+                "route": "/pages/timetable/timetable",
+                "title": "课表查询"
+            },
+            {
+                "bg": "red",
+                "icon": "https://gw.alicdn.com/tfs/TB1bYcjpODsXe8jSZR0XXXK6FXa-652-652.png",
+                "route": "/pages/score/score",
+                "title": "成绩查询"
+            },
+            {
+                "bg": "green",
+                "icon": "https://gw.alicdn.com/tfs/TB1oPcIrSR26e4jSZFEXXbwuXXa-652-652.png",
+                "route": "/pages/exam/exam",
+                "title": "考试安排"
+            },
+            {
+                "badge": {
+                    "content": "莫干山",
+                    "path": "/index/freeroom",
+                    "type": "static"
+                },
+                "bg": "red",
+                "icon": "https://gw.alicdn.com/tfs/TB1ZG8t4EY1gK0jSZFCXXcwqXXa-652-652.png",
+                "route": "/pages/freeroom/freeroom",
+                "title": "空教室"
+            },
+            {
+                "bg": "blue",
+                "icon": "https://gw.alicdn.com/tfs/TB13t8D4ET1gK0jSZFrXXcNCXXa-652-652.png",
+                "route": "/pages/borrow/borrow",
+                "title": "借阅信息"
+            }
+        ],
+        "icons": {
+            "borrow": {
+                "bg": "blue",
+                "card": "https://gw.alicdn.com/tfs/TB1xf0m4Ez1gK0jSZLeXXb9kVXa-1125-300.png",
+                "icon": "https://gw.alicdn.com/tfs/TB13t8D4ET1gK0jSZFrXXcNCXXa-652-652.png"
+            },
+            "card": {
+                "bg": "yellow",
+                "card": "https://gw.alicdn.com/tfs/TB1De6Xn4vbeK8jSZPfXXariXXa-1125-300.png",
+                "icon": "https://gw.alicdn.com/tfs/TB10a8t4EY1gK0jSZFCXXcwqXXa-652-652.png"
+            },
+            "exam": {
+                "bg": "green",
+                "icon": "https://gw.alicdn.com/tfs/TB1oPcIrSR26e4jSZFEXXbwuXXa-652-652.png"
+            },
+            "freeroom": {
+                "bg": "red",
+                "icon": "https://gw.alicdn.com/tfs/TB1ZG8t4EY1gK0jSZFCXXcwqXXa-652-652.png"
+            },
+            "publicity": {
+                "bg": "blue",
+                "icon": "https://gw.alicdn.com/tfs/TB1EFNu4EY1gK0jSZFMXXaWcVXa-425-400.png"
+            },
+            "questionnaire": {
+                "bg": "red",
+                "icon": "https://assets.gettoset.cn/wejh/icon-questionnaire-652-652.png"
+            },
+            "score": {
+                "bg": "red",
+                "icon": "https://gw.alicdn.com/tfs/TB1bYcjpODsXe8jSZR0XXXK6FXa-652-652.png"
+            },
+            "square": {
+                "bg": "blue",
+                "icon": "https://gw.alicdn.com/tfs/TB1Hp0i4AL0gK0jSZFtXXXQCXXa-400-400.png"
+            },
+            "student": {
+                "bg": "purple",
+                "icon": "https://gw.alicdn.com/tfs/TB1HilgsRFR4u4jSZFPXXanzFXa-652-652.png"
+            },
+            "teacher": {
+                "bg": "purple",
+                "icon": "https://gw.alicdn.com/tfs/TB1nqRMt8Bh1e4jSZFhXXcC9VXa-652-652.png"
+            },
+            "timetable": {
+                "bg": "blue",
+                "card": "https://gw.alicdn.com/tfs/TB1DBJr4EH1gK0jSZSyXXXtlpXa-1125-300.png",
+                "icon": "https://gw.alicdn.com/tfs/TB1zXRm4uL2gK0jSZPhXXahvXXa-652-652.png"
+            },
+            "tri": {
+                "bg": "blue",
+                "card": "https://gw.alicdn.com/tfs/TB1I4FMptTfau8jSZFwXXX1mVXa-2055-702.png",
+                "icon": ""
+            }
+        }
+    },
+    "errcode": 1,
+    "errmsg": "ok",
+    "redirect": null
+}
+```
