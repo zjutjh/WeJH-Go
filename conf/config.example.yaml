@@ -64,7 +64,7 @@ applicationsList: # 小程序首页的应用程序列表
   - title: 课表查询
     route: /pages/timetable/timetable
     bg: blue
-    icon: https://gw.alicdn.com/tfs/TB1DBJr4EH1gK0jSZSyXXXtlpXa-1125-300.png
+    icon: https://gw.alicdn.com/tfs/TB1zXRm4uL2gK0jSZPhXXahvXXa-652-652.png
   - title: 成绩查询
     route: /pages/score/score
     bg: red
@@ -81,6 +81,10 @@ applicationsList: # 小程序首页的应用程序列表
       type: static
       path: /index/freeroom
       content: 莫干山
+  - title: 一卡通
+    route: /pages/card/card
+    bg: yellow
+    icon: https://gw.alicdn.com/tfs/TB10a8t4EY1gK0jSZFCXXcwqXXa-652-652.png
   - title: 借阅信息
     route: /pages/borrow/borrow
     bg: blue
