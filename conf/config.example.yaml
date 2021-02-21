@@ -5,6 +5,12 @@ database:
   user: root
   pass:
 
+encryptKey: "" # 用来加密的密钥，自己随意生成一下16个字符的字符串就能用来加密了（不可泄漏）
+
+weapp: # 微信小程序相关配置 (切记不能泄漏）
+  appid:
+  secret:
+
 term: # 学期相关配置
   current_term: 2020/2021(1)
   term_start_date: 2020-09-28
@@ -64,7 +70,7 @@ applicationsList: # 小程序首页的应用程序列表
   - title: 课表查询
     route: /pages/timetable/timetable
     bg: blue
-    icon: https://gw.alicdn.com/tfs/TB1DBJr4EH1gK0jSZSyXXXtlpXa-1125-300.png
+    icon: https://gw.alicdn.com/tfs/TB1zXRm4uL2gK0jSZPhXXahvXXa-652-652.png
   - title: 成绩查询
     route: /pages/score/score
     bg: red
@@ -81,6 +87,10 @@ applicationsList: # 小程序首页的应用程序列表
       type: static
       path: /index/freeroom
       content: 莫干山
+  - title: 一卡通
+    route: /pages/card/card
+    bg: yellow
+    icon: https://gw.alicdn.com/tfs/TB10a8t4EY1gK0jSZFCXXcwqXXa-652-652.png
   - title: 借阅信息
     route: /pages/borrow/borrow
     bg: blue

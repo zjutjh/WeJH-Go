@@ -16,4 +16,5 @@ func Init() { // 从配置文件中读取配置文件信息
 	if err != nil {
 		panic(fmt.Errorf("配置读取失败\n %v", err))
 	}
+	// TODO: 下次添加往配置文件中自动写入密钥
 }

@@ -34,5 +34,5 @@ func Init() { // 初始化数据库
 	}
 
 	// 开始迁移数据
-	migrateUsers(DB)
+	migrateUsers(DB) // 迁移用户数据
 }
