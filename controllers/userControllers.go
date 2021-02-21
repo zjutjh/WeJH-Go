@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/wumansgy/goEncrypt"
 	"io/ioutil"
 	"net/http"
 	"wejh-go/conf"
@@ -44,10 +46,20 @@ func BindJHControllers(c *gin.Context) {
 
 	// TODO: 未来在这里加上判断用户的输入的账号是否在用户中心注册过的功能
 
+	// 对密码和 openID 等关键数据进行加密
+	cryptPass, _ := goEncrypt.AesCtrEncrypt(
+		[]byte(postForm.PassWord),
+		[]byte(conf.Config.GetString("encryptKey")),
+	)
+	cryptOpenID, _ := goEncrypt.AesCtrEncrypt(
+		[]byte(postForm.OpenID),
+		[]byte(conf.Config.GetString("encryptKey")),
+	)
+
 	user := database.User{
 		Uno:    postForm.UserName,
-		Pass:   postForm.PassWord, // TODO: 添加加密存储
-		OpenID: postForm.OpenID,
+		Pass:   base64.StdEncoding.EncodeToString(cryptPass),
+		OpenID: base64.StdEncoding.EncodeToString(cryptOpenID),
 	} // 用获取到的数据生成数据库模型
 	database.DB.Create(&user)
 
@@ -85,8 +97,17 @@ func AutoLoginControllers(c *gin.Context) {
 		})
 	}
 
+	// 从数据中读取绑定信息
+	cryptOpenID, _ := goEncrypt.AesCtrEncrypt(
+		[]byte(postForm.OpenID),
+		[]byte(conf.Config.GetString("encryptKey")),
+	)
 	user := database.User{}
-	result := database.DB.Where("open_id = ?", postForm.OpenID).First(&user)
+	result := database.DB.Where(
+		"open_id = ?",
+		base64.StdEncoding.EncodeToString(cryptOpenID),
+	).First(&user)
+
 	if result.RowsAffected <= 0 { // 没有找到对应用户
 		c.JSON(http.StatusForbidden, gin.H{
 			"data":     nil,

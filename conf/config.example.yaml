@@ -5,6 +5,8 @@ database:
   user: root
   pass:
 
+encryptKey: "" # 用来加密的密钥，自己随意生成一下16个字符的字符串就能用来加密了（不可泄漏）
+
 weapp: # 微信小程序相关配置 (切记不能泄漏）
   appid:
   secret:
