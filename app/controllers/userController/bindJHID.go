@@ -1,12 +1,14 @@
-package user_controllers
+package userController
 
 import (
 	"encoding/base64"
 	"github.com/gin-gonic/gin"
 	"github.com/wumansgy/goEncrypt"
 	"net/http"
-	"wejh-go/conf"
-	"wejh-go/database"
+	"wejh-go/app/models"
+	"wejh-go/app/utils"
+	"wejh-go/config"
+	"wejh-go/service/database"
 )
 
 // TODO: 未来加入对精弘通行证的去除重复功能
@@ -31,29 +33,23 @@ func BindJHControllers(c *gin.Context) {
 	// 对密码和 openID 等关键数据进行加密
 	cryptPass, _ := goEncrypt.AesCtrEncrypt(
 		[]byte(postForm.PassWord),
-		[]byte(conf.Config.GetString("encryptKey")),
+		[]byte(config.Config.GetString("encryptKey")),
 	)
 	cryptOpenID, _ := goEncrypt.AesCtrEncrypt(
 		[]byte(postForm.OpenID),
-		[]byte(conf.Config.GetString("encryptKey")),
+		[]byte(config.Config.GetString("encryptKey")),
 	)
 
-	user := database.User{
-		Uno:    postForm.UserName,
-		Pass:   base64.StdEncoding.EncodeToString(cryptPass),
-		OpenID: base64.StdEncoding.EncodeToString(cryptOpenID),
+	user := models.User{
+		StudentID: postForm.UserName,
+		Password:  base64.StdEncoding.EncodeToString(cryptPass),
+		OpenID:    base64.StdEncoding.EncodeToString(cryptOpenID),
 	} // 用获取到的数据生成数据库模型
 	database.DB.Create(&user)
 
-	c.JSON(http.StatusOK, gin.H{ // 服务器返回用户信息
-		"errcode":  200,
-		"errmsg":   "绑定成功",
-		"redirect": nil,
-		"data": gin.H{
-			"token": postForm.OpenID,
-			"user": gin.H{
-				"uno": postForm.UserName, // TODO: 添加其他账号的绑定信息
-			},
-		},
-	})
+	utils.JsonSuccessResponse(c, gin.H{
+		"token": postForm.OpenID,
+		"user": gin.H{
+			"uno": postForm.UserName, // TODO: 添加其他账号的绑定信息
+		}})
 }

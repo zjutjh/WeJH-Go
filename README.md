@@ -36,8 +36,7 @@ go build -tags=jsoniter
 > 有什么区别的话看看这个库的源码，和现在conf文件夹中的代码应该就懂了（吧
 
 ```go
-// 就是这种写法，新建了一个 Viper 指针然后进行操作，而不是直接用
-// 包内置的函数
+// 就是这种写法，新建了一个 Viper 指针然后进行操作，而不是直接用 包内置的函数
 x := viper.New()
 y := viper.New()
 
@@ -272,3 +271,10 @@ openid 由我们后端接口这里生成，小程序通过接口 `/api/code/weap
   }
 }
 ```
+## Contributing
+
+If you are interested in reporting/fixing issues and contributing directly to the code base, please see [CONTRIBUTING.md](docs/CONTRIBUTING.md) for more information on what we're looking for and how to get started.
+
+## License
+
+[MIT](https://github.com/zjutjh/wejh-go/blob/master/LICENSE)

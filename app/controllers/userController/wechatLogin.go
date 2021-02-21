@@ -1,4 +1,4 @@
-package user_controllers
+package userController
 
 import (
 	"encoding/json"
@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
-	"wejh-go/conf"
+	"wejh-go/config"
 )
 
 type WeAppForm struct {
@@ -37,8 +37,8 @@ func WeAppController(c *gin.Context) {
 
 	// 获取用户的 openID
 	code := postForm.Code
-	appID := conf.Config.GetString("weapp.appid")
-	secret := conf.Config.GetString("weapp.secret")
+	appID := config.Config.GetString("weapp.appid")
+	secret := config.Config.GetString("weapp.secret")
 	response, err := http.Get(fmt.Sprintf("https://api.weixin.qq.com/sns/jscode2session?appid=%v&secret=%v&js_code=%v&grant_type=authorization_code",
 		appID,
 		secret,
