@@ -5,6 +5,10 @@ database:
   user: root
   pass:
 
+weapp: # 微信小程序相关配置 (切记不能泄漏）
+  appid:
+  secret:
+
 term: # 学期相关配置
   current_term: 2020/2021(1)
   term_start_date: 2020-09-28
