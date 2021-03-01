@@ -1,9 +1,13 @@
 package stateCode
 
-var OK = 1
-var SystemError = -1
-var ParamError = -2
-var UserNotFind = -3
+const (
+	OK                      = 1
+	SystemError             = -1
+	ParamError              = -2
+	UserNotFind             = -3
+	GetOpenIDFail           = -4
+	UsernamePasswordUnMatch = -5
+)
 
 func GetStateCodeMsg(code int) string {
 	switch code {
@@ -15,6 +19,8 @@ func GetStateCodeMsg(code int) string {
 		return "Params Error"
 	case UserNotFind:
 		return "User Not Find"
+	case GetOpenIDFail:
+		return "Get OpenID Fail"
 	default:
 		return "Unknown"
 

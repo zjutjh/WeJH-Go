@@ -20,13 +20,12 @@ func Init() { // 初始化数据库
 	name := config.Config.GetString("database.name")
 
 	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v", user, pass, host, port, name)
-	DB, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true, // 关闭外键约束 提升数据库速度
 	})
 
 	if err != nil {
 		log.Fatal(exception.DatabaseConnectFailed, err)
 	}
-
-	migrateUsers(DB) // 迁移用户数据
+	DB = db
 }

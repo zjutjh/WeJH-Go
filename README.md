@@ -70,7 +70,7 @@ yaml 的格式就自己百度/Google吧，建议学会了以后在看下面的�
 
 ## Contributing
 
-If you are interested in reporting/fixing issues and contributing directly to the code base, please see [CONTRIBUTING.md](docs/CONTRIBUTING.md) for more information on what we're looking for and how to get started.
+If you are interested in reporting/fixing issues and contributing directly to the code base, please see [CONTRIBUTING.md](doc/CONTRIBUTING.md) for more information on what we're looking for and how to get started.
 
 ## License
 

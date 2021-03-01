@@ -3,13 +3,22 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"wejh-go/app/controllers/userController"
+	"wejh-go/app/midware"
 )
 
 func userRouterInit(r *gin.RouterGroup) {
+	user := r.Group("user")
+	{
+		user.POST("/login",
+			userController.AutoLogin,
+		)
+		bind := user.Group("/bind", midware.CheckWechatSession)
+		{
+			bind.POST("/jh", userController.BindJHID)
+			bind.POST("/zf", userController.BindZFPassword)
+			bind.POST("/library", userController.BindLibraryPassword)
+			bind.POST("/schoolcard", userController.BindSchoolCardPassword)
+		}
 
-	r.POST("/code"+"/weapp", userController.WeAppController) // 返回用户的 openID
-	r.POST("/login", userController.BindJHControllers)
-	r.POST("/autoLogin", userController.AutoLoginControllers) // 自动登陆接口
-	bindRoute := r.Group("/bind")
-	bindRoute.POST("/jh", userController.BindJHControllers)
+	}
 }

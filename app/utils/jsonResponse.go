@@ -10,7 +10,7 @@ func JsonSuccessResponse(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, gin.H{
 		"data": data,
 		"code": stateCode.OK,
-		"msg":  "ok",
+		"msg":  "OK",
 	})
 }
 

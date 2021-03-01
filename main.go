@@ -3,17 +3,18 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"log"
-	"wejh-go/config"
 	"wejh-go/exception"
 	"wejh-go/service/database"
 	"wejh-go/service/router"
+	"wejh-go/service/session"
 )
 
 func main() {
-	config.Init()
 	database.Init()
 
 	r := gin.Default()
+
+	session.Init(r)
 	router.Init(r)
 
 	err := r.Run()
