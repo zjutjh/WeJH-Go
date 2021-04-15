@@ -3,10 +3,10 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"log"
+	"wejh-go/config/database"
+	"wejh-go/config/router"
+	"wejh-go/config/session"
 	"wejh-go/exception"
-	"wejh-go/service/database"
-	"wejh-go/service/router"
-	"wejh-go/service/session"
 )
 
 func main() {

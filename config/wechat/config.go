@@ -3,7 +3,7 @@ package wechat
 import (
 	"log"
 	"strings"
-	"wejh-go/config"
+	"wejh-go/config/config"
 	"wejh-go/exception"
 )
 

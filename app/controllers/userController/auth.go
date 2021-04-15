@@ -6,12 +6,40 @@ import (
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
 	"wejh-go/app/utils/stateCode"
-	"wejh-go/service/wechat"
+	"wejh-go/config/wechat"
 )
 
 type autoLoginForm struct {
 	Code      string `json:"code" binding:"required"`
 	LoginType string `json:"type"`
+}
+type passwordLoginForm struct {
+	Username  string `json:"username" binding:"required"`
+	Password  string `json:"password" binding:"required"`
+	LoginType string `json:"type"`
+}
+
+func AuthByPassword(c *gin.Context) {
+	var postForm passwordLoginForm
+	err := c.ShouldBindJSON(&postForm)
+
+	if err != nil {
+		utils.JsonFailedResponse(c, stateCode.ParamError, nil)
+		return
+	}
+	user, err := userServices.GetUserByUsernameAndPassword(postForm.Username, postForm.Password)
+	if err != nil {
+		utils.JsonFailedResponse(c, stateCode.ParamError, nil)
+		return
+	}
+	if user != nil {
+		err = sessionServices.SetUserSession(c, user)
+		utils.JsonSuccessResponse(c, gin.H{
+			"user": gin.H{
+				"ID": user.ID,
+			},
+		})
+	}
 }
 
 func AutoLogin(c *gin.Context) {
@@ -46,7 +74,7 @@ func AutoLogin(c *gin.Context) {
 
 	utils.JsonSuccessResponse(c, gin.H{
 		"user": gin.H{
-			"studentID": user.StudentID, // TODO: 添加其他账号的绑定信息
+			"ID": user.ID,
 		},
 	})
 }

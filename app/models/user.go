@@ -1,7 +1,8 @@
 package models
 
 type User struct {
-	ID           int // 登录编号
+	ID           int    // 登录编号
+	Username     string // 登录编号
 	Type         UserType
 	StudentID    string // 学号
 	JHPassword   string // 密码

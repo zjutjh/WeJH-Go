@@ -1,5 +1,5 @@
 .idea*
 .DS_Store
-config/config.yaml
+config.yaml
 .vscode*
 wejh-go

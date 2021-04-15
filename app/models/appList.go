@@ -1,8 +1,9 @@
 package models
 
-type appList struct {
-	title string // 名称
-	route string // 路由
-	bg    string // 颜色
-	icon  string // 图标
+type AppList struct {
+	ID              int64
+	Title           string // 名称
+	Route           string // 路由
+	BackgroundColor string // 颜色
+	Icon            string // 图标
 }

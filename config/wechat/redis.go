@@ -2,7 +2,7 @@ package wechat
 
 import (
 	"github.com/silenceper/wechat/v2/cache"
-	"wejh-go/service/redis"
+	"wejh-go/config/redis"
 )
 
 func setRedis(wcCache cache.Cache) cache.Cache {

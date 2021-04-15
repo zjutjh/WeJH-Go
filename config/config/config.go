@@ -11,7 +11,6 @@ var Config = viper.New()
 func init() {
 	Config.SetConfigName("config")
 	Config.SetConfigType("yaml")
-	Config.AddConfigPath("./config")
 	Config.AddConfigPath(".")
 	Config.WatchConfig() // 自动将配置读入Config变量
 	err := Config.ReadInConfig()

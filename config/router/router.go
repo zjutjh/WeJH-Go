@@ -10,6 +10,7 @@ func Init(r *gin.Engine) {
 	{
 		systemRouterInit(api)
 		userRouterInit(api)
+		funcRouterInit(api)
 	}
 
 }

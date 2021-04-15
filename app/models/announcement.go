@@ -6,5 +6,5 @@ type Announcement struct {
 	ID          int
 	Title       string
 	Content     string
-	PublishTime time.Time
+	PublishTime time.Time `gorm:"comment:'发布时间';type:timestamp;"`
 }

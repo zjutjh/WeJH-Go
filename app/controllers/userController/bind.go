@@ -8,17 +8,49 @@ import (
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
 	"wejh-go/app/utils/stateCode"
-	"wejh-go/service/database"
+	"wejh-go/config/database"
 )
 
-type bindJHForm struct {
+type createUserWechatForm struct {
 	UserName  string `json:"username"`
 	PassWord  string `json:"password"`
 	LoginType string `json:"type"`
 }
 
-func BindJHID(c *gin.Context) {
-	var postForm bindJHForm
+type createUserForm struct {
+	UserName  string `json:"username"`
+	PassWord  string `json:"password"`
+	LoginType string `json:"type"`
+}
+
+func CreateUser(c *gin.Context) {
+	var postForm createUserForm
+	err := c.ShouldBindJSON(&postForm)
+	if err != nil {
+		utils.JsonFailedResponse(c, stateCode.ParamError, nil)
+		return
+	}
+
+	err = userCenterServices.Auth(postForm.UserName, postForm.PassWord)
+	if err != nil {
+		utils.JsonFailedResponse(c, stateCode.UsernamePasswordUnMatch, nil)
+		return
+	}
+
+	user, err := userServices.GetUserByStudentID(postForm.UserName)
+	if err != nil && user != nil {
+		utils.JsonFailedResponse(c, stateCode.UserAlreadyExisted, nil)
+		return
+	}
+
+	user = &models.User{JHPassword: postForm.PassWord, Username: postForm.UserName}
+	database.DB.Create(&user)
+
+	utils.JsonSuccessResponse(c, nil)
+}
+
+func BindOrCreateUserFromWechat(c *gin.Context) {
+	var postForm createUserWechatForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
 		utils.JsonFailedResponse(c, stateCode.ParamError, nil)
@@ -38,8 +70,11 @@ func BindJHID(c *gin.Context) {
 
 	user, err := userServices.GetUserByStudentID(postForm.UserName)
 	if err != nil && user != nil {
-		user.OpenID = session.OpenID
-		user.JHPassword = postForm.PassWord
+		if user.JHPassword == postForm.PassWord {
+			user.OpenID = session.OpenID
+			database.DB.Save(user)
+		}
+
 	} else {
 		user = &models.User{OpenID: session.OpenID, JHPassword: postForm.PassWord, StudentID: postForm.UserName}
 		database.DB.Create(&user)
@@ -47,6 +82,7 @@ func BindJHID(c *gin.Context) {
 
 	utils.JsonSuccessResponse(c, nil)
 }
+
 func BindZFPassword(c *gin.Context) {
 
 }

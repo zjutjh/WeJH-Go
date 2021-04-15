@@ -1,6 +1,6 @@
 package redis
 
-import "wejh-go/config"
+import "wejh-go/config/config"
 
 type Config struct {
 	Host     string

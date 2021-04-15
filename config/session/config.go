@@ -2,7 +2,7 @@ package session
 
 import (
 	"strings"
-	"wejh-go/config"
+	"wejh-go/config/config"
 )
 
 type driver string
