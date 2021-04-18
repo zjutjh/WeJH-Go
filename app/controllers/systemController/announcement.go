@@ -7,7 +7,11 @@ import (
 )
 
 func GetAnnouncement(c *gin.Context) {
-	announcements := announcementServices.GetAnnouncements(10)
+	announcements, err := announcementServices.GetAnnouncements(10)
+	if err != nil {
+		utils.JsonErrorResponse(c, err)
+	} else {
+		utils.JsonSuccessResponse(c, announcements)
+	}
 
-	utils.JsonSuccessResponse(c, announcements)
 }

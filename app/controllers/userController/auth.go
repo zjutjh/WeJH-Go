@@ -24,12 +24,12 @@ func AuthByPassword(c *gin.Context) {
 	err := c.ShouldBindJSON(&postForm)
 
 	if err != nil {
-		utils.JsonFailedResponse(c, stateCode.ParamError, nil)
+		utils.JsonErrorResponse(c, err)
 		return
 	}
 	user, err := userServices.GetUserByUsernameAndPassword(postForm.Username, postForm.Password)
 	if err != nil {
-		utils.JsonFailedResponse(c, stateCode.ParamError, nil)
+		utils.JsonFailedResponse(c, stateCode.UsernamePasswordUnmatched, nil)
 		return
 	}
 	if user != nil {
@@ -42,7 +42,7 @@ func AuthByPassword(c *gin.Context) {
 	}
 }
 
-func AutoLogin(c *gin.Context) {
+func WeChatLogin(c *gin.Context) {
 	var postForm autoLoginForm
 	err := c.ShouldBindJSON(&postForm)
 
@@ -62,13 +62,6 @@ func AutoLogin(c *gin.Context) {
 
 	if err != nil {
 		utils.JsonFailedResponse(c, stateCode.UserNotFind, nil)
-		return
-	}
-
-	err = sessionServices.SetWechatSession(c, &session)
-
-	if err != nil {
-		utils.JsonFailedResponse(c, stateCode.SystemError, nil)
 		return
 	}
 

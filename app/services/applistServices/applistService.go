@@ -5,10 +5,13 @@ import (
 	"wejh-go/config/database"
 )
 
-func GetAppList(count int) []models.AppList {
+func GetAppList(count int) ([]models.AppList, error) {
 	var applists []models.AppList
-	database.DB.Limit(count).Find(&applists)
-	return applists
+	result := database.DB.Limit(count).Find(&applists)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return applists, nil
 }
 
 func GetAppListPagination(offset, pagesize int) []models.AppList {

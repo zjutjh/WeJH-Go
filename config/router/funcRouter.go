@@ -2,32 +2,39 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"wejh-go/app/controllers/libraryController"
-	"wejh-go/app/controllers/schoolCardController"
-	"wejh-go/app/controllers/zfController"
+	"wejh-go/app/controllers/funcControllers/canteenController"
+	"wejh-go/app/controllers/funcControllers/libraryController"
+	"wejh-go/app/controllers/funcControllers/schoolBusController"
+	"wejh-go/app/controllers/funcControllers/schoolCardController"
+	"wejh-go/app/controllers/funcControllers/zfController"
 	"wejh-go/app/midware"
 )
 
 func funcRouterInit(r *gin.RouterGroup) {
-	user := r.Group("func")
+	fun := r.Group("func")
 	{
-		bind := user.Group("/card", midware.CheckLogin)
+		fun.POST("/canteen/flow", canteenController.GetCanteenFlowRate)
+		fun.POST("/bus", schoolBusController.GetBusList)
+
+		card := fun.Group("/card", midware.CheckLogin)
 		{
-			bind.POST("/balance", schoolCardController.GetBalance)
-			bind.POST("/history", schoolCardController.GetHistory)
-			bind.POST("/today", schoolCardController.GetToday)
+			card.POST("/balance", schoolCardController.GetBalance)
+			card.POST("/history", schoolCardController.GetHistory)
+			card.POST("/today", schoolCardController.GetToday)
 		}
 
-		library := user.Group("/library", midware.CheckLogin)
+		library := fun.Group("/library", midware.CheckLogin)
 		{
 			library.POST("/current", libraryController.GetCurrent)
 			library.POST("/history", libraryController.GetHistory)
 
 		}
 
-		zf := user.Group("/zf", midware.CheckLogin)
+		zf := fun.Group("/zf", midware.CheckLogin)
 		{
 			zf.POST("/classtable", zfController.GetClassTable)
+			zf.POST("/exam", zfController.GetExam)
+			zf.POST("/score", zfController.GetScore)
 
 		}
 

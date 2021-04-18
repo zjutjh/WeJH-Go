@@ -9,13 +9,13 @@ import (
 func userRouterInit(r *gin.RouterGroup) {
 	user := r.Group("user")
 	{
-		user.POST("/autologin",
-			userController.AutoLogin,
+		user.POST("/login/wechat",
+			userController.WeChatLogin,
 		)
 		user.POST("/login",
 			userController.AuthByPassword,
 		)
-		bind := user.Group("/bind", midware.CheckWechatSession)
+		bind := user.Group("/bind", midware.CheckLogin)
 		{
 			bind.POST("/jh", userController.BindOrCreateUserFromWechat)
 			bind.POST("/zf", userController.BindZFPassword)

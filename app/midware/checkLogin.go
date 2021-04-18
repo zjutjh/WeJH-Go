@@ -10,7 +10,7 @@ import (
 func CheckLogin(c *gin.Context) {
 	_, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		utils.JsonFailedResponse(c, stateCode.GetOpenIDFail, nil)
+		utils.JsonFailedResponse(c, stateCode.NotLogin, nil)
 		c.Abort()
 		return
 	}

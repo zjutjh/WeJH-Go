@@ -11,14 +11,14 @@ func GetCardBalance(u *models.User) (interface{}, error) {
 	form := url.Values{}
 	form.Add("username", u.StudentID)
 	form.Add("password", u.CardPassword)
-	return FetchHandle(form, "student/card/balance")
+	return FetchHandle(form, funnelApi.CardBalance)
 }
 
 func GetCardToday(u *models.User) (interface{}, error) {
 	form := url.Values{}
 	form.Add("username", u.StudentID)
 	form.Add("password", u.CardPassword)
-	return FetchHandle(form, "student/card/today")
+	return FetchHandle(form, funnelApi.CardToday)
 }
 
 func GetCardHistory(u *models.User, year, month int) (interface{}, error) {

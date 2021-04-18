@@ -19,4 +19,5 @@ const (
 	Undergraduate UserType = 0
 	Postgraduate  UserType = 1
 	Teacher       UserType = 2
+	Admin         UserType = 3
 )

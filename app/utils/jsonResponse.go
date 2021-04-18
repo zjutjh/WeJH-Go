@@ -2,6 +2,7 @@ package utils
 
 import (
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"wejh-go/app/utils/stateCode"
 )
@@ -23,6 +24,7 @@ func JsonFailedResponse(c *gin.Context, code stateCode.StateCode, data interface
 }
 
 func JsonErrorResponse(c *gin.Context, err error) {
+	log.Println(err)
 	code := stateCode.ErrorToStateCode(err)
 	c.JSON(http.StatusBadRequest, gin.H{
 		"data": nil,
