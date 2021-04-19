@@ -13,11 +13,13 @@ func CheckAdmin(c *gin.Context) {
 	if err != nil {
 		utils.JsonFailedResponse(c, stateCode.NotLogin, nil)
 		c.Abort()
-	} else if user.Type != models.Admin {
+		return
+	}
+	if user.Type != models.Admin {
 		utils.JsonFailedResponse(c, stateCode.NotAdmin, nil)
 		c.Abort()
-	} else {
-		c.Next()
+		return
 	}
+	c.Next()
 
 }

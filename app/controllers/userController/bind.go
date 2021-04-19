@@ -2,6 +2,8 @@ package userController
 
 import (
 	"github.com/gin-gonic/gin"
+	"time"
+	"wejh-go/app/services/funnelServices"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/utils"
 	"wejh-go/config/database"
@@ -26,7 +28,14 @@ func BindZFPassword(c *gin.Context) {
 
 	user.ZFPassword = postForm.PassWord
 
+	_, err = funnelServices.GetExam(user, string(rune(time.Now().Year())), "3")
+	if err != nil {
+		utils.JsonErrorResponse(c, err)
+		return
+	}
 	database.DB.Save(user)
+	utils.JsonSuccessResponse(c, nil)
+
 }
 func BindLibraryPassword(c *gin.Context) {
 	var postForm bindForm
@@ -43,7 +52,13 @@ func BindLibraryPassword(c *gin.Context) {
 
 	user.LibPassword = postForm.PassWord
 
+	_, err = funnelServices.GetCurrentBorrow(user)
+	if err != nil {
+		utils.JsonErrorResponse(c, err)
+		return
+	}
 	database.DB.Save(user)
+	utils.JsonSuccessResponse(c, nil)
 }
 
 func BindSchoolCardPassword(c *gin.Context) {
@@ -60,6 +75,11 @@ func BindSchoolCardPassword(c *gin.Context) {
 	}
 
 	user.CardPassword = postForm.PassWord
-
+	_, err = funnelServices.GetCardBalance(user)
+	if err != nil {
+		utils.JsonErrorResponse(c, err)
+		return
+	}
 	database.DB.Save(user)
+	utils.JsonSuccessResponse(c, nil)
 }

@@ -15,4 +15,5 @@ const (
 	CardBalance    FunnelApi = "student/card/balance"
 	LibraryCurrent FunnelApi = "student/library/borrow/current"
 	LibraryHistory FunnelApi = "student/library/borrow/history"
+	CanteenFlow    FunnelApi = "canteen/flow"
 )

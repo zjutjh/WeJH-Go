@@ -28,18 +28,22 @@ func AuthByPassword(c *gin.Context) {
 		return
 	}
 	user, err := userServices.GetUserByUsernameAndPassword(postForm.Username, postForm.Password)
-	if err != nil {
+	if err != nil || user == nil {
 		utils.JsonFailedResponse(c, stateCode.UsernamePasswordUnmatched, nil)
 		return
 	}
-	if user != nil {
-		err = sessionServices.SetUserSession(c, user)
-		utils.JsonSuccessResponse(c, gin.H{
-			"user": gin.H{
-				"ID": user.ID,
-			},
-		})
-	}
+
+	sessionServices.SetUserSession(c, user)
+	utils.JsonSuccessResponse(c, gin.H{
+		"user": gin.H{
+			"id":         user.ID,
+			"username":   user.Username,
+			"studentID":  user.StudentID,
+			"userType":   user.Type,
+			"createTime": user.CreateTime,
+		},
+	})
+
 }
 
 func WeChatLogin(c *gin.Context) {
@@ -60,14 +64,19 @@ func WeChatLogin(c *gin.Context) {
 
 	user, err := userServices.GetUserByOpenID(session.OpenID)
 
-	if err != nil {
+	if err != nil || user == nil {
 		utils.JsonFailedResponse(c, stateCode.UserNotFind, nil)
 		return
 	}
 
+	sessionServices.SetUserSession(c, user)
 	utils.JsonSuccessResponse(c, gin.H{
 		"user": gin.H{
-			"ID": user.ID,
+			"id":         user.ID,
+			"username":   user.Username,
+			"studentID":  user.StudentID,
+			"userType":   user.Type,
+			"createTime": user.CreateTime,
 		},
 	})
 }

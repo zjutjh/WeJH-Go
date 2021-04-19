@@ -11,7 +11,7 @@ func GetUserByOpenID(openid string) (*models.User, error) {
 	user := models.User{}
 	result := database.DB.Where(
 		&models.User{
-			OpenID: openid,
+			WechatOpenID: openid,
 		},
 	).First(&user)
 	if result.Error != nil {
@@ -42,6 +42,20 @@ func GetUserByUsernameAndPassword(username, password string) (*models.User, erro
 			JHPassword: pass,
 		},
 	).First(&user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
+}
+
+func GetUserByUsername(username string) (*models.User, error) {
+	user := models.User{}
+	result := database.DB.Where(
+		&models.User{
+			Username: username,
+		},
+	).First(&user)
+
 	if result.Error != nil {
 		return nil, result.Error
 	}

@@ -22,6 +22,14 @@ func GetUserSession(c *gin.Context) (*models.User, error) {
 		return nil, errors.New("")
 	}
 	user, _ := userServices.GetUserID(id.(int))
-
 	return user, nil
+}
+
+func CheckUserSession(c *gin.Context) bool {
+	webSession := sessions.Default(c)
+	id := webSession.Get("id")
+	if id == nil {
+		return false
+	}
+	return true
 }

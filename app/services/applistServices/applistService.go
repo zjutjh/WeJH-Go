@@ -14,6 +14,36 @@ func GetAppList(count int) ([]models.AppList, error) {
 	return applists, nil
 }
 
+func CreateApplist(appList models.AppList) error {
+	result := database.DB.Create(&appList)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+func UpdateApplist(id int64, appList models.AppList) error {
+	result := database.DB.Model(models.AppList{}).Where(
+		&models.AppList{
+			ID: id,
+		}).Updates(&appList)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func DeleteApplist(id int64) error {
+	result := database.DB.Delete(models.AppList{
+		ID: id,
+	})
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func GetAppListPagination(offset, pagesize int) []models.AppList {
 	var applists []models.AppList
 	database.DB.Offset(offset).Limit(pagesize).Find(&applists)

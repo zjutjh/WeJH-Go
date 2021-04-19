@@ -5,27 +5,38 @@ import (
 	"strconv"
 	"wejh-go/app/models"
 	"wejh-go/config/api/funnelApi"
+	"wejh-go/errors"
 )
 
 func GetCardBalance(u *models.User) (interface{}, error) {
+	if u.CardPassword == "" {
+		return nil, errors.PasswordWrong
+	}
 	form := url.Values{}
 	form.Add("username", u.StudentID)
 	form.Add("password", u.CardPassword)
-	return FetchHandle(form, funnelApi.CardBalance)
+	return FetchHandleOfPost(form, funnelApi.CardBalance)
 }
 
 func GetCardToday(u *models.User) (interface{}, error) {
+	if u.CardPassword == "" {
+		return nil, errors.PasswordWrong
+	}
 	form := url.Values{}
 	form.Add("username", u.StudentID)
 	form.Add("password", u.CardPassword)
-	return FetchHandle(form, funnelApi.CardToday)
+
+	return FetchHandleOfPost(form, funnelApi.CardToday)
 }
 
 func GetCardHistory(u *models.User, year, month int) (interface{}, error) {
+	if u.CardPassword == "" {
+		return nil, errors.PasswordWrong
+	}
 	form := url.Values{}
 	form.Add("username", u.StudentID)
 	form.Add("password", u.CardPassword)
 	form.Add("year", strconv.Itoa(year))
 	form.Add("month", strconv.Itoa(month))
-	return FetchHandle(form, funnelApi.CardHistory)
+	return FetchHandleOfPost(form, funnelApi.CardHistory)
 }

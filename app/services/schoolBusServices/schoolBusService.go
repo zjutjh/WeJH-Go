@@ -1,0 +1,45 @@
+package schoolBusServices
+
+import (
+	"wejh-go/app/models"
+	"wejh-go/config/database"
+)
+
+func GetSchoolBusList() ([]models.SchoolBus, error) {
+	var bus []models.SchoolBus
+	result := database.DB.Find(bus)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return bus, nil
+}
+
+func CreateSchoolBus(bus models.SchoolBus) error {
+	result := database.DB.Create(&bus)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+func UpdateSchoolBus(id int, bus models.SchoolBus) error {
+	result := database.DB.Model(models.SchoolBus{}).Where(
+		&models.SchoolBus{
+			ID: id,
+		}).Updates(&bus)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func DeleteSchoolBus(id int) error {
+	result := database.DB.Delete(models.SchoolBus{
+		ID: id,
+	})
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}

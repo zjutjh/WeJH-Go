@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"wejh-go/app/models"
 	"wejh-go/config/api/funnelApi"
+	"wejh-go/errors"
 )
 
 func genTermForm(u *models.User, year, term string) url.Values {
@@ -16,16 +17,25 @@ func genTermForm(u *models.User, year, term string) url.Values {
 }
 
 func GetClassTable(u *models.User, year, term string) (interface{}, error) {
+	if u.ZFPassword == "" {
+		return nil, errors.PasswordWrong
+	}
 	form := genTermForm(u, year, term)
-	return FetchHandle(form, funnelApi.ZFClassTable)
+	return FetchHandleOfPost(form, funnelApi.ZFClassTable)
 }
 
 func GetScore(u *models.User, year, term string) (interface{}, error) {
+	if u.ZFPassword == "" {
+		return nil, errors.PasswordWrong
+	}
 	form := genTermForm(u, year, term)
-	return FetchHandle(form, funnelApi.ZFScore)
+	return FetchHandleOfPost(form, funnelApi.ZFScore)
 }
 
 func GetExam(u *models.User, year, term string) (interface{}, error) {
+	if u.ZFPassword == "" {
+		return nil, errors.PasswordWrong
+	}
 	form := genTermForm(u, year, term)
-	return FetchHandle(form, funnelApi.ZFExam)
+	return FetchHandleOfPost(form, funnelApi.ZFExam)
 }

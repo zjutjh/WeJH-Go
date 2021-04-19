@@ -8,8 +8,8 @@ import (
 )
 
 func CheckLogin(c *gin.Context) {
-	_, err := sessionServices.GetUserSession(c)
-	if err != nil {
+	isLogin := sessionServices.CheckUserSession(c)
+	if !isLogin {
 		utils.JsonFailedResponse(c, stateCode.NotLogin, nil)
 		c.Abort()
 		return

@@ -11,8 +11,23 @@ func adminRouterInit(r *gin.RouterGroup) {
 
 	admin := r.Group("admin", midware.CheckAdmin)
 	{
-		admin.POST("/announcement/create", adminController.CreateAnnouncement)
-		admin.POST("/announcement/delete", adminController.DeleteAnnouncement)
-		admin.POST("/announcement/update", adminController.UpdateAnnouncement)
+		announcement := admin.Group("announcement")
+		{
+			announcement.POST("create", adminController.CreateAnnouncement)
+			announcement.POST("delete", adminController.DeleteAnnouncement)
+			announcement.POST("update", adminController.UpdateAnnouncement)
+		}
+		applist := admin.Group("applist")
+		{
+			applist.POST("create", adminController.CreateApplist)
+			applist.POST("delete", adminController.DeleteApplist)
+			applist.POST("update", adminController.UpdateApplist)
+		}
+		schoolbus := admin.Group("schoolbus")
+		{
+			schoolbus.POST("create", adminController.CreateSchoolBus)
+			schoolbus.POST("delete", adminController.DeleteSchoolBus)
+			schoolbus.POST("update", adminController.UpdateSchoolBus)
+		}
 	}
 }
