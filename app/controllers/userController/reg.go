@@ -65,6 +65,11 @@ func BindOrCreateStudentUserFromWechat(c *gin.Context) {
 		utils.JsonSuccessResponse(c, nil)
 		return
 	}
+	user, err = userServices.GetUserByUsername(postForm.Username)
+	if user != nil {
+		utils.JsonFailedResponse(c, stateCode.UserAlreadyExisted, nil)
+		return
+	}
 	h := sha256.New()
 	h.Write([]byte(postForm.Password))
 	pass := hex.EncodeToString(h.Sum(nil))
@@ -97,6 +102,10 @@ func CreateStudentUser(c *gin.Context) {
 	pass := hex.EncodeToString(h.Sum(nil))
 	user = &models.User{JHPassword: pass, Username: postForm.Username, Type: models.Undergraduate, StudentID: postForm.StudentID, CreateTime: time.Now()}
 	database.DB.Create(&user)
-	sessionServices.SetUserSession(c, user)
+	err = sessionServices.SetUserSession(c, user)
+	if err != nil {
+		utils.JsonFailedResponse(c, stateCode.SystemError, nil)
+		return
+	}
 	utils.JsonSuccessResponse(c, nil)
 }
