@@ -1,33 +1,25 @@
 package redis
 
-import "wejh-go/config/config"
+import "github.com/go-redis/redis/v8"
 
-type Config struct {
+type redisConfig struct {
 	Host     string
 	Port     string
 	DB       int
 	Password string
 }
 
-var Info Config
+var RedisClient *redis.Client
+var RedisInfo redisConfig
 
 func init() {
-	Info.Host = "localhost"
-	if config.Config.IsSet("redis.host") {
-		Info.Host = config.Config.GetString("redis.host")
-	}
+	info := getConfig()
 
-	Info.Port = "6379"
-	if config.Config.IsSet("redis.port") {
-		Info.Port = config.Config.GetString("redis.port")
-	}
-	Info.DB = 0
-	if config.Config.IsSet("redis.db") {
-		Info.DB = config.Config.GetInt("redis.db")
-	}
-
-	if config.Config.IsSet("redis.password") {
-		Info.DB = config.Config.GetInt("redis.password")
-	}
+	RedisClient = redis.NewClient(&redis.Options{
+		Addr:     info.Host + ":" + info.Port,
+		Password: info.Password,
+		DB:       info.DB,
+	})
+	RedisInfo = info
 
 }

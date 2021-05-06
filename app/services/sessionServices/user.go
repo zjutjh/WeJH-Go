@@ -22,6 +22,10 @@ func GetUserSession(c *gin.Context) (*models.User, error) {
 		return nil, errors.New("")
 	}
 	user, _ := userServices.GetUserID(id.(int))
+	if user == nil {
+		ClearUserSession(c)
+		return nil, errors.New("")
+	}
 	return user, nil
 }
 
@@ -32,4 +36,11 @@ func CheckUserSession(c *gin.Context) bool {
 		return false
 	}
 	return true
+}
+
+func ClearUserSession(c *gin.Context) {
+	webSession := sessions.Default(c)
+	webSession.Delete("id")
+	webSession.Save()
+	return
 }

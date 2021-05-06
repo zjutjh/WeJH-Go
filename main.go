@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"log"
 	"wejh-go/config/database"
@@ -13,7 +14,7 @@ func main() {
 	database.Init()
 
 	r := gin.Default()
-
+	r.Use(cors.Default())
 	session.Init(r)
 	router.Init(r)
 

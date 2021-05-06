@@ -3,7 +3,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"wejh-go/app/controllers/userController"
-	"wejh-go/app/midware"
+	"wejh-go/app/midwares"
 )
 
 func userRouterInit(r *gin.RouterGroup) {
@@ -18,9 +18,9 @@ func userRouterInit(r *gin.RouterGroup) {
 			userController.AuthByPassword,
 		)
 		user.Any("/info",
-			midware.CheckLogin, userController.GetUserInfo,
+			midwares.CheckLogin, userController.GetUserInfo,
 		)
-		bind := user.Group("/bind", midware.CheckLogin)
+		bind := user.Group("/bind", midwares.CheckLogin)
 		{
 			bind.POST("/zf", userController.BindZFPassword)
 			bind.POST("/library", userController.BindLibraryPassword)

@@ -9,4 +9,5 @@ import (
 func systemRouterInit(r *gin.RouterGroup) {
 	r.Any("/announcement", systemController.GetAnnouncement)
 	r.Any("/applist", systemController.GetAppList)
+	r.Any("/info", systemController.Info)
 }

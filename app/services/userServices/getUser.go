@@ -7,7 +7,7 @@ import (
 	"wejh-go/config/database"
 )
 
-func GetUserByOpenID(openid string) (*models.User, error) {
+func GetUserByWechatOpenID(openid string) *models.User {
 	user := models.User{}
 	result := database.DB.Where(
 		&models.User{
@@ -15,10 +15,11 @@ func GetUserByOpenID(openid string) (*models.User, error) {
 		},
 	).First(&user)
 	if result.Error != nil {
-		return nil, result.Error
+		return nil
 	}
-	return &user, nil
+	return &user
 }
+
 func GetUserID(id int) (*models.User, error) {
 	user := models.User{}
 	result := database.DB.Where(
@@ -31,6 +32,7 @@ func GetUserID(id int) (*models.User, error) {
 	}
 	return &user, nil
 }
+
 func GetUserByUsernameAndPassword(username, password string) (*models.User, error) {
 	h := sha256.New()
 	h.Write([]byte(password))
@@ -48,7 +50,7 @@ func GetUserByUsernameAndPassword(username, password string) (*models.User, erro
 	return &user, nil
 }
 
-func GetUserByUsername(username string) (*models.User, error) {
+func GetUserByUsername(username string) *models.User {
 	user := models.User{}
 	result := database.DB.Where(
 		&models.User{
@@ -57,9 +59,9 @@ func GetUserByUsername(username string) (*models.User, error) {
 	).First(&user)
 
 	if result.Error != nil {
-		return nil, result.Error
+		return nil
 	}
-	return &user, nil
+	return &user
 }
 
 func GetUserByStudentID(studentID string) (*models.User, error) {
@@ -67,19 +69,6 @@ func GetUserByStudentID(studentID string) (*models.User, error) {
 	result := database.DB.Where(
 		&models.User{
 			StudentID: studentID,
-		},
-	).First(&user)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return &user, nil
-}
-
-func GetUserByUnionID(unionID string) (*models.User, error) {
-	user := models.User{}
-	result := database.DB.Where(
-		&models.User{
-			UnionID: unionID,
 		},
 	).First(&user)
 	if result.Error != nil {

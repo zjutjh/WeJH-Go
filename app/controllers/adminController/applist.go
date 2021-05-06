@@ -7,21 +7,21 @@ import (
 	"wejh-go/app/utils"
 )
 
-type createApplistForm struct {
+type createAppListForm struct {
 	Title string `json:"title" binding:"required"`
 	Route string `json:"route"`
 }
-type updateApplistForm struct {
+type updateAppListForm struct {
 	ID    int64  `json:"id" binding:"required"`
 	Title string `json:"title" binding:"required"`
 	Route string `json:"route"`
 }
-type deleteApplistForm struct {
+type deleteAppListForm struct {
 	ID int64 `json:"id" binding:"required"`
 }
 
 func CreateApplist(c *gin.Context) {
-	var postForm createApplistForm
+	var postForm createAppListForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
 		utils.JsonErrorResponse(c, err)
@@ -36,7 +36,7 @@ func CreateApplist(c *gin.Context) {
 	utils.JsonSuccessResponse(c, nil)
 }
 func UpdateApplist(c *gin.Context) {
-	var postForm updateApplistForm
+	var postForm updateAppListForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
 		utils.JsonErrorResponse(c, err)
@@ -56,7 +56,7 @@ func UpdateApplist(c *gin.Context) {
 
 }
 func DeleteApplist(c *gin.Context) {
-	var postForm deleteApplistForm
+	var postForm deleteAppListForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
 		utils.JsonErrorResponse(c, err)

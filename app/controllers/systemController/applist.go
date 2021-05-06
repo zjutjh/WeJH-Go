@@ -7,10 +7,10 @@ import (
 )
 
 func GetAppList(c *gin.Context) {
-	applists, err := applistServices.GetAppList(10)
+	appLists, err := applistServices.GetAppList(10)
 	if err != nil {
 		utils.JsonErrorResponse(c, err)
 	} else {
-		utils.JsonSuccessResponse(c, applists)
+		utils.JsonSuccessResponse(c, appLists)
 	}
 }

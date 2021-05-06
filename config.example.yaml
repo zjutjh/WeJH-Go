@@ -9,10 +9,6 @@ session:
   name: wejh-session
   driver: redis
 
-cache:
-  name: wejh-cache
-  driver: redis
-
 redis:
   host: "127.0.0.1"
   port: 6379

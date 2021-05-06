@@ -36,9 +36,14 @@ func AuthByPassword(c *gin.Context) {
 	sessionServices.SetUserSession(c, user)
 	utils.JsonSuccessResponse(c, gin.H{
 		"user": gin.H{
-			"id":         user.ID,
-			"username":   user.Username,
-			"studentID":  user.StudentID,
+			"id":        user.ID,
+			"username":  user.Username,
+			"studentID": user.StudentID,
+			"bind": gin.H{
+				"zf":   user.ZFPassword != "",
+				"lib":  user.LibPassword != "",
+				"card": user.CardPassword != "",
+			},
 			"userType":   user.Type,
 			"createTime": user.CreateTime,
 		},
@@ -62,9 +67,9 @@ func WeChatLogin(c *gin.Context) {
 		return
 	}
 
-	user, err := userServices.GetUserByOpenID(session.OpenID)
+	user := userServices.GetUserByWechatOpenID(session.OpenID)
 
-	if err != nil || user == nil {
+	if user == nil {
 		utils.JsonFailedResponse(c, stateCode.UserNotFind, nil)
 		return
 	}
@@ -72,10 +77,15 @@ func WeChatLogin(c *gin.Context) {
 	sessionServices.SetUserSession(c, user)
 	utils.JsonSuccessResponse(c, gin.H{
 		"user": gin.H{
-			"id":         user.ID,
-			"username":   user.Username,
-			"studentID":  user.StudentID,
-			"userType":   user.Type,
+			"id":        user.ID,
+			"username":  user.Username,
+			"studentID": user.StudentID,
+			"userType":  user.Type,
+			"bind": gin.H{
+				"zf":   user.ZFPassword != "",
+				"lib":  user.LibPassword != "",
+				"card": user.CardPassword != "",
+			},
 			"createTime": user.CreateTime,
 		},
 	})

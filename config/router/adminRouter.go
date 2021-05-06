@@ -3,13 +3,13 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"wejh-go/app/controllers/adminController"
-	"wejh-go/app/midware"
+	"wejh-go/app/midwares"
 )
 
 // 注册杂项路由
 func adminRouterInit(r *gin.RouterGroup) {
 
-	admin := r.Group("admin", midware.CheckAdmin)
+	admin := r.Group("admin", midwares.CheckAdmin)
 	{
 		announcement := admin.Group("announcement")
 		{

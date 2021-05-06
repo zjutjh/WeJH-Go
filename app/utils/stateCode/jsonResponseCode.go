@@ -7,29 +7,11 @@ import (
 	wejherrors "wejh-go/errors"
 )
 
-type StateCode int
-
-const (
-	OK                        StateCode = 1
-	SystemError               StateCode = -1
-	ParamError                StateCode = -2
-	UserNotFind               StateCode = -301
-	UserAlreadyExisted        StateCode = -302
-	GetOpenIDFail             StateCode = -400
-	NotLogin                  StateCode = -401
-	NotAdmin                  StateCode = -403
-	NoThatPasswordORWrong     StateCode = -413
-	HttpTimeout               StateCode = -501
-	UsernamePasswordUnmatched StateCode = -500
-	Unknown                   StateCode = -1000
-)
-
 func ErrorToStateCode(err error) StateCode {
 	var j *json.UnmarshalTypeError
 	if errors.As(err, &j) || err.Error() == "EOF" {
 		return ParamError
 	}
-
 	if errors.Is(err, wejherrors.PasswordWrong) {
 		return NoThatPasswordORWrong
 	}
@@ -61,6 +43,8 @@ func GetStateCodeMsg(code StateCode) string {
 		return "Get WechatOpenID Fail"
 	case HttpTimeout:
 		return "Http Fetch timeout"
+	case NotInit:
+		return "Not Init"
 	case Unknown:
 		return "Unknown"
 	default:

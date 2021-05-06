@@ -10,6 +10,7 @@ const (
 	ZFClassTable   FunnelApi = "student/zf/table"
 	ZFScore        FunnelApi = "student/zf/score"
 	ZFExam         FunnelApi = "student/zf/exam"
+	ZFRoom         FunnelApi = "student/zf/room"
 	CardHistory    FunnelApi = "student/card/history"
 	CardToday      FunnelApi = "student/card/today"
 	CardBalance    FunnelApi = "student/card/balance"

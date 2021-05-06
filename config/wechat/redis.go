@@ -6,9 +6,10 @@ import (
 )
 
 func setRedis(wcCache cache.Cache) cache.Cache {
+
 	redisOpts := &cache.RedisOpts{
-		Host:        redis.Info.Host + ":" + redis.Info.Port,
-		Database:    redis.Info.DB,
+		Host:        redis.RedisInfo.Host + ":" + redis.RedisInfo.Port,
+		Database:    redis.RedisInfo.DB,
 		MaxActive:   10,
 		MaxIdle:     10,
 		IdleTimeout: 60,
