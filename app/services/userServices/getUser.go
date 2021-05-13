@@ -17,6 +17,8 @@ func GetUserByWechatOpenID(openid string) *models.User {
 	if result.Error != nil {
 		return nil
 	}
+
+	DecryptUserKeyInfo(&user)
 	return &user
 }
 
@@ -30,6 +32,8 @@ func GetUserID(id int) (*models.User, error) {
 	if result.Error != nil {
 		return nil, result.Error
 	}
+
+	DecryptUserKeyInfo(&user)
 	return &user, nil
 }
 
@@ -47,6 +51,8 @@ func GetUserByUsernameAndPassword(username, password string) (*models.User, erro
 	if result.Error != nil {
 		return nil, result.Error
 	}
+
+	DecryptUserKeyInfo(&user)
 	return &user, nil
 }
 
@@ -61,6 +67,7 @@ func GetUserByUsername(username string) *models.User {
 	if result.Error != nil {
 		return nil
 	}
+	DecryptUserKeyInfo(&user)
 	return &user
 }
 
@@ -74,5 +81,7 @@ func GetUserByStudentID(studentID string) (*models.User, error) {
 	if result.Error != nil {
 		return nil, result.Error
 	}
+
+	DecryptUserKeyInfo(&user)
 	return &user, nil
 }

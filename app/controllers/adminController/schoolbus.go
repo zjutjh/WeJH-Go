@@ -3,6 +3,7 @@ package adminController
 import (
 	"github.com/gin-gonic/gin"
 	"time"
+	"wejh-go/app/apiExpection"
 	"wejh-go/app/models"
 	"wejh-go/app/services/schoolBusServices"
 	"wejh-go/app/utils"
@@ -29,7 +30,7 @@ func CreateSchoolBus(c *gin.Context) {
 	var postForm createSchoolBusForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ParamError)
 		return
 	}
 
@@ -40,7 +41,7 @@ func CreateSchoolBus(c *gin.Context) {
 		StartTime: postForm.StartTime,
 	})
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ServerError)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -49,7 +50,7 @@ func UpdateSchoolBus(c *gin.Context) {
 	var postForm updateSchoolBusForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ParamError)
 		return
 	}
 
@@ -61,7 +62,7 @@ func UpdateSchoolBus(c *gin.Context) {
 	},
 	)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ServerError)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -71,13 +72,13 @@ func DeleteSchoolBus(c *gin.Context) {
 	var postForm deleteSchoolBusForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ParamError)
 		return
 	}
 
 	err = schoolBusServices.DeleteSchoolBus(postForm.ID)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ServerError)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)

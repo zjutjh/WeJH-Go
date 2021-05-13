@@ -4,10 +4,10 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"log"
+	"wejh-go/app/midwares"
 	"wejh-go/config/database"
 	"wejh-go/config/router"
 	"wejh-go/config/session"
-	"wejh-go/exception"
 )
 
 func main() {
@@ -15,11 +15,15 @@ func main() {
 
 	r := gin.Default()
 	r.Use(cors.Default())
+	r.Use(midwares.ErrHandler())
+	r.NoMethod(midwares.HandleNotFound)
+	r.NoRoute(midwares.HandleNotFound)
+
 	session.Init(r)
 	router.Init(r)
 
 	err := r.Run()
 	if err != nil {
-		log.Fatal(exception.ServerStartFailed, err)
+		log.Fatal("ServerStartFailed", err)
 	}
 }

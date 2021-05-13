@@ -9,7 +9,7 @@ import (
 func GetBusList(c *gin.Context) {
 	buslist, err := schoolBusServices.GetSchoolBusList()
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, err)
 	} else {
 		utils.JsonSuccessResponse(c, buslist)
 	}

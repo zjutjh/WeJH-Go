@@ -3,7 +3,6 @@ package config
 import (
 	"github.com/spf13/viper"
 	"log"
-	"wejh-go/exception"
 )
 
 var Config = viper.New()
@@ -15,6 +14,6 @@ func init() {
 	Config.WatchConfig() // 自动将配置读入Config变量
 	err := Config.ReadInConfig()
 	if err != nil {
-		log.Fatal(exception.ConfigNotFind, err)
+		log.Fatal("Config not find", err)
 	}
 }

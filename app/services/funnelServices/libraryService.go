@@ -2,14 +2,14 @@ package funnelServices
 
 import (
 	"net/url"
+	"wejh-go/app/apiExpection"
 	"wejh-go/app/models"
 	"wejh-go/config/api/funnelApi"
-	"wejh-go/errors"
 )
 
 func GetCurrentBorrow(u *models.User) (interface{}, error) {
 	if u.LibPassword == "" {
-		return nil, errors.PasswordWrong
+		return nil, apiExpection.NoThatPasswordOrWrong
 	}
 	form := url.Values{}
 	form.Add("username", u.StudentID)
@@ -20,7 +20,7 @@ func GetCurrentBorrow(u *models.User) (interface{}, error) {
 
 func GetHistoryBorrow(u *models.User) (interface{}, error) {
 	if u.LibPassword == "" {
-		return nil, errors.PasswordWrong
+		return nil, apiExpection.NoThatPasswordOrWrong
 	}
 	form := url.Values{}
 	form.Add("username", u.StudentID)

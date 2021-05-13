@@ -3,14 +3,14 @@ package funnelServices
 import (
 	"net/url"
 	"strconv"
+	"wejh-go/app/apiExpection"
 	"wejh-go/app/models"
 	"wejh-go/config/api/funnelApi"
-	"wejh-go/errors"
 )
 
 func GetCardBalance(u *models.User) (interface{}, error) {
 	if u.CardPassword == "" {
-		return nil, errors.PasswordWrong
+		return nil, apiExpection.NoThatPasswordOrWrong
 	}
 	form := url.Values{}
 	form.Add("username", u.StudentID)
@@ -20,7 +20,7 @@ func GetCardBalance(u *models.User) (interface{}, error) {
 
 func GetCardToday(u *models.User) (interface{}, error) {
 	if u.CardPassword == "" {
-		return nil, errors.PasswordWrong
+		return nil, apiExpection.NoThatPasswordOrWrong
 	}
 	form := url.Values{}
 	form.Add("username", u.StudentID)
@@ -31,7 +31,7 @@ func GetCardToday(u *models.User) (interface{}, error) {
 
 func GetCardHistory(u *models.User, year, month int) (interface{}, error) {
 	if u.CardPassword == "" {
-		return nil, errors.PasswordWrong
+		return nil, apiExpection.NoThatPasswordOrWrong
 	}
 	form := url.Values{}
 	form.Add("username", u.StudentID)

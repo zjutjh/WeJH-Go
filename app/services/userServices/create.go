@@ -3,19 +3,19 @@ package userServices
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"errors"
 	"time"
+	"wejh-go/app/apiExpection"
 	"wejh-go/app/models"
 	"wejh-go/app/services/userCenterServices"
 	"wejh-go/config/database"
 )
 
-func CreateStudentUser(username, password, studentID, IDCardNumber string) (*models.User, error) {
+func CreateStudentUser(username, password, studentID, IDCardNumber, email string) (*models.User, error) {
 	if !CheckUsername(username) {
-		return nil, errors.New("USERNAME")
+		return nil, apiExpection.UserAlreadyExisted
 	}
 
-	err := userCenterServices.AuthStudent(studentID, IDCardNumber)
+	err := userCenterServices.OldActiveStudent(studentID, password, IDCardNumber, email)
 	if err != nil {
 		return nil, err
 	}
@@ -23,25 +23,32 @@ func CreateStudentUser(username, password, studentID, IDCardNumber string) (*mod
 	h := sha256.New()
 	h.Write([]byte(password))
 	pass := hex.EncodeToString(h.Sum(nil))
-	user := &models.User{
-		JHPassword:  pass,
-		Username:    username,
-		Type:        models.Undergraduate,
-		StudentID:   studentID,
-		LibPassword: studentID,
-		CreateTime:  time.Now(),
+	cardDefPass := ""
+	if len(studentID) > 6 {
+		cardDefPass = studentID[len(studentID)-6 : len(studentID)-1]
 	}
 
+	user := &models.User{
+		JHPassword:   pass,
+		Username:     username,
+		Type:         models.Undergraduate,
+		StudentID:    studentID,
+		LibPassword:  studentID,
+		CardPassword: cardDefPass,
+		CreateTime:   time.Now(),
+	}
+
+	EncryptUserKeyInfo(user)
 	res := database.DB.Create(&user)
 
 	return user, res.Error
 }
 
-func CreateStudentUserWechat(username, password, studentID, IDCardNumber, wechatOpenID string) (*models.User, error) {
+func CreateStudentUserWechat(username, password, studentID, IDCardNumber, email, wechatOpenID string) (*models.User, error) {
 	if !CheckWechatOpenID(wechatOpenID) {
-		return nil, errors.New("WECHAT OpenID")
+		return nil, apiExpection.OpenIDError
 	}
-	user, err := CreateStudentUser(username, password, studentID, IDCardNumber)
+	user, err := CreateStudentUser(username, password, studentID, IDCardNumber, email)
 	if err != nil {
 		return nil, err
 	}

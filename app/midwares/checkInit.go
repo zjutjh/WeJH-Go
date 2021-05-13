@@ -2,16 +2,14 @@ package midwares
 
 import (
 	"github.com/gin-gonic/gin"
+	"wejh-go/app/apiExpection"
 	"wejh-go/app/config"
-	"wejh-go/app/utils"
-	"wejh-go/app/utils/stateCode"
 )
 
 func CheckInit(c *gin.Context) {
 	inited := config.GetInit()
 	if !inited {
-		utils.JsonFailedResponse(c, stateCode.NotInit, nil)
-		c.Abort()
+		_ = c.AbortWithError(200, apiExpection.NotInit)
 		return
 	}
 	c.Next()

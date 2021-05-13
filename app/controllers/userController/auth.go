@@ -2,10 +2,10 @@ package userController
 
 import (
 	"github.com/gin-gonic/gin"
+	"wejh-go/app/apiExpection"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
-	"wejh-go/app/utils/stateCode"
 	"wejh-go/config/wechat"
 )
 
@@ -24,16 +24,20 @@ func AuthByPassword(c *gin.Context) {
 	err := c.ShouldBindJSON(&postForm)
 
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ParamError)
 		return
 	}
 	user, err := userServices.GetUserByUsernameAndPassword(postForm.Username, postForm.Password)
 	if err != nil || user == nil {
-		utils.JsonFailedResponse(c, stateCode.UsernamePasswordUnmatched, nil)
+		_ = c.AbortWithError(200, apiExpection.NoThatPasswordOrWrong)
 		return
 	}
 
-	sessionServices.SetUserSession(c, user)
+	err = sessionServices.SetUserSession(c, user)
+	if err != nil {
+		_ = c.AbortWithError(200, apiExpection.ServerError)
+		return
+	}
 	utils.JsonSuccessResponse(c, gin.H{
 		"user": gin.H{
 			"id":        user.ID,
@@ -56,25 +60,29 @@ func WeChatLogin(c *gin.Context) {
 	err := c.ShouldBindJSON(&postForm)
 
 	if err != nil {
-		utils.JsonFailedResponse(c, stateCode.ParamError, nil)
+		_ = c.AbortWithError(200, apiExpection.ParamError)
 		return
 	}
 
 	session, err := wechat.MiniProgram.GetAuth().Code2Session(postForm.Code)
 
 	if err != nil {
-		utils.JsonFailedResponse(c, stateCode.GetOpenIDFail, nil)
+		_ = c.AbortWithError(200, apiExpection.OpenIDError)
 		return
 	}
 
 	user := userServices.GetUserByWechatOpenID(session.OpenID)
 
 	if user == nil {
-		utils.JsonFailedResponse(c, stateCode.UserNotFind, nil)
+		_ = c.AbortWithError(200, apiExpection.UserNotFind)
 		return
 	}
 
-	sessionServices.SetUserSession(c, user)
+	err = sessionServices.SetUserSession(c, user)
+	if err != nil {
+		_ = c.AbortWithError(200, apiExpection.ServerError)
+		return
+	}
 	utils.JsonSuccessResponse(c, gin.H{
 		"user": gin.H{
 			"id":        user.ID,

@@ -2,11 +2,10 @@ package userController
 
 import (
 	"github.com/gin-gonic/gin"
-	"time"
-	"wejh-go/app/services/funnelServices"
+	"wejh-go/app/apiExpection"
 	"wejh-go/app/services/sessionServices"
+	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
-	"wejh-go/config/database"
 )
 
 type bindForm struct {
@@ -17,47 +16,38 @@ func BindZFPassword(c *gin.Context) {
 	var postForm bindForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ParamError)
 		return
 	}
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.NotLogin)
 		return
 	}
-
-	user.ZFPassword = postForm.PassWord
-
-	_, err = funnelServices.GetExam(user, string(rune(time.Now().Year())), "3")
+	err = userServices.SetZFPassword(user, postForm.PassWord)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, err)
 		return
 	}
-	database.DB.Save(user)
 	utils.JsonSuccessResponse(c, nil)
-
 }
 func BindLibraryPassword(c *gin.Context) {
 	var postForm bindForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ParamError)
 		return
 	}
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.NotLogin)
 		return
 	}
-
-	user.LibPassword = postForm.PassWord
-
-	_, err = funnelServices.GetCurrentBorrow(user)
+	err = userServices.SetLibraryPassword(user, postForm.PassWord)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, err)
 		return
 	}
-	database.DB.Save(user)
 	utils.JsonSuccessResponse(c, nil)
 }
 
@@ -65,21 +55,18 @@ func BindSchoolCardPassword(c *gin.Context) {
 	var postForm bindForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ParamError)
 		return
 	}
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.NotLogin)
 		return
 	}
-
-	user.CardPassword = postForm.PassWord
-	_, err = funnelServices.GetCardBalance(user)
+	err = userServices.SetCardPassword(user, postForm.PassWord)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, err)
 		return
 	}
-	database.DB.Save(user)
 	utils.JsonSuccessResponse(c, nil)
 }

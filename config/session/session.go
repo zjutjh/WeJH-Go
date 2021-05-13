@@ -3,7 +3,6 @@ package session
 import (
 	"github.com/gin-gonic/gin"
 	"log"
-	"wejh-go/exception"
 )
 
 func Init(r *gin.Engine) {
@@ -16,7 +15,7 @@ func Init(r *gin.Engine) {
 		setMemory(r, config.Name)
 		break
 	default:
-		log.Fatal(exception.ConfigError)
+		log.Fatal("ConfigError")
 	}
 
 }

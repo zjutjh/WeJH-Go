@@ -6,7 +6,6 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"wejh-go/config/config"
-	"wejh-go/exception"
 )
 
 var DB *gorm.DB
@@ -25,12 +24,12 @@ func Init() { // 初始化数据库
 	})
 
 	if err != nil {
-		log.Fatal(exception.DatabaseConnectFailed, err)
+		log.Fatal("DatabaseConnectFailed", err)
 	}
 
 	err = autoMigrate(db)
 	if err != nil {
-		log.Fatal(exception.DatabaseMigrateFailed, err)
+		log.Fatal("DatabaseMigrateFailed", err)
 	}
 	DB = db
 }

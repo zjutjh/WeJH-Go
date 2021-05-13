@@ -9,7 +9,7 @@ import (
 func GetCanteenFlowRate(c *gin.Context) {
 	flowRate, err := funnelServices.GetCanteenFlowRate()
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, err)
 	} else {
 		utils.JsonSuccessResponse(c, flowRate)
 	}

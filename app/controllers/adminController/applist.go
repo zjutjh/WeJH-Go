@@ -2,6 +2,7 @@ package adminController
 
 import (
 	"github.com/gin-gonic/gin"
+	"wejh-go/app/apiExpection"
 	"wejh-go/app/models"
 	"wejh-go/app/services/applistServices"
 	"wejh-go/app/utils"
@@ -24,13 +25,13 @@ func CreateApplist(c *gin.Context) {
 	var postForm createAppListForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ParamError)
 		return
 	}
 
 	err = applistServices.CreateApplist(models.AppList{Title: postForm.Title, Route: postForm.Route})
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ServerError)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -39,7 +40,7 @@ func UpdateApplist(c *gin.Context) {
 	var postForm updateAppListForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ParamError)
 		return
 	}
 
@@ -49,7 +50,7 @@ func UpdateApplist(c *gin.Context) {
 	},
 	)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ServerError)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -59,13 +60,14 @@ func DeleteApplist(c *gin.Context) {
 	var postForm deleteAppListForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ParamError)
 		return
 	}
 
 	err = applistServices.DeleteApplist(postForm.ID)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+
+		_ = c.AbortWithError(200, apiExpection.ServerError)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)

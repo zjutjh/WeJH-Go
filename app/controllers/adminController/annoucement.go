@@ -2,6 +2,7 @@ package adminController
 
 import (
 	"github.com/gin-gonic/gin"
+	"wejh-go/app/apiExpection"
 	"wejh-go/app/models"
 	"wejh-go/app/services/announcementServices"
 	"wejh-go/app/utils"
@@ -24,13 +25,13 @@ func CreateAnnouncement(c *gin.Context) {
 	var postForm createAnnouncementForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ParamError)
 		return
 	}
 
 	err = announcementServices.CreateAnnouncement(models.Announcement{Title: postForm.Title, Content: postForm.Content})
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -39,7 +40,7 @@ func UpdateAnnouncement(c *gin.Context) {
 	var postForm updateAnnouncementForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ParamError)
 		return
 	}
 
@@ -49,7 +50,7 @@ func UpdateAnnouncement(c *gin.Context) {
 	},
 	)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ParamError)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -59,13 +60,13 @@ func DeleteAnnouncement(c *gin.Context) {
 	var postForm deleteAnnouncementForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ParamError)
 		return
 	}
 
 	err = announcementServices.DeleteAnnouncement(postForm.ID)
 	if err != nil {
-		utils.JsonErrorResponse(c, err)
+		_ = c.AbortWithError(200, apiExpection.ParamError)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)

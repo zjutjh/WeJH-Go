@@ -4,7 +4,6 @@ import (
 	"log"
 	"strings"
 	"wejh-go/config/config"
-	"wejh-go/exception"
 )
 
 type wechatConfig struct {
@@ -17,10 +16,10 @@ func getConfigs() wechatConfig {
 
 	wc := wechatConfig{}
 	if !config.Config.IsSet("wechat.appid") {
-		log.Fatal(exception.ConfigError)
+		log.Fatal("ConfigError")
 	}
 	if !config.Config.IsSet("wechat.appsecret") {
-		log.Fatal(exception.ConfigError)
+		log.Fatal("ConfigError")
 	}
 	wc.AppId = config.Config.GetString("wechat.appid")
 	wc.AppSecret = config.Config.GetString("wechat.appsecret")

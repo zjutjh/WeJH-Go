@@ -6,7 +6,6 @@ import (
 	"github.com/silenceper/wechat/v2/miniprogram"
 	miniConfig "github.com/silenceper/wechat/v2/miniprogram/config"
 	"log"
-	"wejh-go/exception"
 )
 
 type driver string
@@ -31,7 +30,7 @@ func init() {
 		wcCache = cache.NewMemory()
 		break
 	default:
-		log.Fatal(exception.ConfigError)
+		log.Fatal("ConfigError")
 	}
 
 	cfg := &miniConfig.Config{

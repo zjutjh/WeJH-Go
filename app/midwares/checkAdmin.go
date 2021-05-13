@@ -2,22 +2,19 @@ package midwares
 
 import (
 	"github.com/gin-gonic/gin"
+	"wejh-go/app/apiExpection"
 	"wejh-go/app/models"
 	"wejh-go/app/services/sessionServices"
-	"wejh-go/app/utils"
-	"wejh-go/app/utils/stateCode"
 )
 
 func CheckAdmin(c *gin.Context) {
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		utils.JsonFailedResponse(c, stateCode.NotLogin, nil)
-		c.Abort()
+		_ = c.AbortWithError(200, apiExpection.NotLogin)
 		return
 	}
 	if user.Type != models.Admin {
-		utils.JsonFailedResponse(c, stateCode.NotAdmin, nil)
-		c.Abort()
+		_ = c.AbortWithError(200, apiExpection.NotAdmin)
 		return
 	}
 	c.Next()
