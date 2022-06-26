@@ -11,7 +11,7 @@ import (
 )
 
 func funcRouterInit(r *gin.RouterGroup) {
-	fun := r.Group("func")
+	fun := r.Group("/func")
 	{
 		fun.POST("/canteen/flow", canteenController.GetCanteenFlowRate)
 		fun.POST("/bus", schoolBusController.GetBusList)

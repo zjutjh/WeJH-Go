@@ -7,7 +7,7 @@ import (
 )
 
 func userRouterInit(r *gin.RouterGroup) {
-	user := r.Group("user")
+	user := r.Group("/user")
 	{
 		user.POST("/create/student/wechat", userController.BindOrCreateStudentUserFromWechat)
 		user.POST("/create/student", userController.CreateStudentUser)
