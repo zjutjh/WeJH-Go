@@ -13,7 +13,7 @@ var (
 	OpenIDError           = NewError(http.StatusInternalServerError, 200500, "系统异常，请稍后重试!")
 	ParamError            = NewError(http.StatusInternalServerError, 200501, "参数错误")
 	UserNotFind           = NewError(http.StatusInternalServerError, 200502, "参数错误")
-	UserAlreadyExisted    = NewError(http.StatusInternalServerError, 200502, "参数错误")
+	UserAlreadyExisted    = NewError(http.StatusInternalServerError, 200508, "参数错误")
 	NotAdmin              = NewError(http.StatusInternalServerError, 200502, "参数错误")
 	NotLogin              = NewError(http.StatusInternalServerError, 200503, "未登录")
 	NoThatPasswordOrWrong = NewError(http.StatusInternalServerError, 200504, "密码错误")

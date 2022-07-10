@@ -25,7 +25,7 @@ func CreateStudentUser(username, password, studentID, IDCardNumber, email string
 	pass := hex.EncodeToString(h.Sum(nil))
 	cardDefPass := ""
 	if len(studentID) > 6 {
-		cardDefPass = studentID[len(studentID)-6 : len(studentID)-1]
+		cardDefPass = studentID[len(studentID)-6 : len(studentID)]
 	}
 
 	user := &models.User{

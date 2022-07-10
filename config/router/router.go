@@ -20,5 +20,4 @@ func Init(r *gin.Engine) {
 	{
 		initRouterInit(init)
 	}
-
 }
