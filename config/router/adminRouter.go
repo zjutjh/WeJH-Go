@@ -9,25 +9,29 @@ import (
 // 注册杂项路由
 func adminRouterInit(r *gin.RouterGroup) {
 
-	admin := r.Group("admin", midwares.CheckAdmin)
+	admin := r.Group("/admin", midwares.CheckAdmin)
 	{
-		announcement := admin.Group("announcement")
+		announcement := admin.Group("/announcement")
 		{
-			announcement.POST("create", adminController.CreateAnnouncement)
-			announcement.POST("delete", adminController.DeleteAnnouncement)
-			announcement.POST("update", adminController.UpdateAnnouncement)
+			announcement.POST("/create", adminController.CreateAnnouncement)
+			announcement.POST("/delete", adminController.DeleteAnnouncement)
+			announcement.POST("/update", adminController.UpdateAnnouncement)
 		}
-		applist := admin.Group("applist")
+		applist := admin.Group("/applist")
 		{
-			applist.POST("create", adminController.CreateApplist)
-			applist.POST("delete", adminController.DeleteApplist)
-			applist.POST("update", adminController.UpdateApplist)
+			applist.POST("/create", adminController.CreateApplist)
+			applist.POST("/delete", adminController.DeleteApplist)
+			applist.POST("/update", adminController.UpdateApplist)
 		}
-		schoolbus := admin.Group("schoolbus")
+		schoolbus := admin.Group("/schoolbus")
 		{
-			schoolbus.POST("create", adminController.CreateSchoolBus)
-			schoolbus.POST("delete", adminController.DeleteSchoolBus)
-			schoolbus.POST("update", adminController.UpdateSchoolBus)
+			schoolbus.POST("/create", adminController.CreateSchoolBus)
+			schoolbus.POST("/delete", adminController.DeleteSchoolBus)
+			schoolbus.POST("/update", adminController.UpdateSchoolBus)
 		}
+	}
+	reset := r.Group("/reset")
+	{
+		reset.Any("/init/reset", adminController.ResetInit)
 	}
 }

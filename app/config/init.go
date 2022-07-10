@@ -11,6 +11,5 @@ func ResetInit() error {
 }
 
 func GetInit() bool {
-
 	return getConfig(initKey) == "True"
 }

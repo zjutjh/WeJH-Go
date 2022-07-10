@@ -22,3 +22,6 @@ wechat: # 微信小程序相关配置 (切记不能泄漏）
 
 funnel:
   host: http://api.
+
+user:
+   host:
