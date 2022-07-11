@@ -24,3 +24,15 @@ func SetTermInfo(yearValue, termValue string, termStartDateValue time.Time) erro
 func GetTermInfo() (string, string, string) {
 	return getConfig(termYearKey), getConfig(termKey), getConfig(termStartDate)
 }
+
+func IsSetTermInfo() bool {
+	return checkConfig(termYearKey) && checkConfig(termKey) && checkConfig(termStartDate)
+}
+
+func DelTermInfo() []error {
+	var result []error
+	errTermYear := delConfig(termYearKey)
+	errTerm := delConfig(termKey)
+	errStartDate := delConfig(termStartDate)
+	return append(result, errTermYear, errTerm, errStartDate)
+}

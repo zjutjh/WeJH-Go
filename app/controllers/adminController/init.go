@@ -32,6 +32,20 @@ func ResetInit(c *gin.Context) {
 	if err != nil {
 		_ = c.AbortWithError(200, apiExpection.ServerError)
 	}
+	if config.IsSetEncryptKey() {
+		err = config.DelEncryptKey()
+		if err != nil {
+			_ = c.AbortWithError(200, apiExpection.ServerError)
+		}
+	}
+	if config.IsSetTermInfo() {
+		errors := config.DelTermInfo()
+		for _, err := range errors {
+			if err != nil {
+				_ = c.AbortWithError(200, apiExpection.ServerError)
+			}
+		}
+	}
 
 	utils.JsonSuccessResponse(c, nil)
 }
