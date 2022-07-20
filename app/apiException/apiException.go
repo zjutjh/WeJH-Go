@@ -1,4 +1,4 @@
-package apiExpection
+package apiException
 
 import "net/http"
 

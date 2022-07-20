@@ -3,7 +3,7 @@ package midwares
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"wejh-go/app/apiExpection"
+	"wejh-go/app/apiException"
 )
 
 func ErrHandler() gin.HandlerFunc {
@@ -14,13 +14,13 @@ func ErrHandler() gin.HandlerFunc {
 			e := c.Errors[length-1]
 			err := e.Err
 			if err != nil {
-				var Err *apiExpection.Error
-				if e, ok := err.(*apiExpection.Error); ok {
+				var Err *apiException.Error
+				if e, ok := err.(*apiException.Error); ok {
 					Err = e
 				} else if e, ok := err.(error); ok {
-					Err = apiExpection.OtherError(e.Error())
+					Err = apiException.OtherError(e.Error())
 				} else {
-					Err = apiExpection.ServerError
+					Err = apiException.ServerError
 				}
 				// 记录一个错误的日志
 
@@ -34,7 +34,7 @@ func ErrHandler() gin.HandlerFunc {
 
 // 404处理
 func HandleNotFound(c *gin.Context) {
-	err := apiExpection.NotFound
+	err := apiException.NotFound
 	c.JSON(err.StatusCode, err)
 	return
 }

@@ -2,7 +2,7 @@ package funnelServices
 
 import (
 	"net/url"
-	"wejh-go/app/apiExpection"
+	"wejh-go/app/apiException"
 	"wejh-go/app/models"
 	"wejh-go/config/api/funnelApi"
 )
@@ -19,7 +19,7 @@ func genTermForm(u *models.User, year, term string) url.Values {
 
 func GetClassTable(u *models.User, year, term string) (interface{}, error) {
 	if u.ZFPassword == "" {
-		return nil, apiExpection.NoThatPasswordOrWrong
+		return nil, apiException.NoThatPasswordOrWrong
 	}
 	form := genTermForm(u, year, term)
 	return FetchHandleOfPost(form, funnelApi.ZFClassTable)
@@ -27,7 +27,7 @@ func GetClassTable(u *models.User, year, term string) (interface{}, error) {
 
 func GetScore(u *models.User, year, term string) (interface{}, error) {
 	if u.ZFPassword == "" {
-		return nil, apiExpection.NoThatPasswordOrWrong
+		return nil, apiException.NoThatPasswordOrWrong
 	}
 	form := genTermForm(u, year, term)
 	return FetchHandleOfPost(form, funnelApi.ZFScore)
@@ -35,7 +35,7 @@ func GetScore(u *models.User, year, term string) (interface{}, error) {
 
 func GetExam(u *models.User, year, term string) (interface{}, error) {
 	if u.ZFPassword == "" {
-		return nil, apiExpection.NoThatPasswordOrWrong
+		return nil, apiException.NoThatPasswordOrWrong
 	}
 	form := genTermForm(u, year, term)
 	return FetchHandleOfPost(form, funnelApi.ZFExam)
@@ -43,7 +43,7 @@ func GetExam(u *models.User, year, term string) (interface{}, error) {
 
 func GetRoom(u *models.User, year, term, campus, weekday, week, sections string) (interface{}, error) {
 	if u.ZFPassword == "" {
-		return nil, apiExpection.NoThatPasswordOrWrong
+		return nil, apiException.NoThatPasswordOrWrong
 	}
 	form := genTermForm(u, year, term)
 	form.Add("campus", campus)

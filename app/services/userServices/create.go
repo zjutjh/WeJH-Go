@@ -4,7 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"time"
-	"wejh-go/app/apiExpection"
+	"wejh-go/app/apiException"
 	"wejh-go/app/models"
 	"wejh-go/app/services/userCenterServices"
 	"wejh-go/config/database"
@@ -12,7 +12,7 @@ import (
 
 func CreateStudentUser(username, password, studentID, IDCardNumber, email string) (*models.User, error) {
 	if !CheckUsername(username) {
-		return nil, apiExpection.UserAlreadyExisted
+		return nil, apiException.UserAlreadyExisted
 	}
 
 	err := userCenterServices.OldActiveStudent(studentID, password, IDCardNumber, email)
@@ -23,18 +23,14 @@ func CreateStudentUser(username, password, studentID, IDCardNumber, email string
 	h := sha256.New()
 	h.Write([]byte(password))
 	pass := hex.EncodeToString(h.Sum(nil))
-	cardDefPass := ""
-	if len(studentID) > 6 {
-		cardDefPass = studentID[len(studentID)-6 : len(studentID)]
-	}
 
 	user := &models.User{
 		JHPassword:   pass,
 		Username:     username,
 		Type:         models.Undergraduate,
 		StudentID:    studentID,
-		LibPassword:  studentID,
-		CardPassword: cardDefPass,
+		LibPassword:  "",
+		CardPassword: "",
 		CreateTime:   time.Now(),
 	}
 
@@ -46,7 +42,7 @@ func CreateStudentUser(username, password, studentID, IDCardNumber, email string
 
 func CreateStudentUserWechat(username, password, studentID, IDCardNumber, email, wechatOpenID string) (*models.User, error) {
 	if !CheckWechatOpenID(wechatOpenID) {
-		return nil, apiExpection.OpenIDError
+		return nil, apiException.OpenIDError
 	}
 	user, err := CreateStudentUser(username, password, studentID, IDCardNumber, email)
 	if err != nil {

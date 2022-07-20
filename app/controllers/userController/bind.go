@@ -2,7 +2,7 @@ package userController
 
 import (
 	"github.com/gin-gonic/gin"
-	"wejh-go/app/apiExpection"
+	"wejh-go/app/apiException"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
@@ -16,12 +16,12 @@ func BindZFPassword(c *gin.Context) {
 	var postForm bindForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.ParamError)
+		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.NotLogin)
+		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
 	err = userServices.SetZFPassword(user, postForm.PassWord)
@@ -35,12 +35,12 @@ func BindLibraryPassword(c *gin.Context) {
 	var postForm bindForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.ParamError)
+		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.NotLogin)
+		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
 	err = userServices.SetLibraryPassword(user, postForm.PassWord)
@@ -55,12 +55,12 @@ func BindSchoolCardPassword(c *gin.Context) {
 	var postForm bindForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.ParamError)
+		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.NotLogin)
+		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
 	err = userServices.SetCardPassword(user, postForm.PassWord)

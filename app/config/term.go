@@ -1,14 +1,10 @@
 package config
 
-import (
-	"time"
-)
-
 const termYearKey = "termYearKey"
 const termKey = "termKey"
 const termStartDate = "termStartDate"
 
-func SetTermInfo(yearValue, termValue string, termStartDateValue time.Time) error {
+func SetTermInfo(yearValue, termValue, termStartDateValue string) error {
 	err := setConfig(termYearKey, yearValue)
 	if err != nil {
 		return err
@@ -17,7 +13,7 @@ func SetTermInfo(yearValue, termValue string, termStartDateValue time.Time) erro
 	if err != nil {
 		return err
 	}
-	err = setConfig(termStartDate, termStartDateValue.String())
+	err = setConfig(termStartDate, termStartDateValue)
 	return err
 }
 

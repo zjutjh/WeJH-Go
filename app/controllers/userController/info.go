@@ -2,7 +2,7 @@ package userController
 
 import (
 	"github.com/gin-gonic/gin"
-	"wejh-go/app/apiExpection"
+	"wejh-go/app/apiException"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/utils"
 )
@@ -10,7 +10,7 @@ import (
 func GetUserInfo(c *gin.Context) {
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.NotLogin)
+		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
 	utils.JsonSuccessResponse(c, gin.H{

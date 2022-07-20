@@ -2,7 +2,7 @@ package userController
 
 import (
 	"github.com/gin-gonic/gin"
-	"wejh-go/app/apiExpection"
+	"wejh-go/app/apiException"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
@@ -31,14 +31,14 @@ func BindOrCreateStudentUserFromWechat(c *gin.Context) {
 	var postForm createStudentUserWechatForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.ParamError)
+		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
 
 	session, err := wechat.MiniProgram.GetAuth().Code2Session(postForm.Code)
 
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.OpenIDError)
+		_ = c.AbortWithError(200, apiException.OpenIDError)
 		return
 	}
 
@@ -50,12 +50,12 @@ func BindOrCreateStudentUserFromWechat(c *gin.Context) {
 		postForm.Email,
 		session.OpenID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.UserAlreadyExisted)
+		_ = c.AbortWithError(200, apiException.UserAlreadyExisted)
 		return
 	}
 	err = sessionServices.SetUserSession(c, user)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.ServerError)
+		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -65,7 +65,7 @@ func CreateStudentUser(c *gin.Context) {
 	var postForm createStudentUserForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.ParamError)
+		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
 	user, err := userServices.CreateStudentUser(
@@ -75,12 +75,12 @@ func CreateStudentUser(c *gin.Context) {
 		postForm.IDCardNumber,
 		postForm.Email)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.UserAlreadyExisted)
+		_ = c.AbortWithError(200, apiException.UserAlreadyExisted)
 		return
 	}
 	err = sessionServices.SetUserSession(c, user)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.ServerError)
+		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)

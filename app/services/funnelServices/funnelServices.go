@@ -3,7 +3,7 @@ package funnelServices
 import (
 	"encoding/json"
 	"net/url"
-	"wejh-go/app/apiExpection"
+	"wejh-go/app/apiException"
 	"wejh-go/app/utils/fetch"
 	"wejh-go/config/api/funnelApi"
 )
@@ -19,32 +19,32 @@ func FetchHandleOfPost(form url.Values, url funnelApi.FunnelApi) (interface{}, e
 	f.Init()
 	res, err := f.PostForm(funnelApi.FunnelHost+string(url), form)
 	if err != nil {
-		return nil, apiExpection.RequestError
+		return nil, apiException.RequestError
 	}
 	rc := FunnelResponse{}
 	err = json.Unmarshal(res, &rc)
 	if err != nil {
-		return nil, apiExpection.RequestError
+		return nil, apiException.RequestError
 	}
 	i := 0
 	for rc.Code == 413 && i < 5 {
 		i++
 		res, err = f.PostForm(funnelApi.FunnelHost+string(url), form)
 		if err != nil {
-			return nil, apiExpection.RequestError
+			return nil, apiException.RequestError
 		}
 		rc = FunnelResponse{}
 		err = json.Unmarshal(res, &rc)
 		if err != nil {
-			return nil, apiExpection.RequestError
+			return nil, apiException.RequestError
 		}
 	}
 
 	if rc.Code == 413 {
-		return rc.Data, apiExpection.ServerError
+		return rc.Data, apiException.ServerError
 	}
 	if rc.Code == 412 {
-		return rc.Data, apiExpection.NoThatPasswordOrWrong
+		return rc.Data, apiException.NoThatPasswordOrWrong
 	}
 	return rc.Data, nil
 }
@@ -53,12 +53,12 @@ func FetchHandleOfGet(url funnelApi.FunnelApi) (interface{}, error) {
 	f.Init()
 	res, err := f.Get(funnelApi.FunnelHost + string(url))
 	if err != nil {
-		return nil, apiExpection.RequestError
+		return nil, apiException.RequestError
 	}
 	rc := FunnelResponse{}
 	err = json.Unmarshal(res, &rc)
 	if err != nil {
-		return nil, apiExpection.RequestError
+		return nil, apiException.RequestError
 	}
 	return rc.Data, nil
 }
