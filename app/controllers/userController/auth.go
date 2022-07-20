@@ -2,7 +2,7 @@ package userController
 
 import (
 	"github.com/gin-gonic/gin"
-	"wejh-go/app/apiExpection"
+	"wejh-go/app/apiException"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
@@ -24,18 +24,18 @@ func AuthByPassword(c *gin.Context) {
 	err := c.ShouldBindJSON(&postForm)
 
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.ParamError)
+		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
 	user, err := userServices.GetUserByUsernameAndPassword(postForm.Username, postForm.Password)
 	if err != nil || user == nil {
-		_ = c.AbortWithError(200, apiExpection.NoThatPasswordOrWrong)
+		_ = c.AbortWithError(200, apiException.NoThatPasswordOrWrong)
 		return
 	}
 
 	err = sessionServices.SetUserSession(c, user)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.ServerError)
+		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 	utils.JsonSuccessResponse(c, gin.H{
@@ -60,7 +60,7 @@ func WeChatLogin(c *gin.Context) {
 	err := c.ShouldBindJSON(&postForm)
 
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.ParamError)
+		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
 
@@ -68,20 +68,20 @@ func WeChatLogin(c *gin.Context) {
 
 	if err != nil {
 		println(err.Error())
-		_ = c.AbortWithError(200, apiExpection.OpenIDError)
+		_ = c.AbortWithError(200, apiException.OpenIDError)
 		return
 	}
 
 	user := userServices.GetUserByWechatOpenID(session.OpenID)
 
 	if user == nil {
-		_ = c.AbortWithError(200, apiExpection.UserNotFind)
+		_ = c.AbortWithError(200, apiException.UserNotFind)
 		return
 	}
 
 	err = sessionServices.SetUserSession(c, user)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.ServerError)
+		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 	utils.JsonSuccessResponse(c, gin.H{

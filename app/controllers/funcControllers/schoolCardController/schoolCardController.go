@@ -2,7 +2,7 @@ package schoolCardController
 
 import (
 	"github.com/gin-gonic/gin"
-	"wejh-go/app/apiExpection"
+	"wejh-go/app/apiException"
 	"wejh-go/app/services/funnelServices"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/utils"
@@ -11,7 +11,7 @@ import (
 func GetBalance(c *gin.Context) {
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.NotLogin)
+		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
 	balance, err := funnelServices.GetCardBalance(user)
@@ -25,7 +25,7 @@ func GetBalance(c *gin.Context) {
 func GetToday(c *gin.Context) {
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.NotLogin)
+		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
 	balance, err := funnelServices.GetCardToday(user)
@@ -45,12 +45,12 @@ func GetHistory(c *gin.Context) {
 	var postForm historyForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.ParamError)
+		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiExpection.NotLogin)
+		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
 	list, err := funnelServices.GetCardHistory(user, postForm.Year, postForm.Month)

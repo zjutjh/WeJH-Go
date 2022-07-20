@@ -45,3 +45,20 @@ func setConfig(key, value string) error {
 	}
 	return res.Error
 }
+
+func checkConfig(key string) bool {
+	intCmd := redis.RedisClient.Exists(ctx, key)
+	if intCmd.Val() == 1 {
+		return true
+	} else {
+		return false
+	}
+}
+
+func delConfig(key string) error {
+	redis.RedisClient.Del(ctx, key)
+	res := database.DB.Delete(&models.Config{
+		Key: key,
+	})
+	return res.Error
+}
