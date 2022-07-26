@@ -31,6 +31,8 @@ func CreateStudentUser(username, password, studentID, IDCardNumber, email string
 		StudentID:    studentID,
 		LibPassword:  "",
 		CardPassword: "",
+		PhoneNum:     "",
+		YXYUid:       "",
 		CreateTime:   time.Now(),
 	}
 
