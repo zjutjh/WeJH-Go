@@ -39,3 +39,15 @@ func SetLibraryPassword(user *models.User, password string) error {
 	database.DB.Save(user)
 	return nil
 }
+
+func SetPhoneNum(user *models.User, phoneNum string) {
+	user.PhoneNum = phoneNum
+	EncryptUserKeyInfo(user)
+	database.DB.Save(user)
+}
+
+func SetYxyUid(user *models.User, yxyUid string) {
+	user.YXYUid = yxyUid
+	EncryptUserKeyInfo(user)
+	database.DB.Save(user)
+}

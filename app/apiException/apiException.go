@@ -17,6 +17,8 @@ var (
 	NotAdmin              = NewError(http.StatusInternalServerError, 200502, "参数错误")
 	NotLogin              = NewError(http.StatusInternalServerError, 200503, "未登录")
 	NoThatPasswordOrWrong = NewError(http.StatusInternalServerError, 200504, "密码错误")
+	NotBindYxy            = NewError(http.StatusInternalServerError, 200507, "该用户未绑定")
+	WrongVerificationCode = NewError(http.StatusInternalServerError, 200509, "验证码错误")
 	HttpTimeout           = NewError(http.StatusInternalServerError, 200505, "系统异常，请稍后重试!")
 	RequestError          = NewError(http.StatusInternalServerError, 200506, "系统异常，请稍后重试!")
 	NotInit               = NewError(http.StatusNotFound, 200404, http.StatusText(http.StatusNotFound))
