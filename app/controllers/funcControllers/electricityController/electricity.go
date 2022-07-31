@@ -1,10 +1,10 @@
 package electricityController
 
 /*
-#cgo CFLAGS: -I./lib
-#cgo LDFLAGS: -L./lib -lyxy
+#cgo CFLAGS: -I${SRCDIR}/lib
+#cgo LDFLAGS: -L${SRCDIR}/lib -lyxy
 #include <stdlib.h>
-#include "./lib/yxy.h"
+#include "../../../../include/yxy.h"
 */
 import "C"
 

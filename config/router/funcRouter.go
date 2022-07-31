@@ -19,7 +19,7 @@ func funcRouterInit(r *gin.RouterGroup) {
 
 		yxy := fun.Group("/yxy", midwares.CheckLogin)
 		{
-			yxy.Any("/electricity", electricityController.GetElectricity)
+			yxy.GET("/electricity", electricityController.GetElectricity)
 		}
 
 		card := fun.Group("/card", midwares.CheckLogin)

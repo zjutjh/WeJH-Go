@@ -13,7 +13,6 @@ func Info(c *gin.Context) {
 	currentTime := time.Now()
 
 	week := (currentTime.Unix()-startTime.Unix())/3600/24/7 + 1
-	println(week)
 	utils.JsonSuccessResponse(c, gin.H{
 		"time":          time.Now(),
 		"is_begin":      week > 0,

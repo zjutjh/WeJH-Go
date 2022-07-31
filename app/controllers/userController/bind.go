@@ -1,10 +1,10 @@
 package userController
 
 /*
-#cgo CFLAGS: -I./lib
-#cgo LDFLAGS: -L./lib -lyxy
+#cgo CFLAGS: -I${SRCDIR}/lib
+#cgo LDFLAGS: -L${SRCDIR}/lib -lyxy
 #include <stdlib.h>
-#include "./lib/yxy.h"
+#include "../../../include/yxy.h"
 */
 import "C"
 
@@ -118,7 +118,7 @@ func BindPhoneNum(c *gin.Context) {
 			return
 		}
 	} else {
-		var imageResult C.CString
+		var imageResult *C.char
 		errCode = C.get_captcha_image(&loginHandle, securityTokenResult.token, &imageResult)
 		if errCode != 0 {
 			_ = c.AbortWithError(200, apiException.ServerError)
