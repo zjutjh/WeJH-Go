@@ -14,7 +14,6 @@ func GetCurrentBorrow(u *models.User) (interface{}, error) {
 	form := url.Values{}
 	form.Add("username", u.StudentID)
 	form.Add("password", u.LibPassword)
-	println(u.LibPassword)
 	return FetchHandleOfPost(form, funnelApi.LibraryCurrent)
 }
 

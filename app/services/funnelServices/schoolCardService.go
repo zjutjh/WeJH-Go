@@ -15,7 +15,6 @@ func GetCardBalance(u *models.User) (interface{}, error) {
 	form := url.Values{}
 	form.Add("username", u.StudentID)
 	form.Add("password", u.CardPassword)
-	println(u.CardPassword)
 	return FetchHandleOfPost(form, funnelApi.CardBalance)
 }
 

@@ -69,7 +69,6 @@ func WeChatLogin(c *gin.Context) {
 	session, err := wechat.MiniProgram.GetAuth().Code2Session(postForm.Code)
 
 	if err != nil {
-		println(err.Error())
 		_ = c.AbortWithError(200, apiException.OpenIDError)
 		return
 	}
