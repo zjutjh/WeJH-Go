@@ -1,7 +1,10 @@
 package userCenterServices
 
 import (
+	"encoding/json"
 	"net/url"
+	"wejh-go/app/apiException"
+	"wejh-go/app/models"
 	"wejh-go/app/utils/fetch"
 	"wejh-go/config/api/userCenterApi"
 )
@@ -14,9 +17,26 @@ func OldAuthStudent(username, password string) error {
 	form.Add("action", "login")
 	form.Add("username", username)
 	form.Add("password", password)
-	_, err := f.Get(userCenterApi.UserCenterHost + "?" + form.Encode())
+	res, err := f.Get(userCenterApi.UserCenterHost + "?" + form.Encode())
 	if err != nil {
 		return err
+	}
+
+	var resp models.OldInfo
+
+	err = json.Unmarshal(res, &resp)
+	if err != nil {
+		return err
+	}
+
+	if resp.State == "error" {
+		if resp.Info == "该学号和身份证不存在或者不匹配，请重新输入" {
+			return apiException.StudentNumError
+		} else if resp.Info == "密码长度必须在6~20位之间" {
+			return apiException.PwdError
+		} else if resp.Info == "该通行证已经存在，请重新输入" {
+			return apiException.ReactiveError
+		}
 	}
 	return nil
 }
@@ -31,11 +51,28 @@ func OldActiveStudent(username, password, iid, email string) error {
 	form.Add("password", password)
 	form.Add("iid", iid)
 	form.Add("email", email)
-	_, err := f.Get(userCenterApi.UserCenterHost + "?" + form.Encode())
+	res, err := f.Get(userCenterApi.UserCenterHost + "api.php?" + form.Encode())
 	if err != nil {
 		return err
 	}
-	return nil // To-do impl it
+
+	var resp models.OldInfo
+
+	err = json.Unmarshal(res, &resp)
+	if err != nil {
+		return err
+	}
+
+	if resp.State == "error" {
+		if resp.Info == "该学号和身份证不存在或者不匹配，请重新输入" {
+			return apiException.StudentNumError
+		} else if resp.Info == "密码长度必须在6~20位之间" {
+			return apiException.PwdError
+		} else if resp.Info == "该通行证已经存在，请重新输入" {
+			return apiException.ReactiveError
+		}
+	}
+	return nil
 }
 
 func OldResetStudent(username, password, iid string) error {
@@ -47,9 +84,26 @@ func OldResetStudent(username, password, iid string) error {
 	form.Add("username", username)
 	form.Add("password", password)
 	form.Add("iid", iid)
-	_, err := f.Get(userCenterApi.UserCenterHost + "?" + form.Encode())
+	res, err := f.Get(userCenterApi.UserCenterHost + "?" + form.Encode())
 	if err != nil {
 		return err
+	}
+
+	var resp models.OldInfo
+
+	err = json.Unmarshal(res, &resp)
+	if err != nil {
+		return err
+	}
+
+	if resp.State == "error" {
+		if resp.Info == "该学号和身份证不存在或者不匹配，请重新输入" {
+			return apiException.StudentNumError
+		} else if resp.Info == "密码长度必须在6~20位之间" {
+			return apiException.PwdError
+		} else if resp.Info == "该通行证已经存在，请重新输入" {
+			return apiException.ReactiveError
+		}
 	}
 	return nil
 }

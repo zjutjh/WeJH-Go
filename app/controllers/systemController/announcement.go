@@ -8,7 +8,7 @@ import (
 )
 
 func GetAnnouncement(c *gin.Context) {
-	announcements, err := announcementServices.GetAnnouncements(10)
+	announcements, err := announcementServices.GetAnnouncements(20)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 	} else {
