@@ -16,7 +16,7 @@ func CreateStudentUser(username, password, studentID, IDCardNumber, email string
 	}
 
 	err := userCenterServices.OldActiveStudent(studentID, password, IDCardNumber, email)
-	if err != nil {
+	if err != nil && err != apiException.ReactiveError {
 		return nil, err
 	}
 
@@ -47,7 +47,7 @@ func CreateStudentUserWechat(username, password, studentID, IDCardNumber, email,
 		return nil, apiException.OpenIDError
 	}
 	user, err := CreateStudentUser(username, password, studentID, IDCardNumber, email)
-	if err != nil {
+	if err != nil && err != apiException.ReactiveError {
 		return nil, err
 	}
 	user.WechatOpenID = wechatOpenID

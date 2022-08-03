@@ -49,10 +49,15 @@ func BindOrCreateStudentUserFromWechat(c *gin.Context) {
 		postForm.IDCardNumber,
 		postForm.Email,
 		session.OpenID)
-	if err != nil {
+	if err == apiException.StudentNumError ||
+		err == apiException.PwdError {
+		_ = c.AbortWithError(200, err)
+		return
+	} else if err != nil && err != apiException.ReactiveError {
 		_ = c.AbortWithError(200, apiException.UserAlreadyExisted)
 		return
 	}
+
 	err = sessionServices.SetUserSession(c, user)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
@@ -63,8 +68,8 @@ func BindOrCreateStudentUserFromWechat(c *gin.Context) {
 
 func CreateStudentUser(c *gin.Context) {
 	var postForm createStudentUserForm
-	err := c.ShouldBindJSON(&postForm)
-	if err != nil {
+	errBind := c.ShouldBindJSON(&postForm)
+	if errBind != nil {
 		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
@@ -74,10 +79,15 @@ func CreateStudentUser(c *gin.Context) {
 		postForm.StudentID,
 		postForm.IDCardNumber,
 		postForm.Email)
-	if err != nil {
+	if err == apiException.StudentNumError ||
+		err == apiException.PwdError {
+		_ = c.AbortWithError(200, err)
+		return
+	} else if err != nil && err != apiException.ReactiveError {
 		_ = c.AbortWithError(200, apiException.UserAlreadyExisted)
 		return
 	}
+
 	err = sessionServices.SetUserSession(c, user)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
