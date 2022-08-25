@@ -5,6 +5,7 @@ import (
 	"wejh-go/app/apiException"
 	"wejh-go/app/services/funnelServices"
 	"wejh-go/app/services/sessionServices"
+	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
 )
 
@@ -16,6 +17,9 @@ func GetBalance(c *gin.Context) {
 	}
 	balance, err := funnelServices.GetCardBalance(user)
 	if err != nil {
+		if err == apiException.NoThatPasswordOrWrong {
+			userServices.DelPassword(user, "Card")
+		}
 		_ = c.AbortWithError(200, err)
 		return
 	}
@@ -30,6 +34,9 @@ func GetToday(c *gin.Context) {
 	}
 	balance, err := funnelServices.GetCardToday(user)
 	if err != nil {
+		if err == apiException.NoThatPasswordOrWrong {
+			userServices.DelPassword(user, "Card")
+		}
 		_ = c.AbortWithError(200, err)
 		return
 	}
@@ -55,6 +62,9 @@ func GetHistory(c *gin.Context) {
 	}
 	list, err := funnelServices.GetCardHistory(user, postForm.Year, postForm.Month)
 	if err != nil {
+		if err == apiException.NoThatPasswordOrWrong {
+			userServices.DelPassword(user, "Card")
+		}
 		_ = c.AbortWithError(200, err)
 		return
 	}

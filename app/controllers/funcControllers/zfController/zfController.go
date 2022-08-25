@@ -5,6 +5,7 @@ import (
 	"wejh-go/app/apiException"
 	"wejh-go/app/services/funnelServices"
 	"wejh-go/app/services/sessionServices"
+	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
 )
 
@@ -28,6 +29,9 @@ func GetClassTable(c *gin.Context) {
 	}
 	result, err := funnelServices.GetClassTable(user, postForm.Year, postForm.Term)
 	if err != nil {
+		if err == apiException.NoThatPasswordOrWrong {
+			userServices.DelPassword(user, "ZF")
+		}
 		_ = c.AbortWithError(200, err)
 		return
 	}
@@ -50,6 +54,9 @@ func GetScore(c *gin.Context) {
 
 	result, err := funnelServices.GetScore(user, postForm.Year, postForm.Term)
 	if err != nil {
+		if err == apiException.NoThatPasswordOrWrong {
+			userServices.DelPassword(user, "ZF")
+		}
 		_ = c.AbortWithError(200, err)
 		return
 	}
@@ -71,6 +78,9 @@ func GetExam(c *gin.Context) {
 	}
 	result, err := funnelServices.GetExam(user, postForm.Year, postForm.Term)
 	if err != nil {
+		if err == apiException.NoThatPasswordOrWrong {
+			userServices.DelPassword(user, "ZF")
+		}
 		_ = c.AbortWithError(200, err)
 		return
 	}
@@ -101,6 +111,9 @@ func GetRoom(c *gin.Context) {
 	}
 	result, err := funnelServices.GetRoom(user, postForm.Year, postForm.Term, postForm.Campus, postForm.Weekday, postForm.Week, postForm.Sections)
 	if err != nil {
+		if err == apiException.NoThatPasswordOrWrong {
+			userServices.DelPassword(user, "ZF")
+		}
 		_ = c.AbortWithError(200, err)
 		return
 	}
