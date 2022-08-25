@@ -51,3 +51,22 @@ func SetYxyUid(user *models.User, yxyUid string) {
 	EncryptUserKeyInfo(user)
 	database.DB.Save(user)
 }
+
+func DelPassword(user *models.User, passwordType string) {
+	switch passwordType {
+	case "ZF":
+		{
+			user.ZFPassword = ""
+		}
+	case "Library":
+		{
+			user.LibPassword = ""
+		}
+	case "Card":
+		{
+			user.CardPassword = ""
+		}
+	}
+	EncryptUserKeyInfo(user)
+	database.DB.Save(user)
+}
