@@ -23,6 +23,10 @@ func GetBalance(c *gin.Context) {
 		_ = c.AbortWithError(200, err)
 		return
 	}
+	if balance == nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
 	utils.JsonSuccessResponse(c, gin.H{"balance": balance})
 }
 
@@ -38,6 +42,10 @@ func GetToday(c *gin.Context) {
 			userServices.DelPassword(user, "Card")
 		}
 		_ = c.AbortWithError(200, err)
+		return
+	}
+	if balance == nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 	utils.JsonSuccessResponse(c, balance)
@@ -66,6 +74,10 @@ func GetHistory(c *gin.Context) {
 			userServices.DelPassword(user, "Card")
 		}
 		_ = c.AbortWithError(200, err)
+		return
+	}
+	if list == nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 	utils.JsonSuccessResponse(c, list)

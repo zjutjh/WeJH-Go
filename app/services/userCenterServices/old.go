@@ -31,7 +31,7 @@ func OldAuthStudent(username, password string) error {
 
 	if resp.State == "error" {
 		if resp.Info == "该学号和身份证不存在或者不匹配，请重新输入" {
-			return apiException.StudentNumError
+			return apiException.StudentNumAndIidError
 		} else if resp.Info == "密码长度必须在6~20位之间" {
 			return apiException.PwdError
 		} else if resp.Info == "该通行证已经存在，请重新输入" {
@@ -62,14 +62,15 @@ func OldActiveStudent(username, password, iid, email string) error {
 	if err != nil {
 		return err
 	}
-
 	if resp.State == "error" {
 		if resp.Info == "该学号和身份证不存在或者不匹配，请重新输入" {
-			return apiException.StudentNumError
+			return apiException.StudentNumAndIidError
 		} else if resp.Info == "密码长度必须在6~20位之间" {
 			return apiException.PwdError
 		} else if resp.Info == "该通行证已经存在，请重新输入" {
 			return apiException.ReactiveError
+		} else if resp.Info == "学号格式不正确，请重新输入" {
+			return apiException.StudentIdError
 		}
 	}
 	return nil
@@ -98,7 +99,7 @@ func OldResetStudent(username, password, iid string) error {
 
 	if resp.State == "error" {
 		if resp.Info == "该学号和身份证不存在或者不匹配，请重新输入" {
-			return apiException.StudentNumError
+			return apiException.StudentNumAndIidError
 		} else if resp.Info == "密码长度必须在6~20位之间" {
 			return apiException.PwdError
 		} else if resp.Info == "该通行证已经存在，请重新输入" {

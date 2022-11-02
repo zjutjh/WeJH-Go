@@ -11,8 +11,9 @@ func Info(c *gin.Context) {
 	year, term, startTimeString := config.GetTermInfo()
 	startTime, _ := time.Parse("2006-01-02", startTimeString) // 学期开始的时间
 	currentTime := time.Now()
+	schoolBusUrl := config.GetSchoolBusUrl()
 
-	week := (currentTime.Unix()-startTime.Unix())/3600/24/7 + 1
+	week := ((currentTime.Unix()-startTime.Unix())/3600+8)/24/7 + 1
 	utils.JsonSuccessResponse(c, gin.H{
 		"time":          time.Now(),
 		"is_begin":      week > 0,
@@ -20,6 +21,7 @@ func Info(c *gin.Context) {
 		"termYear":      year,
 		"term":          term,
 		"week":          week,
+		"schoolBusUrl":  schoolBusUrl,
 	})
 
 }
