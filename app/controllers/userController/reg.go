@@ -2,6 +2,7 @@ package userController
 
 import (
 	"github.com/gin-gonic/gin"
+	"strings"
 	"wejh-go/app/apiException"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/userServices"
@@ -41,7 +42,9 @@ func BindOrCreateStudentUserFromWechat(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.OpenIDError)
 		return
 	}
-
+	postForm.StudentID = strings.ToUpper(postForm.StudentID)
+	postForm.Username = strings.ToUpper(postForm.Username)
+	postForm.IDCardNumber = strings.ToUpper(postForm.IDCardNumber)
 	user, err := userServices.CreateStudentUserWechat(
 		postForm.Username,
 		postForm.Password,
@@ -49,12 +52,8 @@ func BindOrCreateStudentUserFromWechat(c *gin.Context) {
 		postForm.IDCardNumber,
 		postForm.Email,
 		session.OpenID)
-	if err == apiException.StudentNumError ||
-		err == apiException.PwdError {
+	if err != nil && err != apiException.ReactiveError {
 		_ = c.AbortWithError(200, err)
-		return
-	} else if err != nil && err != apiException.ReactiveError {
-		_ = c.AbortWithError(200, apiException.UserAlreadyExisted)
 		return
 	}
 
@@ -73,18 +72,17 @@ func CreateStudentUser(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
+	postForm.StudentID = strings.ToUpper(postForm.StudentID)
+	postForm.Username = strings.ToUpper(postForm.Username)
+	postForm.IDCardNumber = strings.ToUpper(postForm.IDCardNumber)
 	user, err := userServices.CreateStudentUser(
 		postForm.Username,
 		postForm.Password,
 		postForm.StudentID,
 		postForm.IDCardNumber,
 		postForm.Email)
-	if err == apiException.StudentNumError ||
-		err == apiException.PwdError {
+	if err != nil && err != apiException.ReactiveError {
 		_ = c.AbortWithError(200, err)
-		return
-	} else if err != nil && err != apiException.ReactiveError {
-		_ = c.AbortWithError(200, apiException.UserAlreadyExisted)
 		return
 	}
 
