@@ -43,7 +43,7 @@ func funcRouterInit(r *gin.RouterGroup) {
 			zf.POST("/exam", zfController.GetExam)
 			zf.POST("/room", zfController.GetRoom)
 			zf.POST("/score", zfController.GetScore)
-
+			zf.POST("/midtermscore", zfController.GetMidTermScore)
 		}
 
 	}

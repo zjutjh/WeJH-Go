@@ -93,7 +93,7 @@ func WeChatLogin(c *gin.Context) {
 			"bind": gin.H{
 				"zf":   user.ZFPassword != "",
 				"lib":  user.LibPassword != "",
-				"card": user.CardPassword != "",
+				"card": false,
 				"yxy":  user.YXYUid != "",
 			},
 			"userType":   user.Type,

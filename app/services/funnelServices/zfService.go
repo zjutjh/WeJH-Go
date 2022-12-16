@@ -33,6 +33,14 @@ func GetScore(u *models.User, year, term string) (interface{}, error) {
 	return FetchHandleOfPost(form, funnelApi.ZFScore)
 }
 
+func GetMidTermScore(u *models.User, year, term string) (interface{}, error) {
+	if u.ZFPassword == "" {
+		return nil, apiException.NoThatPasswordOrWrong
+	}
+	form := genTermForm(u, year, term)
+	return FetchHandleOfPost(form, funnelApi.ZFMidTermScore)
+}
+
 func GetExam(u *models.User, year, term string) (interface{}, error) {
 	if u.ZFPassword == "" {
 		return nil, apiException.NoThatPasswordOrWrong

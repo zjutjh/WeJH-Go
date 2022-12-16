@@ -63,6 +63,31 @@ func GetScore(c *gin.Context) {
 	utils.JsonSuccessResponse(c, result)
 }
 
+func GetMidTermScore(c *gin.Context) {
+	var postForm form
+	err := c.ShouldBindJSON(&postForm)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ParamError)
+		return
+	}
+	user, err := sessionServices.GetUserSession(c)
+
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.NotLogin)
+		return
+	}
+
+	result, err := funnelServices.GetMidTermScore(user, postForm.Year, postForm.Term)
+	if err != nil {
+		if err == apiException.NoThatPasswordOrWrong {
+			userServices.DelPassword(user, "ZF")
+		}
+		_ = c.AbortWithError(200, err)
+		return
+	}
+	utils.JsonSuccessResponse(c, result)
+}
+
 func GetExam(c *gin.Context) {
 	var postForm form
 	err := c.ShouldBindJSON(&postForm)
