@@ -9,6 +9,7 @@ type FunnelApi string
 const (
 	ZFClassTable   FunnelApi = "student/zf/table"
 	ZFScore        FunnelApi = "student/zf/score"
+	ZFMidTermScore FunnelApi = "student/zf/midtermscore"
 	ZFExam         FunnelApi = "student/zf/exam"
 	ZFRoom         FunnelApi = "student/zf/room"
 	CardHistory    FunnelApi = "student/card/history"
