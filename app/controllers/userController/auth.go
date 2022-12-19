@@ -1,6 +1,8 @@
 package userController
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"github.com/gin-gonic/gin"
 	"wejh-go/app/apiException"
 	"wejh-go/app/services/sessionServices"
@@ -27,8 +29,16 @@ func AuthByPassword(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
-	user, err := userServices.GetUserByUsernameAndPassword(postForm.Username, postForm.Password)
-	if err != nil || user == nil {
+	user, err := userServices.GetUserByUsername(postForm.Username)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.UserNotFind)
+		return
+	}
+
+	h := sha256.New()
+	h.Write([]byte(postForm.Password))
+	pass := hex.EncodeToString(h.Sum(nil))
+	if user.JHPassword != pass {
 		_ = c.AbortWithError(200, apiException.NoThatPasswordOrWrong)
 		return
 	}
@@ -60,21 +70,18 @@ func AuthByPassword(c *gin.Context) {
 func WeChatLogin(c *gin.Context) {
 	var postForm autoLoginForm
 	err := c.ShouldBindJSON(&postForm)
-
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
 
 	session, err := wechat.MiniProgram.GetAuth().Code2Session(postForm.Code)
-
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.OpenIDError)
 		return
 	}
 
 	user := userServices.GetUserByWechatOpenID(session.OpenID)
-
 	if user == nil {
 		_ = c.AbortWithError(200, apiException.UserNotFind)
 		return

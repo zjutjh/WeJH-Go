@@ -29,9 +29,6 @@ func adminRouterInit(r *gin.RouterGroup) {
 			schoolbus.POST("/delete", adminController.DeleteSchoolBus)
 			schoolbus.POST("/update", adminController.UpdateSchoolBus)
 		}
-	}
-	reset := r.Group("/reset")
-	{
-		reset.Any("/init/reset", adminController.ResetInit)
+		admin.GET("/reset", adminController.ResetInit)
 	}
 }

@@ -10,17 +10,17 @@ import (
 )
 
 type createSchoolBusForm struct {
-	Line      int
-	From      string
-	To        string
-	StartTime time.Time
+	Line      int       `json:"line" binding:"required"`
+	From      string    `json:"from" binging:"required"`
+	To        string    `json:"to" binging:"required"`
+	StartTime time.Time `json:"startTime" binging:"required" gorm:"type:timestamp;"`
 }
 type updateSchoolBusForm struct {
-	ID        int `json:"id" binding:"required"`
-	Line      int
-	From      string
-	To        string
-	StartTime time.Time
+	ID        int       `json:"id" binding:"required"`
+	Line      int       `json:"line" binding:"required"`
+	From      string    `json:"from" binging:"required"`
+	To        string    `json:"to" binging:"required"`
+	StartTime time.Time `json:"startTime" binging:"required" gorm:"type:timestamp;"`
 }
 type deleteSchoolBusForm struct {
 	ID int `json:"id" binding:"required"`
