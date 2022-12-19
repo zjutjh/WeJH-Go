@@ -56,7 +56,7 @@ func GetUserByUsernameAndPassword(username, password string) (*models.User, erro
 	return &user, nil
 }
 
-func GetUserByUsername(username string) *models.User {
+func GetUserByUsername(username string) (*models.User, error) {
 	user := models.User{}
 	result := database.DB.Where(
 		&models.User{
@@ -65,10 +65,10 @@ func GetUserByUsername(username string) *models.User {
 	).First(&user)
 
 	if result.Error != nil {
-		return nil
+		return nil, result.Error
 	}
 	DecryptUserKeyInfo(&user)
-	return &user
+	return &user, nil
 }
 
 func GetUserByStudentID(studentID string) (*models.User, error) {

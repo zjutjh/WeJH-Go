@@ -1,11 +1,11 @@
 package userServices
 
 func CheckUsername(username string) bool {
-	user := GetUserByUsername(username)
+	user, _ := GetUserByUsername(username)
 	if user != nil {
-		return false
+		return true
 	}
-	return true
+	return false
 }
 
 func CheckWechatOpenID(wechatOpenID string) bool {

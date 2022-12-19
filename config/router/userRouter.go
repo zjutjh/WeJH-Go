@@ -11,22 +11,16 @@ func userRouterInit(r *gin.RouterGroup) {
 	{
 		user.POST("/create/student/wechat", userController.BindOrCreateStudentUserFromWechat)
 		user.POST("/create/student", userController.CreateStudentUser)
-		user.POST("/login/wechat",
-			userController.WeChatLogin,
-		)
-		user.POST("/login",
-			userController.AuthByPassword,
-		)
-		user.Any("/info",
-			midwares.CheckLogin, userController.GetUserInfo,
-		)
+
+		user.POST("/login/wechat", userController.WeChatLogin)
+		user.POST("/login", userController.AuthByPassword)
+
+		user.GET("/info", midwares.CheckLogin, userController.GetUserInfo)
 		bind := user.Group("/bind", midwares.CheckLogin)
 		{
 			bind.POST("/zf", userController.BindZFPassword)
 			bind.POST("/library", userController.BindLibraryPassword)
 			bind.POST("/schoolcard", userController.BindSchoolCardPassword)
-			bind.POST("/phone", userController.BindPhoneNum)
-			bind.POST("/yxyuid", userController.BindYxyUid)
 		}
 	}
 }

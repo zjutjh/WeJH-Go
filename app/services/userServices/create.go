@@ -11,7 +11,7 @@ import (
 )
 
 func CreateStudentUser(username, password, studentID, IDCardNumber, email string) (*models.User, error) {
-	if !CheckUsername(username) {
+	if CheckUsername(username) {
 		return nil, apiException.UserAlreadyExisted
 	}
 

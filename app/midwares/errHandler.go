@@ -22,7 +22,7 @@ func ErrHandler() gin.HandlerFunc {
 				} else {
 					Err = apiException.ServerError
 				}
-				// 记录一个错误的日志
+				// TODO 建立日志系统
 
 				c.JSON(Err.StatusCode, Err)
 				return
