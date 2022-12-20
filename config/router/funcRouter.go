@@ -15,8 +15,12 @@ func funcRouterInit(r *gin.RouterGroup) {
 	{
 		// TODO 准备删除
 		fun.POST("/canteen/flow", canteenController.GetCanteenFlowRate)
-		fun.POST("/bus", schoolBusController.GetBusList)
-		
+
+		bus := fun.Group("/bus", midwares.CheckLogin)
+		{
+			bus.GET("/list", schoolBusController.GetBusList)
+		}
+
 		// TODO 准备重构
 		card := fun.Group("/card", midwares.CheckLogin)
 		{

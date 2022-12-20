@@ -15,7 +15,7 @@ func userRouterInit(r *gin.RouterGroup) {
 		user.POST("/login/wechat", userController.WeChatLogin)
 		user.POST("/login", userController.AuthByPassword)
 
-		user.GET("/info", midwares.CheckLogin, userController.GetUserInfo)
+		user.POST("/info", midwares.CheckLogin, userController.GetUserInfo)
 		bind := user.Group("/bind", midwares.CheckLogin)
 		{
 			bind.POST("/zf", userController.BindZFPassword)

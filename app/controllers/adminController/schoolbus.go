@@ -10,17 +10,19 @@ import (
 )
 
 type createSchoolBusForm struct {
-	Line      int       `json:"line" binding:"required"`
-	From      string    `json:"from" binging:"required"`
-	To        string    `json:"to" binging:"required"`
-	StartTime time.Time `json:"startTime" binging:"required" gorm:"type:timestamp;"`
+	Line      string               `json:"line" binding:"required"`
+	From      string               `json:"from" binging:"required"`
+	To        string               `json:"to" binging:"required"`
+	Type      models.SchoolBusType `json:"type" binging:"required"`
+	StartTime time.Time            `json:"startTime" binging:"required"`
 }
 type updateSchoolBusForm struct {
-	ID        int       `json:"id" binding:"required"`
-	Line      int       `json:"line" binding:"required"`
-	From      string    `json:"from" binging:"required"`
-	To        string    `json:"to" binging:"required"`
-	StartTime time.Time `json:"startTime" binging:"required" gorm:"type:timestamp;"`
+	ID        int                  `json:"id" binding:"required"`
+	Line      string               `json:"line" binding:"required"`
+	From      string               `json:"from" binging:"required"`
+	To        string               `json:"to" binging:"required"`
+	Type      models.SchoolBusType `json:"type" binging:"required"`
+	StartTime time.Time            `json:"startTime" binging:"required"`
 }
 type deleteSchoolBusForm struct {
 	ID int `json:"id" binding:"required"`
@@ -38,6 +40,7 @@ func CreateSchoolBus(c *gin.Context) {
 		Line:      postForm.Line,
 		From:      postForm.From,
 		To:        postForm.To,
+		Type:      postForm.Type,
 		StartTime: postForm.StartTime,
 	})
 	if err != nil {
@@ -58,6 +61,7 @@ func UpdateSchoolBus(c *gin.Context) {
 		Line:      postForm.Line,
 		From:      postForm.From,
 		To:        postForm.To,
+		Type:      postForm.Type,
 		StartTime: postForm.StartTime,
 	},
 	)
