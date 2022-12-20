@@ -14,6 +14,20 @@ func GetSchoolBusList() ([]models.SchoolBus, error) {
 	return bus, nil
 }
 
+func GetSchoolBus(bus models.SchoolBus) ([]models.SchoolBus, error) {
+	var buses []models.SchoolBus
+	result := database.DB.Where(models.SchoolBus{
+		From:      bus.From,
+		To:        bus.To,
+		StartTime: bus.StartTime,
+		Type:      bus.Type,
+	}).Find(buses)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return buses, nil
+}
+
 func CreateSchoolBus(bus models.SchoolBus) error {
 	result := database.DB.Create(&bus)
 	if result.Error != nil {
@@ -21,6 +35,7 @@ func CreateSchoolBus(bus models.SchoolBus) error {
 	}
 	return nil
 }
+
 func UpdateSchoolBus(id int, bus models.SchoolBus) error {
 	result := database.DB.Model(models.SchoolBus{}).Where(
 		&models.SchoolBus{

@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"wejh-go/app/apiException"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/userServices"
@@ -30,8 +31,12 @@ func AuthByPassword(c *gin.Context) {
 		return
 	}
 	user, err := userServices.GetUserByUsername(postForm.Username)
-	if err != nil {
+	if err == gorm.ErrRecordNotFound {
 		_ = c.AbortWithError(200, apiException.UserNotFind)
+		return
+	}
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 
