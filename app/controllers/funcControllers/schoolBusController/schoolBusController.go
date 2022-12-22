@@ -20,11 +20,11 @@ type FetchSchoolBusForm struct {
 }
 
 func GetBusList(c *gin.Context) {
-	buslist, err := schoolBusServices.GetSchoolBusList()
+	busList, err := schoolBusServices.GetSchoolBusList()
 	if err != nil {
 		_ = c.AbortWithError(200, err)
 	} else {
-		utils.JsonSuccessResponse(c, buslist)
+		utils.JsonSuccessResponse(c, busList)
 	}
 }
 
