@@ -57,8 +57,8 @@ func checkConfig(key string) bool {
 
 func delConfig(key string) error {
 	redis.RedisClient.Del(ctx, key)
-	res := database.DB.Delete(&models.Config{
+	res := database.DB.Where(&models.Config{
 		Key: key,
-	})
+	}).Delete(models.Config{})
 	return res.Error
 }
