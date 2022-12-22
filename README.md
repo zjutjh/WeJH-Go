@@ -6,16 +6,6 @@
 
 ## 如何开始
 
-首先先将动态库依赖准备好
-
-```bash
-# windows
-cp ./lib/yxy.dll ./yxy.dll
-
-# linux
-cp ./lib/libyxy.so /lib/libyxy.so
-```
-
 在项目根目录下执行
 
 ```bash

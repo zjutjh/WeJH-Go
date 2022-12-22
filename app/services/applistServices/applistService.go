@@ -21,10 +21,10 @@ func CreateApplist(appList models.AppList) error {
 	}
 	return nil
 }
-func UpdateApplist(id int64, appList models.AppList) error {
+func UpdateApplist(appList models.AppList) error {
 	result := database.DB.Model(models.AppList{}).Where(
 		&models.AppList{
-			ID: id,
+			ID: appList.ID,
 		}).Updates(&appList)
 	if result.Error != nil {
 		return result.Error

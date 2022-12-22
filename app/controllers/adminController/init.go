@@ -2,19 +2,20 @@ package adminController
 
 import (
 	"github.com/gin-gonic/gin"
+	"log"
 	"wejh-go/app/apiException"
 	"wejh-go/app/config"
 	"wejh-go/app/utils"
 )
 
 type termInfoForm struct {
-	yearValue          string `json:"yearValue"`
-	termValue          string `json:"termValue"`
-	termStartDateValue string `json:"termStartDateValue"`
+	YearValue          string `json:"yearValue"`
+	TermValue          string `json:"termValue"`
+	TermStartDateValue string `json:"termStartDateValue"`
 }
 
 type encryptForm struct {
-	encryptKey string `json:"encryptKey"`
+	EncryptKey string `json:"encryptKey"`
 }
 
 func SetInit(c *gin.Context) {
@@ -27,23 +28,30 @@ func SetInit(c *gin.Context) {
 }
 
 func ResetInit(c *gin.Context) {
-	err := config.ResetInit()
-	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
-	}
+
 	if config.IsSetEncryptKey() {
-		err = config.DelEncryptKey()
+		err := config.DelEncryptKey()
 		if err != nil {
+			log.Println(err.Error())
 			_ = c.AbortWithError(200, apiException.ServerError)
+			return
 		}
 	}
 	if config.IsSetTermInfo() {
 		errors := config.DelTermInfo()
 		for _, err := range errors {
 			if err != nil {
+				log.Println(err.Error())
 				_ = c.AbortWithError(200, apiException.ServerError)
+				return
 			}
 		}
+	}
+	err := config.ResetInit()
+	if err != nil {
+		log.Println(err.Error())
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
 	}
 
 	utils.JsonSuccessResponse(c, nil)
@@ -57,9 +65,10 @@ func SetTermInfo(c *gin.Context) {
 		return
 	}
 
-	err = config.SetTermInfo(postForm.yearValue, postForm.termValue, postForm.termStartDateValue)
+	err = config.SetTermInfo(postForm.YearValue, postForm.TermValue, postForm.TermStartDateValue)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
+		return
 	}
 
 	utils.JsonSuccessResponse(c, nil)
@@ -73,9 +82,10 @@ func SetEncryptKey(c *gin.Context) {
 		return
 	}
 
-	err = config.SetEncryptKey(postForm.encryptKey)
+	err = config.SetEncryptKey(postForm.EncryptKey)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
+		return
 	}
 
 	utils.JsonSuccessResponse(c, nil)

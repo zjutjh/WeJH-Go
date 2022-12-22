@@ -29,6 +29,12 @@ func adminRouterInit(r *gin.RouterGroup) {
 			schoolbus.POST("/delete", adminController.DeleteSchoolBus)
 			schoolbus.POST("/update", adminController.UpdateSchoolBus)
 		}
-		admin.GET("/reset", adminController.ResetInit)
+		set := admin.Group("/set")
+		{
+			set.GET("/reset", adminController.ResetInit)
+			set.POST("/encrypt", adminController.SetEncryptKey)
+			set.POST("/terminfo", adminController.SetTermInfo)
+		}
+
 	}
 }
