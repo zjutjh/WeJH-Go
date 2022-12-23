@@ -7,7 +7,7 @@ import (
 
 func GetSchoolBusList() ([]models.SchoolBus, error) {
 	var bus []models.SchoolBus
-	result := database.DB.Find(bus)
+	result := database.DB.Find(&bus)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -17,11 +17,11 @@ func GetSchoolBusList() ([]models.SchoolBus, error) {
 func GetSchoolBus(bus models.SchoolBus) ([]models.SchoolBus, error) {
 	var buses []models.SchoolBus
 	result := database.DB.Where(models.SchoolBus{
-		From:      bus.From,
-		To:        bus.To,
-		StartTime: bus.StartTime,
-		Type:      bus.Type,
-	}).Find(buses)
+		Departure:   bus.Departure,
+		Destination: bus.Destination,
+		StartTime:   bus.StartTime,
+		Type:        bus.Type,
+	}).Find(&buses)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -57,4 +57,15 @@ func DeleteSchoolBus(id int) error {
 	}
 
 	return nil
+}
+
+func RecommendSchoolBus(bus models.SchoolBus) ([]models.SchoolBus, error) {
+	var buses []models.SchoolBus
+	result := database.DB.Where(
+		"departure = ? AND destination = ? And start_time > ?", bus.Departure, bus.Destination, bus.StartTime,
+	).Order("start_time desc").First(&buses)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return buses, nil
 }

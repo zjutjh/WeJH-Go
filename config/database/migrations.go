@@ -11,5 +11,6 @@ func autoMigrate(db *gorm.DB) error {
 		&models.Announcement{},
 		&models.AppList{},
 		&models.SchoolBus{},
-		&models.Config{})
+		&models.Config{},
+		&models.SchoolBusSearchRecord{})
 }

@@ -11,19 +11,19 @@ import (
 )
 
 type createSchoolBusForm struct {
-	Line      string `json:"line" binding:"required"`
-	From      string `json:"from" binging:"required"`
-	To        string `json:"to" binging:"required"`
-	Type      int    `json:"type" binging:"required"`
-	StartTime string `json:"startTime" binging:"required"`
+	Line        string `json:"line" binding:"required"`
+	Departure   string `json:"departure" binging:"required"`
+	Destination string `json:"destination" binging:"required"`
+	Type        int    `json:"type" binging:"required"`
+	StartTime   string `json:"startTime" binging:"required"`
 }
 type updateSchoolBusForm struct {
-	ID        int    `json:"id" binding:"required"`
-	Line      string `json:"line" binding:"required"`
-	From      string `json:"from" binging:"required"`
-	To        string `json:"to" binging:"required"`
-	Type      int    `json:"type" binging:"required"`
-	StartTime string `json:"startTime" binging:"required"`
+	ID          int    `json:"id" binding:"required"`
+	Line        string `json:"line" binding:"required"`
+	Departure   string `json:"departure" binging:"required"`
+	Destination string `json:"destination" binging:"required"`
+	Type        int    `json:"type" binging:"required"`
+	StartTime   string `json:"startTime" binging:"required"`
 }
 type deleteSchoolBusForm struct {
 	ID int `json:"id" binding:"required"`
@@ -39,18 +39,17 @@ func CreateSchoolBus(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
-	postForm.StartTime = "2006-01-02 " + postForm.StartTime
-	startTime, err := time.ParseInLocation("2006-04-02 15:04:05", postForm.StartTime, cstZone)
+	_, err = time.ParseInLocation("15:04:05", postForm.StartTime, cstZone)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
 	err = schoolBusServices.CreateSchoolBus(models.SchoolBus{
-		Line:      postForm.Line,
-		From:      postForm.From,
-		To:        postForm.To,
-		Type:      models.SchoolBusType(postForm.Type),
-		StartTime: startTime,
+		Line:        postForm.Line,
+		Departure:   postForm.Departure,
+		Destination: postForm.Destination,
+		Type:        models.SchoolBusType(postForm.Type),
+		StartTime:   postForm.StartTime,
 	})
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
@@ -65,19 +64,18 @@ func UpdateSchoolBus(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
-	postForm.StartTime = "2006-01-02 " + postForm.StartTime
-	startTime, err := time.ParseInLocation("2006-04-02 15:04:05", postForm.StartTime, cstZone)
+	_, err = time.ParseInLocation("15:04:05", postForm.StartTime, cstZone)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
 	println(postForm.StartTime)
 	err = schoolBusServices.UpdateSchoolBus(postForm.ID, models.SchoolBus{
-		Line:      postForm.Line,
-		From:      postForm.From,
-		To:        postForm.To,
-		Type:      models.SchoolBusType(postForm.Type),
-		StartTime: startTime,
+		Line:        postForm.Line,
+		Departure:   postForm.Departure,
+		Destination: postForm.Destination,
+		Type:        models.SchoolBusType(postForm.Type),
+		StartTime:   postForm.StartTime,
 	},
 	)
 	if err != nil {

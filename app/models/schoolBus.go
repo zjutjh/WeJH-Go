@@ -5,18 +5,18 @@ import (
 )
 
 type SchoolBus struct {
-	ID        int           `json:"id"`
-	Line      string        `json:"line"`
-	From      string        `json:"from"`
-	To        string        `json:"to"`
-	Type      SchoolBusType `json:"-"`
-	StartTime time.Time     `json:"startTime" gorm:"type:timestamp;"`
-	UpdatedAt time.Time     `json:"updateTime" gorm:"type:timestamp;"`
+	ID          int           `json:"id"`
+	Line        string        `json:"line"`
+	Departure   string        `json:"departure"`
+	Destination string        `json:"destination"`
+	Type        SchoolBusType `json:"-"`
+	StartTime   string        `json:"startTime"`
+	UpdatedAt   time.Time     `json:"-" gorm:"type:timestamp;"`
 }
 
 type SchoolBusType int
 
 const (
-	Weekday SchoolBusType = 0
-	Weekend SchoolBusType = 1
+	Weekday SchoolBusType = 1
+	Weekend SchoolBusType = 2
 )

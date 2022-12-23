@@ -35,6 +35,5 @@ func adminRouterInit(r *gin.RouterGroup) {
 			set.POST("/encrypt", adminController.SetEncryptKey)
 			set.POST("/terminfo", adminController.SetTermInfo)
 		}
-
 	}
 }
