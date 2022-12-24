@@ -19,6 +19,9 @@ func funcRouterInit(r *gin.RouterGroup) {
 		bus := fun.Group("/bus", midwares.CheckLogin)
 		{
 			bus.GET("/list", schoolBusController.GetBusList)
+			bus.POST("/get", schoolBusController.GetBus)
+			bus.GET("/recommend", schoolBusController.RecommendBus)
+			bus.POST("/time", schoolBusController.GetTimeList)
 		}
 
 		// TODO 准备重构
