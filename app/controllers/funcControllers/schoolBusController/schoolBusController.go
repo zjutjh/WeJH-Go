@@ -13,11 +13,17 @@ import (
 	"wejh-go/app/utils"
 )
 
-type FetchSchoolBusForm struct {
+type SchoolBusForm struct {
 	Date        string `json:"date"`
 	Departure   string `json:"departure"`
 	Destination string `json:"destination"`
 	StartTime   string `json:"startTime"`
+}
+
+type SchoolBusTimeForm struct {
+	Date        string `json:"date"`
+	Departure   string `json:"departure"`
+	Destination string `json:"destination"`
 }
 
 var cstZone = time.FixedZone("GMT", 8*3600)
@@ -32,7 +38,7 @@ func GetBusList(c *gin.Context) {
 }
 
 func GetBus(c *gin.Context) {
-	var postForm FetchSchoolBusForm
+	var postForm SchoolBusForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ParamError)
@@ -59,12 +65,12 @@ func GetBus(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
-	schoolBuses, err := schoolBusServices.GetSchoolBus(models.SchoolBus{
-		Departure:   postForm.Departure,
-		Destination: postForm.Destination,
-		StartTime:   postForm.StartTime,
-		Type:        busType,
-	})
+	schoolBuses, err := schoolBusServices.GetSchoolBus(
+		postForm.Departure,
+		postForm.Destination,
+		postForm.StartTime,
+		busType,
+	)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
@@ -117,37 +123,37 @@ func RecommendBus(c *gin.Context) {
 	} else {
 		busType = models.Weekday
 	}
-	bus, err := schoolBusServices.RecommendSchoolBus(models.SchoolBus{
-		Departure:   record.Departure,
-		Destination: record.Destination,
-		StartTime:   timeNow,
-		Type:        busType,
-	})
+	bus, err := schoolBusServices.RecommendSchoolBus(
+		record.Departure,
+		record.Destination,
+		timeNow,
+		busType,
+	)
 	fmt.Println(bus)
 	if err == gorm.ErrRecordNotFound {
-		bus, err = schoolBusServices.RecommendSchoolBus(models.SchoolBus{
-			Departure:   record.Departure,
-			Destination: record.Destination,
-			StartTime:   "00:00",
-			Type:        busType,
-		})
+		bus, err = schoolBusServices.RecommendSchoolBus(
+			record.Departure,
+			record.Destination,
+			"00:00",
+			busType,
+		)
 	} else if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
-	busOpposite, err := schoolBusServices.RecommendSchoolBus(models.SchoolBus{
-		Departure:   record.Destination,
-		Destination: record.Departure,
-		StartTime:   timeNow,
-		Type:        busType,
-	})
+	busOpposite, err := schoolBusServices.RecommendSchoolBus(
+		record.Destination,
+		record.Departure,
+		timeNow,
+		busType,
+	)
 	if err == gorm.ErrRecordNotFound {
-		busOpposite, err = schoolBusServices.RecommendSchoolBus(models.SchoolBus{
-			Departure:   record.Destination,
-			Destination: record.Departure,
-			StartTime:   "00:00",
-			Type:        busType,
-		})
+		busOpposite, err = schoolBusServices.RecommendSchoolBus(
+			record.Destination,
+			record.Departure,
+			"00:00",
+			busType,
+		)
 	} else if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
@@ -156,4 +162,35 @@ func RecommendBus(c *gin.Context) {
 	fmt.Println(bus)
 
 	utils.JsonSuccessResponse(c, bus)
+}
+
+func GetTimeList(c *gin.Context) {
+	var postForm SchoolBusTimeForm
+	err := c.ShouldBindJSON(&postForm)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ParamError)
+		return
+	}
+	var busType models.SchoolBusType
+	startDate, err := time.Parse("2006-01-02", postForm.Date)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ParamError)
+		return
+	}
+	if startDate.Weekday() == time.Sunday || startDate.Weekday() == time.Saturday {
+		busType = models.Weekend
+	} else {
+		busType = models.Weekday
+	}
+	timeList, err := schoolBusServices.GetSchoolBusTimeList(
+		postForm.Departure,
+		postForm.Destination,
+		busType,
+	)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+
+	utils.JsonSuccessResponse(c, timeList)
 }
