@@ -25,15 +25,14 @@ func CreateStudentUser(username, password, studentID, IDCardNumber, email string
 	pass := hex.EncodeToString(h.Sum(nil))
 
 	user := &models.User{
-		JHPassword:   pass,
-		Username:     username,
-		Type:         models.Undergraduate,
-		StudentID:    studentID,
-		LibPassword:  "",
-		CardPassword: "",
-		PhoneNum:     "",
-		YXYUid:       "",
-		CreateTime:   time.Now(),
+		JHPassword:  pass,
+		Username:    username,
+		Type:        models.Undergraduate,
+		StudentID:   studentID,
+		LibPassword: "",
+		PhoneNum:    "",
+		YXYUid:      "",
+		CreateTime:  time.Now(),
 	}
 
 	EncryptUserKeyInfo(user)

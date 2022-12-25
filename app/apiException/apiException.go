@@ -18,7 +18,7 @@ var (
 	NoThatPasswordOrWrong = NewError(http.StatusInternalServerError, 200504, "密码错误")
 	HttpTimeout           = NewError(http.StatusInternalServerError, 200505, "系统异常，请稍后重试!")
 	RequestError          = NewError(http.StatusInternalServerError, 200506, "系统异常，请稍后重试!")
-	NotBindYxy            = NewError(http.StatusInternalServerError, 200507, "该用户未绑定")
+	NotBindYxy            = NewError(http.StatusInternalServerError, 200507, "该用户未绑定或未注册易校园")
 	UserAlreadyExisted    = NewError(http.StatusInternalServerError, 200508, "该用户已激活")
 	WrongVerificationCode = NewError(http.StatusInternalServerError, 200509, "验证码错误")
 	StudentNumAndIidError = NewError(http.StatusInternalServerError, 200510, "该学号或身份证不存在或者不匹配，请重新输入")

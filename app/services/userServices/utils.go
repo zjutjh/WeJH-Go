@@ -16,10 +16,7 @@ func DecryptUserKeyInfo(user *models.User) {
 		slt := utils.AesDecrypt(user.LibPassword, key)
 		user.LibPassword = slt[0 : len(slt)-len(user.JHPassword)]
 	}
-	if user.CardPassword != "" {
-		slt := utils.AesDecrypt(user.CardPassword, key)
-		user.CardPassword = slt[0 : len(slt)-len(user.JHPassword)]
-	}
+
 }
 
 func EncryptUserKeyInfo(user *models.User) {
@@ -30,7 +27,5 @@ func EncryptUserKeyInfo(user *models.User) {
 	if user.LibPassword != "" {
 		user.LibPassword = utils.AesEncrypt(user.LibPassword+user.JHPassword, key)
 	}
-	if user.CardPassword != "" {
-		user.CardPassword = utils.AesEncrypt(user.CardPassword+user.JHPassword, key)
-	}
+
 }

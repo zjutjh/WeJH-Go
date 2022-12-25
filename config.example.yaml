@@ -24,4 +24,7 @@ funnel:
   host: http://api.
 
 user:
-   host:
+  host:
+
+yxy:
+  host: 

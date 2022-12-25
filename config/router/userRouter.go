@@ -20,7 +20,7 @@ func userRouterInit(r *gin.RouterGroup) {
 		{
 			bind.POST("/zf", userController.BindZFPassword)
 			bind.POST("/library", userController.BindLibraryPassword)
-			bind.POST("/schoolcard", userController.BindSchoolCardPassword)
+			bind.POST("/yxy", userController.BindYxy)
 		}
 	}
 }

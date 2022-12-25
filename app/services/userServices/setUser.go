@@ -18,17 +18,6 @@ func SetZFPassword(user *models.User, password string) error {
 	return nil
 }
 
-func SetCardPassword(user *models.User, password string) error {
-	user.CardPassword = password
-	_, err := funnelServices.GetCardBalance(user)
-	if err != nil {
-		return err
-	}
-	EncryptUserKeyInfo(user)
-	database.DB.Save(user)
-	return nil
-}
-
 func SetLibraryPassword(user *models.User, password string) error {
 	user.LibPassword = password
 	_, err := funnelServices.GetCurrentBorrow(user)
@@ -52,6 +41,12 @@ func SetYxyUid(user *models.User, yxyUid string) {
 	database.DB.Save(user)
 }
 
+func SetDeviceID(user *models.User, deviceID string) {
+	user.DeviceID = deviceID
+	EncryptUserKeyInfo(user)
+	database.DB.Save(user)
+}
+
 func DelPassword(user *models.User, passwordType string) {
 	switch passwordType {
 	case "ZF":
@@ -61,10 +56,6 @@ func DelPassword(user *models.User, passwordType string) {
 	case "Library":
 		{
 			user.LibPassword = ""
-		}
-	case "Card":
-		{
-			user.CardPassword = ""
 		}
 	}
 	EncryptUserKeyInfo(user)
