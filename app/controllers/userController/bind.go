@@ -37,6 +37,7 @@ func BindZFPassword(c *gin.Context) {
 	}
 	utils.JsonSuccessResponse(c, nil)
 }
+
 func BindLibraryPassword(c *gin.Context) {
 	var postForm bindForm
 	err := c.ShouldBindJSON(&postForm)
@@ -57,32 +58,45 @@ func BindLibraryPassword(c *gin.Context) {
 	utils.JsonSuccessResponse(c, nil)
 }
 
-func BindYxy(c *gin.Context) {
+func SendVerificationCode(c *gin.Context) {
 	var postForm phoneForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
-	//user, err := sessionServices.GetUserSession(c)
-	//if err != nil {
-	//	_ = c.AbortWithError(200, apiException.NotLogin)
-	//	return
-	//}
+	user, err := sessionServices.GetUserSession(c)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.NotLogin)
+		return
+	}
 	u := uuid.New()
-	key := u.String()
-	data, err := yxyServices.GetSecurityToken(key)
+	deviceId := u.String()
+	userServices.SetDeviceID(user, deviceId)
+	data, err := yxyServices.GetSecurityToken(deviceId)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 	if data.Level == 1 {
-		err = yxyServices.GetCaptchaImage(key, data.Token)
+		img, err := yxyServices.GetCaptchaImage(deviceId, data.Token)
 		if err != nil {
 			_ = c.AbortWithError(200, apiException.ServerError)
 			return
 		}
+		utils.JsonResponse(c, apiException.YxyNeedCaptcha.Code, gin.H{
+			"token": data,
+			"img":   img,
+		}, apiException.YxyNeedCaptcha.Msg)
+		return
 	}
-
-	utils.JsonSuccessResponse(c, data)
+	err = yxyServices.SendVerificationCode(data.Token, deviceId, "", postForm.PhoneNum)
+	if err != nil && err != apiException.NotBindYxy {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	} else if err != nil {
+		_ = c.AbortWithError(200, err)
+		return
+	}
+	utils.JsonSuccessResponse(c, nil)
 }

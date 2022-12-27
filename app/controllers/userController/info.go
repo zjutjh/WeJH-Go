@@ -22,7 +22,7 @@ func GetUserInfo(c *gin.Context) {
 				"zf":   user.ZFPassword != "",
 				"lib":  user.LibPassword != "",
 				"card": false,
-				"yxy":  user.YXYUid != "",
+				"yxy":  user.YxyUid != "",
 			},
 			"userType":   user.Type,
 			"phoneNum":   user.PhoneNum,

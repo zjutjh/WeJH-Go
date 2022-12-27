@@ -61,7 +61,7 @@ func AuthByPassword(c *gin.Context) {
 			"bind": gin.H{
 				"zf":  user.ZFPassword != "",
 				"lib": user.LibPassword != "",
-				"yxy": user.YXYUid != "",
+				"yxy": user.YxyUid != "",
 			},
 			"userType":   user.Type,
 			"phoneNum":   user.PhoneNum,
@@ -104,7 +104,7 @@ func WeChatLogin(c *gin.Context) {
 			"bind": gin.H{
 				"zf":  user.ZFPassword != "",
 				"lib": user.LibPassword != "",
-				"yxy": user.YXYUid != "",
+				"yxy": user.YxyUid != "",
 			},
 			"userType":   user.Type,
 			"phoneNum":   user.PhoneNum,

@@ -36,7 +36,7 @@ func SetPhoneNum(user *models.User, phoneNum string) {
 }
 
 func SetYxyUid(user *models.User, yxyUid string) {
-	user.YXYUid = yxyUid
+	user.YxyUid = yxyUid
 	EncryptUserKeyInfo(user)
 	database.DB.Save(user)
 }
