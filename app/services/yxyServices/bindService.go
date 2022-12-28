@@ -1,8 +1,10 @@
 package yxyServices
 
 import (
+	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"net/url"
+	"strings"
 	"wejh-go/app/apiException"
 	"wejh-go/config/api/yxyApi"
 )
@@ -16,8 +18,33 @@ type captcha struct {
 	Img string `json:"img"`
 }
 
-type exists struct {
-	UserExists bool `json:"user_exists"`
+type userInfo struct {
+	UID                string `json:"uid"`
+	Token              string `json:"token"`
+	DeviceID           string `json:"device_id"`
+	Sex                int    `json:"sex"`
+	SchoolCode         string `json:"school_code"`
+	SchoolName         string `json:"school_name"`
+	SchoolClasses      int    `json:"school_classes"`
+	SchoolNature       int    `json:"school_nature"`
+	UserName           string `json:"user_name"`
+	UserType           string `json:"user_type"`
+	JobNo              string `json:"job_no"`
+	UserIdcard         string `json:"user_idcard"`
+	IdentityNo         string `json:"identity_no"`
+	UserClass          string `json:"user_class"`
+	RealNameStatus     int    `json:"real_name_status"`
+	RegiserTime        string `json:"regiser_time"`
+	BindCardStatus     int    `json:"bind_card_status"`
+	LastLogin          string `json:"last_login"`
+	TestAccount        int    `json:"test_account"`
+	IsNew              int    `json:"is_new"`
+	CreateStatus       int    `json:"create_status"`
+	Platform           string `json:"platform"`
+	BindCardRate       int    `json:"bind_card_rate"`
+	Points             int    `json:"points"`
+	SchoolIdentityType int    `json:"school_identity_type"`
+	ExtraJSON          string `json:"extra_json"`
 }
 
 func GetSecurityToken(deviceId string) (*securityToken, error) {
@@ -34,7 +61,7 @@ func GetSecurityToken(deviceId string) (*securityToken, error) {
 		return nil, err
 	}
 	var data securityToken
-	err = mapstructure.Decode(resp, &data)
+	err = mapstructure.Decode(resp.Data, &data)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +83,7 @@ func GetCaptchaImage(deviceId, token string) (*string, error) {
 		return nil, err
 	}
 	var data captcha
-	err = mapstructure.Decode(resp, &data)
+	err = mapstructure.Decode(resp.Data, &data)
 	if err != nil {
 		return nil, err
 	}
@@ -64,26 +91,53 @@ func GetCaptchaImage(deviceId, token string) (*string, error) {
 }
 
 func SendVerificationCode(securityToken, deviceId, captcha, phoneNum string) error {
-	form := url.Values{}
-	form.Set("phone_num", phoneNum)
-	form.Set("security_token", securityToken)
-	form.Set("captcha", captcha)
-	form.Set("device_id", deviceId)
+	var form map[string]string
+	form = make(map[string]string)
+	form["phone_num"] = phoneNum
+	form["security_token"] = securityToken
+	form["captcha"] = captcha
+	form["device_id"] = deviceId
 	resp, err := FetchHandleOfPost(form, yxyApi.SendVerificationCode)
 	if err != nil {
 		return err
 	}
-	var data exists
-	err = mapstructure.Decode(resp, &data)
-	if err != nil {
-		return err
+	if resp.Code != 0 {
+		msgSplit := strings.Split(resp.Msg, "; ")
+		if len(msgSplit) > 1 && msgSplit[1] == "encryptedDeviceId不一致" {
+			fmt.Println(msgSplit[1])
+			return apiException.ServerError
+		} else {
+			return apiException.WrongCaptcha
+		}
 	}
-	if !data.UserExists {
+	m := resp.Data.(map[string]interface{})
+	if m["user_exists"] == false {
 		return apiException.NotBindYxy
 	}
 	return nil
 }
 
-func LoginByCode(code, deviceId, phoneNum string) {
-
+func LoginByCode(code, deviceId, phoneNum string) (*string, error) {
+	var form map[string]string
+	form = make(map[string]string)
+	form["phone_num"] = phoneNum
+	form["code"] = code
+	form["device_id"] = deviceId
+	resp, err := FetchHandleOfPost(form, yxyApi.LoginByCode)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Code == 403 {
+		return nil, apiException.WrongVerificationCode
+	} else if resp.Code == 500 {
+		return nil, apiException.WrongPhoneNum
+	} else if resp.Code != 0 {
+		return nil, apiException.ServerError
+	}
+	var data userInfo
+	err = mapstructure.Decode(resp.Data, &data)
+	if err != nil {
+		return nil, err
+	}
+	return &data.UID, nil
 }

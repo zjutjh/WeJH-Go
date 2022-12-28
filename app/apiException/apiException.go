@@ -27,6 +27,8 @@ var (
 	StudentIdError        = NewError(http.StatusInternalServerError, 200513, "学号格式不正确，请重新输入")
 	YxySessionExpired     = NewError(http.StatusInternalServerError, 200514, "易校园登陆过期，请重新登陆")
 	YxyNeedCaptcha        = NewError(http.StatusInternalServerError, 500515, "请输入验证码")
+	WrongCaptcha          = NewError(http.StatusInternalServerError, 200516, "图形验证码错误")
+	WrongPhoneNum         = NewError(http.StatusInternalServerError, 200517, "手机号格式不正确")
 	NotInit               = NewError(http.StatusNotFound, 200404, http.StatusText(http.StatusNotFound))
 	NotFound              = NewError(http.StatusNotFound, 200404, http.StatusText(http.StatusNotFound))
 	Unknown               = NewError(http.StatusInternalServerError, 300500, "系统异常，请稍后重试!")

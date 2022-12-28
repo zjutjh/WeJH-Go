@@ -2,7 +2,6 @@ package yxyServices
 
 import (
 	"encoding/json"
-	"net/url"
 	"wejh-go/app/apiException"
 	"wejh-go/app/utils/fetch"
 	"wejh-go/config/api/yxyApi"
@@ -14,10 +13,10 @@ type YxyResponse struct {
 	Data interface{} `json:"data"`
 }
 
-func FetchHandleOfPost(form url.Values, url yxyApi.YxyApi) (interface{}, error) {
+func FetchHandleOfPost(form map[string]string, url yxyApi.YxyApi) (*YxyResponse, error) {
 	f := fetch.Fetch{}
 	f.Init()
-	res, err := f.PostForm(yxyApi.YxyHost+string(url), form)
+	res, err := f.PostJsonForm(yxyApi.YxyHost+string(url), form)
 	if err != nil {
 		return nil, apiException.RequestError
 	}
@@ -26,24 +25,10 @@ func FetchHandleOfPost(form url.Values, url yxyApi.YxyApi) (interface{}, error) 
 	if err != nil {
 		return nil, apiException.RequestError
 	}
-	if rc.Code == 204 {
-		return nil, nil
-	}
-	if rc.Code == 400 {
-		return nil, apiException.ParamError
-	}
-	if rc.Code == 401 {
-		return nil, apiException.NotLogin
-	}
-	if rc.Code == 403 {
-		return nil, apiException.NotBindYxy
-	}
-	if rc.Code == 500 {
-		return nil, apiException.YxySessionExpired
-	}
-	return rc.Data, nil
+	return &rc, nil
 }
-func FetchHandleOfGet(url yxyApi.YxyApi) (interface{}, error) {
+
+func FetchHandleOfGet(url yxyApi.YxyApi) (*YxyResponse, error) {
 	f := fetch.Fetch{}
 	f.Init()
 	res, err := f.Get(yxyApi.YxyHost + string(url))
@@ -55,20 +40,5 @@ func FetchHandleOfGet(url yxyApi.YxyApi) (interface{}, error) {
 	if err != nil {
 		return nil, apiException.RequestError
 	}
-	if rc.Code == 204 {
-		return nil, nil
-	}
-	if rc.Code == 400 {
-		return nil, apiException.ParamError
-	}
-	if rc.Code == 401 {
-		return nil, apiException.NotLogin
-	}
-	if rc.Code == 403 {
-		return nil, apiException.NotBindYxy
-	}
-	if rc.Code == 500 {
-		return nil, apiException.ServerError
-	}
-	return rc.Data, nil
+	return &rc, nil
 }

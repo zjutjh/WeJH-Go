@@ -20,7 +20,10 @@ func userRouterInit(r *gin.RouterGroup) {
 		{
 			bind.POST("/zf", userController.BindZFPassword)
 			bind.POST("/library", userController.BindLibraryPassword)
-			bind.POST("/yxy", userController.SendVerificationCode)
+			bind.POST("/yxy/send/verification", userController.SendVerificationCode)
+			bind.POST("/yxy/send/captcha", userController.SendVerificationCodeByCaptcha)
+			bind.POST("/yxy/get/captcha", userController.GetCaptcha)
+			bind.POST("/yxy/login", userController.LoginYxy)
 		}
 	}
 }
