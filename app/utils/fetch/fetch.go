@@ -1,7 +1,9 @@
 package fetch
 
 import (
+	"bytes"
 	"crypto/tls"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -72,8 +74,28 @@ func (f *Fetch) PostFormRaw(url string, requestData url.Values) (*http.Response,
 	}
 	return f.client.Do(request)
 }
+
 func (f *Fetch) PostForm(url string, requestData url.Values) ([]byte, error) {
 	response, err := f.PostFormRaw(url, requestData)
+	if err != nil {
+		return nil, err
+	}
+	f.Cookie = cookieMerge(f.Cookie, response.Cookies())
+	return ioutil.ReadAll(response.Body)
+}
+
+func (f *Fetch) PostJsonFormRaw(url string, requestData map[string]string) (*http.Response, error) {
+	bytesData, _ := json.Marshal(requestData)
+	request, _ := http.NewRequest("POST", url, bytes.NewReader(bytesData))
+	request.Header.Set("Content-Type", "application/json")
+	for _, v := range f.Cookie {
+		request.AddCookie(v)
+	}
+	return f.client.Do(request)
+}
+
+func (f *Fetch) PostJsonForm(url string, requestData map[string]string) ([]byte, error) {
+	response, err := f.PostJsonFormRaw(url, requestData)
 	if err != nil {
 		return nil, err
 	}

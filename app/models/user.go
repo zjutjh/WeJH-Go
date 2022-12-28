@@ -11,10 +11,10 @@ type User struct {
 	WechatOpenID string // 小程序 openID
 	UnionID      string
 	LibPassword  string // 图书馆密码
-	CardPassword string // 饭卡密码
 	ZFPassword   string // 正方教务系统密码
+	DeviceID     string // 生成的设备 uuid
 	PhoneNum     string // 易校园绑定的手机号
-	YXYUid       string // 易校园uid
+	YxyUid       string // 易校园uid
 	CreateTime   time.Time
 }
 

@@ -32,7 +32,8 @@ func ErrHandler() gin.HandlerFunc {
 	}
 }
 
-// 404处理
+// HandleNotFound
+//  404处理
 func HandleNotFound(c *gin.Context) {
 	err := apiException.NotFound
 	c.JSON(err.StatusCode, err)
