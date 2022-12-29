@@ -6,6 +6,7 @@ import (
 	"wejh-go/app/controllers/funcControllers/libraryController"
 	"wejh-go/app/controllers/funcControllers/schoolBusController"
 	"wejh-go/app/controllers/funcControllers/zfController"
+	"wejh-go/app/controllers/yxyController/schoolCardController"
 	"wejh-go/app/midwares"
 )
 
@@ -23,13 +24,11 @@ func funcRouterInit(r *gin.RouterGroup) {
 			bus.POST("/time", schoolBusController.GetTimeList)
 		}
 
-		// TODO 准备重构
-		//card := fun.Group("/card", midwares.CheckLogin)
-		//{
-		//	card.POST("/balance", schoolCardController.GetBalance)
-		//	card.POST("/history", schoolCardController.GetHistory)
-		//	card.POST("/today", schoolCardController.GetToday)
-		//}
+		card := fun.Group("/card", midwares.CheckLogin)
+		{
+			card.GET("/balance", schoolCardController.GetBalance)
+			card.POST("/record", schoolCardController.GetRecord)
+		}
 
 		library := fun.Group("/library", midwares.CheckLogin)
 		{
