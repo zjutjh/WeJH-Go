@@ -13,11 +13,3 @@ func JsonSuccessResponse(c *gin.Context, data interface{}) {
 		"msg":  "OK",
 	})
 }
-
-func JsonResponse(c *gin.Context, code int, data interface{}, msg string) {
-	c.JSON(http.StatusOK, gin.H{
-		"data": data,
-		"code": code,
-		"msg":  msg,
-	})
-}
