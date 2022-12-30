@@ -9,6 +9,7 @@ import (
 )
 
 type recordForm struct {
+	QueryTime string `json:"queryTime"`
 }
 
 func GetBalance(c *gin.Context) {
@@ -17,10 +18,9 @@ func GetBalance(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
-
 	balance, err := yxyServices.GetCardBalance(user.DeviceID, user.YxyUid)
 	if err == apiException.YxySessionExpired {
-		_ = c.AbortWithError(200, apiException.YxySessionExpired)
+		_ = c.AbortWithError(200, err)
 		return
 	} else if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
@@ -30,14 +30,21 @@ func GetBalance(c *gin.Context) {
 }
 
 func GetRecord(c *gin.Context) {
+	var postForm recordForm
+	err := c.ShouldBindJSON(&postForm)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ParamError)
+		return
+	}
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
-	balance, err := yxyServices.GetCardBalance(user.DeviceID, user.YxyUid)
-	if err == apiException.YxySessionExpired {
-		_ = c.AbortWithError(200, apiException.YxySessionExpired)
+	balance, err := yxyServices.GetCardRecord(user.DeviceID, user.YxyUid, postForm.QueryTime)
+	if err == apiException.YxySessionExpired ||
+		err == apiException.ParamError {
+		_ = c.AbortWithError(200, err)
 		return
 	} else if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
