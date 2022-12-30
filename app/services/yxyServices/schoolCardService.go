@@ -13,6 +13,16 @@ type balance struct {
 	Balance string `json:"balance"`
 }
 
+type Records []struct {
+	Type     string `json:"type"`
+	FeeName  string `json:"fee_name"`
+	Time     string `json:"time"`
+	SerialNo string `json:"serial_no"`
+	Money    string `json:"money"`
+	DealTime string `json:"deal_time"`
+	Address  string `json:"address"`
+}
+
 func GetCardBalance(deviceId, uid string) (*string, error) {
 	params := url.Values{}
 	Url, err := url.Parse(string(yxyApi.CardBalance))
@@ -37,4 +47,37 @@ func GetCardBalance(deviceId, uid string) (*string, error) {
 		return nil, err
 	}
 	return &data.Balance, nil
+}
+
+func GetCardRecord(deviceId, uid, queryTime string) (Records, error) {
+	params := url.Values{}
+	Url, err := url.Parse(string(yxyApi.ConsumptionRecords))
+	if err != nil {
+		return nil, err
+	}
+	params.Set("device_id", deviceId)
+	params.Set("uid", uid)
+	params.Set("query_time", queryTime)
+	params.Set("school_code", ZJUTSchoolCode)
+	Url.RawQuery = params.Encode()
+	urlPath := Url.String()
+	resp, err := FetchHandleOfGet(yxyApi.YxyApi(urlPath))
+	if err != nil {
+		return nil, err
+	}
+	if resp.Code == 204 {
+		return nil, nil
+	} else if resp.Code == 500 {
+		return nil, apiException.YxySessionExpired
+	} else if resp.Code == 403 {
+		return nil, apiException.ParamError
+	} else if resp.Code != 0 {
+		return nil, apiException.ServerError
+	}
+	var data Records
+	err = mapstructure.Decode(resp.Data, &data)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }
