@@ -29,7 +29,7 @@ func GetBalance(c *gin.Context) {
 	utils.JsonSuccessResponse(c, balance)
 }
 
-func GetRecord(c *gin.Context) {
+func GetConsumptionRecord(c *gin.Context) {
 	var postForm recordForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
@@ -41,7 +41,7 @@ func GetRecord(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
-	balance, err := yxyServices.GetCardRecord(user.DeviceID, user.YxyUid, postForm.QueryTime)
+	balance, err := yxyServices.GetCardConsumptionRecord(user.DeviceID, user.YxyUid, postForm.QueryTime)
 	if err == apiException.YxySessionExpired ||
 		err == apiException.ParamError {
 		_ = c.AbortWithError(200, err)

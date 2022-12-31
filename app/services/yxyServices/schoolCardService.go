@@ -9,11 +9,11 @@ import (
 
 const ZJUTSchoolCode = "10337"
 
-type balance struct {
+type BalanceResp struct {
 	Balance string `json:"balance"`
 }
 
-type Records []struct {
+type ConsumptionRecords []struct {
 	Type     string `json:"type"`
 	FeeName  string `json:"fee_name"`
 	Time     string `json:"time"`
@@ -41,7 +41,7 @@ func GetCardBalance(deviceId, uid string) (*string, error) {
 	if resp.Code != 0 {
 		return nil, apiException.YxySessionExpired
 	}
-	var data balance
+	var data BalanceResp
 	err = mapstructure.Decode(resp.Data, &data)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func GetCardBalance(deviceId, uid string) (*string, error) {
 	return &data.Balance, nil
 }
 
-func GetCardRecord(deviceId, uid, queryTime string) (Records, error) {
+func GetCardConsumptionRecord(deviceId, uid, queryTime string) (ConsumptionRecords, error) {
 	params := url.Values{}
 	Url, err := url.Parse(string(yxyApi.ConsumptionRecords))
 	if err != nil {
@@ -74,7 +74,7 @@ func GetCardRecord(deviceId, uid, queryTime string) (Records, error) {
 	} else if resp.Code != 0 {
 		return nil, apiException.ServerError
 	}
-	var data Records
+	var data ConsumptionRecords
 	err = mapstructure.Decode(resp.Data, &data)
 	if err != nil {
 		return nil, err

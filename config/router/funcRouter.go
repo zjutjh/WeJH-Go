@@ -6,6 +6,7 @@ import (
 	"wejh-go/app/controllers/funcControllers/libraryController"
 	"wejh-go/app/controllers/funcControllers/schoolBusController"
 	"wejh-go/app/controllers/funcControllers/zfController"
+	"wejh-go/app/controllers/yxyController/electricityController"
 	"wejh-go/app/controllers/yxyController/schoolCardController"
 	"wejh-go/app/midwares"
 )
@@ -15,6 +16,13 @@ func funcRouterInit(r *gin.RouterGroup) {
 	{
 		// TODO 准备删除
 		fun.POST("/canteen/flow", canteenController.GetCanteenFlowRate)
+
+		electricity := fun.Group("/electricity", midwares.CheckLogin)
+		{
+			electricity.GET("/balance", electricityController.GetBalance)
+			electricity.POST("/record", electricityController.GetRechargeRecords)
+			electricity.GET("/consumption", electricityController.GetConsumptionRecords)
+		}
 
 		bus := fun.Group("/bus", midwares.CheckLogin)
 		{
@@ -27,7 +35,7 @@ func funcRouterInit(r *gin.RouterGroup) {
 		card := fun.Group("/card", midwares.CheckLogin)
 		{
 			card.GET("/balance", schoolCardController.GetBalance)
-			card.POST("/record", schoolCardController.GetRecord)
+			card.POST("/record", schoolCardController.GetConsumptionRecord)
 		}
 
 		library := fun.Group("/library", midwares.CheckLogin)
