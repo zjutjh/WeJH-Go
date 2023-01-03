@@ -19,7 +19,7 @@ type Fetch struct {
 func (f *Fetch) InitUnSafe() {
 	f.client = &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse },
-		Timeout:       time.Second * 5,
+		Timeout:       time.Second * 15,
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
@@ -29,7 +29,7 @@ func (f *Fetch) InitUnSafe() {
 func (f *Fetch) Init() {
 	f.client = &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse },
-		Timeout:       time.Second * 5,
+		Timeout:       time.Second * 15,
 	}
 }
 func (f *Fetch) SkipTlsCheck() {

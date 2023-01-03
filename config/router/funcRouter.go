@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"wejh-go/app/controllers/funcControllers/canteenController"
+	"wejh-go/app/controllers/funcControllers/lessonController"
 	"wejh-go/app/controllers/funcControllers/libraryController"
 	"wejh-go/app/controllers/funcControllers/schoolBusController"
 	"wejh-go/app/controllers/funcControllers/zfController"
@@ -16,6 +17,14 @@ func funcRouterInit(r *gin.RouterGroup) {
 	{
 		// TODO 准备删除
 		fun.POST("/canteen/flow", canteenController.GetCanteenFlowRate)
+
+		lesson := fun.Group("/lesson", midwares.CheckLogin)
+		{
+			lesson.POST("/create", lessonController.CreateLesson)
+			lesson.POST("/get", lessonController.GetLesson)
+			lesson.POST("/update", lessonController.UpdateLesson)
+			lesson.POST("/delete", lessonController.DeleteLesson)
+		}
 
 		electricity := fun.Group("/electricity", midwares.CheckLogin)
 		{
