@@ -19,10 +19,9 @@ func GetUserInfo(c *gin.Context) {
 			"username":  user.Username,
 			"studentID": user.StudentID,
 			"bind": gin.H{
-				"zf":   user.ZFPassword != "",
-				"lib":  user.LibPassword != "",
-				"card": false,
-				"yxy":  user.YxyUid != "",
+				"zf":  user.ZFPassword != "",
+				"lib": user.LibPassword != "",
+				"yxy": user.YxyUid != "",
 			},
 			"userType":   user.Type,
 			"phoneNum":   user.PhoneNum,

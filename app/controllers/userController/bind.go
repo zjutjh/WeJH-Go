@@ -113,17 +113,19 @@ func GetCaptcha(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
-	token, err := yxyServices.GetToken("SecurityToken" + user.Username)
+	u := uuid.New()
+	deviceId := u.String()
+	userServices.SetDeviceID(user, deviceId)
+	data, err := yxyServices.GetSecurityToken(deviceId)
 	if err != nil {
-		data, err := yxyServices.GetSecurityToken(user.DeviceID)
-		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
-			return
-		}
-		token = &data.Token
-		yxyServices.DelToken("SecurityToken" + user.Username)
-		yxyServices.SetToken("SecurityToken"+user.Username, data.Token)
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
 	}
+	if yxyServices.CheckToken("SecurityToken" + user.Username) {
+		yxyServices.DelToken("SecurityToken" + user.Username)
+	}
+	yxyServices.SetToken("SecurityToken"+user.Username, data.Token)
+	token := &data.Token
 	img, err := yxyServices.GetCaptchaImage(user.DeviceID, *token)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
@@ -178,6 +180,7 @@ func LoginYxy(c *gin.Context) {
 		return
 	}
 	userServices.SetYxyUid(user, *uid)
+	userServices.DecryptUserKeyInfo(user)
 	userServices.SetPhoneNum(user, postForm.PhoneNum)
 	utils.JsonSuccessResponse(c, nil)
 }
