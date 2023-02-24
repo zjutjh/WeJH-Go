@@ -3,13 +3,14 @@ package userController
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"wejh-go/app/apiException"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
 	"wejh-go/config/wechat"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type autoLoginForm struct {
@@ -69,6 +70,29 @@ func AuthByPassword(c *gin.Context) {
 		},
 	})
 
+}
+
+func AuthBySession(c *gin.Context) {
+	user, err := sessionServices.UpdateUserSession(c)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+	utils.JsonSuccessResponse(c, gin.H{
+		"user": gin.H{
+			"id":        user.ID,
+			"username":  user.Username,
+			"studentID": user.StudentID,
+			"bind": gin.H{
+				"zf":  user.ZFPassword != "",
+				"lib": user.LibPassword != "",
+				"yxy": user.YxyUid != "",
+			},
+			"userType":   user.Type,
+			"phoneNum":   user.PhoneNum,
+			"createTime": user.CreateTime,
+		},
+	})
 }
 
 func WeChatLogin(c *gin.Context) {
