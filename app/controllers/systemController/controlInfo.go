@@ -14,6 +14,9 @@ func Info(c *gin.Context) {
 	schoolBusUrl := config.GetSchoolBusUrl()
 
 	week := ((currentTime.Unix()-startTime.Unix())/3600+8)/24/7 + 1
+	if currentTime.Unix() < startTime.Unix()-8*3600 {
+		week = -1
+	}
 	utils.JsonSuccessResponse(c, gin.H{
 		"time":          time.Now(),
 		"is_begin":      week > 0,
@@ -21,6 +24,7 @@ func Info(c *gin.Context) {
 		"termYear":      year,
 		"term":          term,
 		"week":          week,
+		"score":         "上", //TODO 特殊时期过去后删除
 		"schoolBusUrl":  schoolBusUrl,
 	})
 

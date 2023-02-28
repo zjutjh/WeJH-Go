@@ -3,6 +3,7 @@ package yxyServices
 import (
 	"github.com/mitchellh/mapstructure"
 	"net/url"
+	"wejh-go/app/apiException"
 	"wejh-go/config/api/yxyApi"
 )
 
@@ -123,6 +124,9 @@ func ElectricityBalance(token string) (*map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	if resp.Data == nil {
+		return nil, apiException.ServerError
+	}
 	m := resp.Data.(map[string]interface{})
 	return &m, nil
 }
@@ -145,6 +149,9 @@ func ElectricityRechargeRecords(token, areaId, buildingCode, floorCode, roomCode
 	if err != nil {
 		return nil, err
 	}
+	if resp.Data == nil {
+		return nil, apiException.ServerError
+	}
 	m := resp.Data.([]interface{})
 	return &m, nil
 }
@@ -166,6 +173,9 @@ func ElectricityConsumptionRecords(token, areaId, buildingCode, floorCode, roomC
 	resp, err := FetchHandleOfGet(yxyApi.YxyApi(urlPath))
 	if err != nil {
 		return nil, err
+	}
+	if resp.Data == nil {
+		return nil, apiException.ServerError
 	}
 	m := resp.Data.([]interface{})
 	return &m, nil
