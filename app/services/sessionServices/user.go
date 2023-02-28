@@ -2,10 +2,11 @@ package sessionServices
 
 import (
 	"errors"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-gonic/gin"
 	"wejh-go/app/models"
 	"wejh-go/app/services/userServices"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 )
 
 func SetUserSession(c *gin.Context, user *models.User) error {
@@ -25,6 +26,18 @@ func GetUserSession(c *gin.Context) (*models.User, error) {
 	if user == nil {
 		ClearUserSession(c)
 		return nil, errors.New("")
+	}
+	return user, nil
+}
+
+func UpdateUserSession(c *gin.Context) (*models.User, error) {
+	user, err := GetUserSession(c)
+	if err != nil {
+		return nil, err
+	}
+	err = SetUserSession(c, user)
+	if err != nil {
+		return nil, err
 	}
 	return user, nil
 }
