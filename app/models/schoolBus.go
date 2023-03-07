@@ -9,7 +9,7 @@ type SchoolBus struct {
 	Line        string        `json:"line"`
 	Departure   string        `json:"departure"`
 	Destination string        `json:"destination"`
-	Type        SchoolBusType `json:"-"`
+	Type        SchoolBusType `json:"type"`
 	StartTime   string        `json:"startTime"`
 	UpdatedAt   time.Time     `json:"-" gorm:"type:timestamp;"`
 }

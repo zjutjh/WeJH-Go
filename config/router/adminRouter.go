@@ -11,6 +11,7 @@ func adminRouterInit(r *gin.RouterGroup) {
 
 	admin := r.Group("/admin", midwares.CheckAdmin)
 	{
+		admin.GET("/check", adminController.CheckAdmin)
 		announcement := admin.Group("/announcement")
 		{
 			announcement.POST("/create", adminController.CreateAnnouncement)
