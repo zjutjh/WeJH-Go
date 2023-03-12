@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"wejh-go/app/controllers/adminController"
+	"wejh-go/app/controllers/funcControllers/lostAndFoundRecordController"
 	"wejh-go/app/midwares"
 )
 
@@ -36,5 +37,14 @@ func adminRouterInit(r *gin.RouterGroup) {
 			set.POST("/encrypt", adminController.SetEncryptKey)
 			set.POST("/terminfo", adminController.SetTermInfo)
 		}
+	}
+
+	forU := r.Group("/foru", midwares.CheckLostAndFoundAdmin)
+	{
+		forU.POST("/lost", lostAndFoundRecordController.InsertRecord)
+		forU.POST("/upload_img", lostAndFoundRecordController.UploadImg)
+		forU.PUT("/lost", lostAndFoundRecordController.UpdateRecord)
+		forU.GET("/lost", lostAndFoundRecordController.GetRecordsByAdmin)
+		forU.DELETE("/lost", lostAndFoundRecordController.DeleteRecord)
 	}
 }

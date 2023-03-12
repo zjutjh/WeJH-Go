@@ -21,8 +21,11 @@ type User struct {
 type UserType int
 
 const (
-	Undergraduate UserType = 0
-	Postgraduate  UserType = 1
-	Teacher       UserType = 2
-	Admin         UserType = 3
+	Undergraduate           UserType = 0
+	Postgraduate            UserType = 1
+	ForU                    UserType = 2
+	Admin                   UserType = 3
+	ZHStudentAffairsCenter  UserType = 4
+	PFStudentAffairsCenter  UserType = 5
+	MGSStudentAffairsCenter UserType = 6
 )

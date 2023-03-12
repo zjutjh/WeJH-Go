@@ -6,6 +6,7 @@ import (
 	"wejh-go/app/controllers/funcControllers/customizeHomeController"
 	"wejh-go/app/controllers/funcControllers/lessonController"
 	"wejh-go/app/controllers/funcControllers/libraryController"
+	"wejh-go/app/controllers/funcControllers/lostAndFoundRecordController"
 	"wejh-go/app/controllers/funcControllers/schoolBusController"
 	"wejh-go/app/controllers/funcControllers/zfController"
 	"wejh-go/app/controllers/yxyController/electricityController"
@@ -68,6 +69,12 @@ func funcRouterInit(r *gin.RouterGroup) {
 			zf.POST("/room", zfController.GetRoom)
 			zf.POST("/score", zfController.GetScore)
 			zf.POST("/midtermscore", zfController.GetMidTermScore)
+		}
+
+		lost := fun.Group("/lost", midwares.CheckLogin)
+		{
+			lost.GET("", lostAndFoundRecordController.GetRecords)
+			lost.GET("/kind_list", lostAndFoundRecordController.GetKindList)
 		}
 	}
 }
