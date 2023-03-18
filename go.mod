@@ -12,7 +12,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/sessions v1.2.1 // indirect
 	github.com/json-iterator/go v1.1.11 // indirect
-	github.com/kolesa-team/go-webp v1.0.4 // indirect
+	github.com/kolesa-team/go-webp v1.0.4
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mitchellh/mapstructure v1.5.0

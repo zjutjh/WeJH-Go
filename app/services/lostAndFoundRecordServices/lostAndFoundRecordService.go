@@ -21,7 +21,8 @@ func GetRecord(campus, kind string, pageNum, pageSize int) ([]models.LostAndFoun
 	result := database.DB.Where(models.LostAndFoundRecord{
 		Campus: campus,
 		Kind:   kind,
-	}).Not("is_processed", true).Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&record)
+	}).Not("is_processed", true).Limit(pageSize).Offset((pageNum - 1) * pageSize).
+		Order("publish_time desc").Find(&record)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -55,7 +56,8 @@ func GetRecordByAdmin(publisher string, pageNum, pageSize int) ([]models.LostAnd
 	var record []models.LostAndFoundRecord
 	result := database.DB.Where(models.LostAndFoundRecord{
 		Publisher: publisher,
-	}).Not("is_processed", true).Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&record)
+	}).Not("is_processed", true).Limit(pageSize).Offset((pageNum - 1) * pageSize).
+		Order("publish_time desc").Find(&record)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -102,10 +104,9 @@ func CreateRecord(record models.LostAndFoundRecord) error {
 }
 
 func UpdateRecord(id int, record models.LostAndFoundRecord) error {
-	result := database.DB.Model(models.LostAndFoundRecord{}).Where(
-		&models.LostAndFoundRecord{
-			ID: id,
-		}).Updates(&record)
+	result := database.DB.Model(models.LostAndFoundRecord{}).
+		Select("type", "campus", "kind", "content", "is_processed").
+		Where(&models.LostAndFoundRecord{ID: id}).Updates(&record)
 	if result.Error != nil {
 		return result.Error
 	}
