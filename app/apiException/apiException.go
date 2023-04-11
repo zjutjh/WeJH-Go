@@ -25,7 +25,7 @@ var (
 	PwdError              = NewError(http.StatusInternalServerError, 200511, "密码长度必须在6~20位之间")
 	ReactiveError         = NewError(http.StatusInternalServerError, 200512, "该通行证已经存在，请重新输入")
 	StudentIdError        = NewError(http.StatusInternalServerError, 200513, "学号格式不正确，请重新输入")
-	YxySessionExpired     = NewError(http.StatusInternalServerError, 200514, "一卡通登陆过期，请重新登陆")
+	YxySessionExpired     = NewError(http.StatusInternalServerError, 200514, "一卡通登陆过期，请稍后再试")
 	YxyNeedCaptcha        = NewError(http.StatusInternalServerError, 500515, "请输入验证码")
 	WrongCaptcha          = NewError(http.StatusInternalServerError, 200516, "图形验证码错误")
 	WrongPhoneNum         = NewError(http.StatusInternalServerError, 200517, "手机号格式不正确")

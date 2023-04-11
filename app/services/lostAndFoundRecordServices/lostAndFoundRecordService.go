@@ -75,6 +75,25 @@ func GetRecordTotalPageNumByAdmin(publisher string) (*int64, error) {
 	return &pageNum, nil
 }
 
+func GetRecordBySuperAdmin(pageNum, pageSize int) ([]models.LostAndFoundRecord, error) {
+	var record []models.LostAndFoundRecord
+	result := database.DB.Not("is_processed", true).Limit(pageSize).Offset((pageNum - 1) * pageSize).
+		Order("publish_time desc").Find(&record)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return record, nil
+}
+
+func GetRecordTotalPageNumBySuperAdmin() (*int64, error) {
+	var pageNum int64
+	result := database.DB.Model(models.LostAndFoundRecord{}).Not("is_processed", true).Count(&pageNum)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &pageNum, nil
+}
+
 func GetKindList() ([]models.LostKind, error) {
 	var kinds []models.LostKind
 	result := database.DB.Where(models.LostKind{}).Find(&kinds)

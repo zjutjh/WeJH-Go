@@ -11,10 +11,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v4
       with:
         go-version: 1.15
 
@@ -50,7 +50,7 @@ jobs:
         echo '### The latest five updates are:' >> ReleaseNotes.md
         git log -"5" --format="- %H %s" | sed '/^$/d' >> ReleaseNotes.md
     - name: Delete Old Prerelease
-      uses: dev-drprasad/delete-tag-and-release@v0.1.2
+      uses: dev-drprasad/delete-tag-and-release@v0.2.1
       with:
         tag_name: ${{ env.OLD_PRE_TAG }}
       env:

@@ -1,13 +1,16 @@
 package userController
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"time"
 	"wejh-go/app/apiException"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/services/yxyServices"
 	"wejh-go/app/utils"
+	"wejh-go/config/redis"
 )
 
 type bindForm struct {
@@ -115,7 +118,7 @@ func GetCaptcha(c *gin.Context) {
 	}
 	u := uuid.New()
 	deviceId := u.String()
-	userServices.SetDeviceID(user, deviceId)
+	redis.RedisClient.Set(context.Background(), user.Username + "_device_id", deviceId, time.Minute * 5)
 	data, err := yxyServices.GetSecurityToken(deviceId)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
@@ -151,7 +154,8 @@ func SendVerificationCodeByCaptcha(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.YxyNeedCaptcha)
 		return
 	}
-	err = yxyServices.SendVerificationCode(*token, user.DeviceID, postForm.Captcha, postForm.PhoneNum)
+	deviceId, err := redis.RedisClient.Get(context.Background(), user.Username+"_device_id").Result()
+	err = yxyServices.SendVerificationCode(*token, deviceId, postForm.Captcha, postForm.PhoneNum)
 	if err == apiException.WrongCaptcha || err == apiException.NotBindYxy {
 		_ = c.AbortWithError(200, err)
 		return
@@ -174,11 +178,17 @@ func LoginYxy(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
-	uid, err := yxyServices.LoginByCode(postForm.Code, user.DeviceID, postForm.PhoneNum)
+	deviceId, err := redis.RedisClient.Get(context.Background(), user.Username+"_device_id").Result()
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+	uid, err := yxyServices.LoginByCode(postForm.Code, deviceId, postForm.PhoneNum)
 	if err != nil {
 		_ = c.AbortWithError(200, err)
 		return
 	}
+	userServices.SetDeviceID(user, deviceId)
 	userServices.SetYxyUid(user, *uid)
 	userServices.DecryptUserKeyInfo(user)
 	userServices.SetPhoneNum(user, postForm.PhoneNum)

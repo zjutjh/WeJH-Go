@@ -2,7 +2,7 @@ package config
 
 const schoolBusUrlKey = "schoolBusUrlKey"
 
-const webpUrlKey = "webpUrlKey"
+const webpUrlKey = "jpgUrlKey"
 
 func GetSchoolBusUrl() string {
 	return getConfig(schoolBusUrlKey)

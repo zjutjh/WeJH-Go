@@ -34,6 +34,7 @@ func GetCardBalance(deviceId, uid string) (*string, error) {
 	params.Set("school_code", ZJUTSchoolCode)
 	Url.RawQuery = params.Encode()
 	urlPath := Url.String()
+	_ = SilentLogin(deviceId, uid)
 	resp, err := FetchHandleOfGet(yxyApi.YxyApi(urlPath))
 	if err != nil {
 		return nil, err
@@ -61,6 +62,7 @@ func GetCardConsumptionRecord(deviceId, uid, queryTime string) (ConsumptionRecor
 	params.Set("school_code", ZJUTSchoolCode)
 	Url.RawQuery = params.Encode()
 	urlPath := Url.String()
+	_ = SilentLogin(deviceId, uid)
 	resp, err := FetchHandleOfGet(yxyApi.YxyApi(urlPath))
 	if err != nil {
 		return nil, err

@@ -3,6 +3,7 @@ package electricityController
 import (
 	"github.com/gin-gonic/gin"
 	"wejh-go/app/apiException"
+	"wejh-go/app/models"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/yxyServices"
 	"wejh-go/app/utils"
@@ -100,4 +101,24 @@ func GetConsumptionRecords(c *gin.Context) {
 		return
 	}
 	utils.JsonSuccessResponse(c, records)
+}
+
+func InsertLowBatteryQuery(c *gin.Context) {
+	user, err := sessionServices.GetUserSession(c)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.NotLogin)
+		return
+	}
+	if user.YxyUid == "" {
+		_ = c.AbortWithError(200, apiException.NotBindYxy)
+		return
+	}
+	err = yxyServices.InsertRecord(models.LowBatteryQueryRecord{
+		UserID: user.ID,
+	})
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+	utils.JsonSuccessResponse(c, nil)
 }

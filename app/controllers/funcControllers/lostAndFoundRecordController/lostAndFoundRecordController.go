@@ -80,17 +80,33 @@ func GetRecordsByAdmin(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
+	var lostAndFoundRecords []models.LostAndFoundRecord
+	var totalPageNum *int64
 	publisher := getPublisher(c)
-	lostAndFoundRecords, err := lostAndFoundRecordServices.GetRecordByAdmin(*publisher, pageNum, pageSize)
-	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
-		return
+	if *publisher == "Admin" {
+		lostAndFoundRecords, err = lostAndFoundRecordServices.GetRecordBySuperAdmin(pageNum, pageSize)
+		if err != nil {
+			_ = c.AbortWithError(200, apiException.ServerError)
+			return
+		}
+		totalPageNum, err = lostAndFoundRecordServices.GetRecordTotalPageNumBySuperAdmin()
+		if err != nil {
+			_ = c.AbortWithError(200, apiException.ServerError)
+			return
+		}
+	} else {
+		lostAndFoundRecords, err = lostAndFoundRecordServices.GetRecordByAdmin(*publisher, pageNum, pageSize)
+		if err != nil {
+			_ = c.AbortWithError(200, apiException.ServerError)
+			return
+		}
+		totalPageNum, err = lostAndFoundRecordServices.GetRecordTotalPageNumByAdmin(*publisher)
+		if err != nil {
+			_ = c.AbortWithError(200, apiException.ServerError)
+			return
+		}
 	}
-	totalPageNum, err := lostAndFoundRecordServices.GetRecordTotalPageNumByAdmin(*publisher)
-	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
-		return
-	}
+
 	utils.JsonSuccessResponse(c, gin.H{
 		"data":           lostAndFoundRecords,
 		"total_page_num": math.Ceil(float64(*totalPageNum) / float64(pageSize)),
@@ -179,14 +195,18 @@ func getPublisher(c *gin.Context) *string {
 		return nil
 	}
 	var publisher string
-	if user.Type == models.ForU {
-		publisher = "ForU"
-	} else if user.Type == models.ZHStudentAffairsCenter {
-		publisher = "ZHStudentAffairsCenter"
-	} else if user.Type == models.PFStudentAffairsCenter {
-		publisher = "PFStudentAffairsCenter"
-	} else if user.Type == models.MGSStudentAffairsCenter {
-		publisher = "MGSStudentAffairsCenter"
+	if user.Username == "zhforu" {
+		publisher = "For You 朝晖校区"
+	} else if user.Username == "pfforu" {
+		publisher = "For You 屏峰校区"
+	} else if user.Username == "mgsforu" {
+		publisher = "For You 莫干山校区"
+	} else if user.Username == "zhstuac" {
+		publisher = "朝晖学生事务大厅"
+	} else if user.Username == "pfstuac" {
+		publisher = "屏峰学生事务大厅"
+	} else if user.Username == "mgsstuac" {
+		publisher = "莫干山学生事务大厅"
 	} else if user.Type == models.Admin {
 		publisher = "Admin"
 	}
