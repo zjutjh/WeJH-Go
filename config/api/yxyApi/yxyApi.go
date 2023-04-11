@@ -18,4 +18,5 @@ const (
 	ElectricityBalance     YxyApi = "v1/app/electricity/subsidy/by_user"
 	RechargeRecords        YxyApi = "v1/app/electricity/recharge/by_room"
 	ElectricityConsumption YxyApi = "v1/app/electricity/consumption"
+	SlientLogin            YxyApi = "v1/campus/login/silent"
 )

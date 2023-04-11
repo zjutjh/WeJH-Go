@@ -39,6 +39,7 @@ func funcRouterInit(r *gin.RouterGroup) {
 			electricity.GET("/balance", electricityController.GetBalance)
 			electricity.POST("/record", electricityController.GetRechargeRecords)
 			electricity.GET("/consumption", electricityController.GetConsumptionRecords)
+			electricity.POST("/subscription", electricityController.InsertLowBatteryQuery)
 		}
 
 		bus := fun.Group("/bus", midwares.CheckLogin)
@@ -59,7 +60,6 @@ func funcRouterInit(r *gin.RouterGroup) {
 		{
 			library.POST("/current", libraryController.GetCurrent)
 			library.POST("/history", libraryController.GetHistory)
-
 		}
 
 		zf := fun.Group("/zf", midwares.CheckLogin)

@@ -1,13 +1,14 @@
 package lostAndFoundRecordController
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/kolesa-team/go-webp/encoder"
-	"github.com/kolesa-team/go-webp/webp"
 	"image/jpeg"
 	"image/png"
 	"math"
+	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"strconv"
@@ -33,8 +34,9 @@ type LostAndFoundForm struct {
 }
 
 func GetRecords(c *gin.Context) {
-	campus := c.Query("campus")
-	kind := c.Query("kind")
+
+	campus, _ := url.QueryUnescape(c.Query("campus"))
+	kind, _ := url.QueryUnescape(c.Query("kind"))
 	pageNumRaw := c.Query("page_num")
 	pageSizeRaw := c.Query("page_size")
 	pageNum, err := strconv.Atoi(pageNumRaw)
@@ -78,17 +80,33 @@ func GetRecordsByAdmin(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
+	var lostAndFoundRecords []models.LostAndFoundRecord
+	var totalPageNum *int64
 	publisher := getPublisher(c)
-	lostAndFoundRecords, err := lostAndFoundRecordServices.GetRecordByAdmin(*publisher, pageNum, pageSize)
-	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
-		return
+	if *publisher == "Admin" {
+		lostAndFoundRecords, err = lostAndFoundRecordServices.GetRecordBySuperAdmin(pageNum, pageSize)
+		if err != nil {
+			_ = c.AbortWithError(200, apiException.ServerError)
+			return
+		}
+		totalPageNum, err = lostAndFoundRecordServices.GetRecordTotalPageNumBySuperAdmin()
+		if err != nil {
+			_ = c.AbortWithError(200, apiException.ServerError)
+			return
+		}
+	} else {
+		lostAndFoundRecords, err = lostAndFoundRecordServices.GetRecordByAdmin(*publisher, pageNum, pageSize)
+		if err != nil {
+			_ = c.AbortWithError(200, apiException.ServerError)
+			return
+		}
+		totalPageNum, err = lostAndFoundRecordServices.GetRecordTotalPageNumByAdmin(*publisher)
+		if err != nil {
+			_ = c.AbortWithError(200, apiException.ServerError)
+			return
+		}
 	}
-	totalPageNum, err := lostAndFoundRecordServices.GetRecordTotalPageNumByAdmin(*publisher)
-	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
-		return
-	}
+
 	utils.JsonSuccessResponse(c, gin.H{
 		"data":           lostAndFoundRecords,
 		"total_page_num": math.Ceil(float64(*totalPageNum) / float64(pageSize)),
@@ -156,10 +174,12 @@ func UpdateRecord(c *gin.Context) {
 		return
 	}
 	err = lostAndFoundRecordServices.UpdateRecord(postForm.ID, models.LostAndFoundRecord{
-		Type:    postForm.Type,
-		Campus:  postForm.Campus,
-		Kind:    postForm.Kind,
-		Content: postForm.Content,
+		Type:        postForm.Type,
+		Campus:      postForm.Campus,
+		Kind:        postForm.Kind,
+		Content:     postForm.Content,
+		Publisher:   *publisher,
+		IsProcessed: false,
 	})
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
@@ -175,17 +195,20 @@ func getPublisher(c *gin.Context) *string {
 		return nil
 	}
 	var publisher string
-	if user.Type == models.ForU {
-		publisher = "ForU"
-	} else if user.Type == models.ZHStudentAffairsCenter {
-		publisher = "ZHStudentAffairsCenter"
-	} else if user.Type == models.PFStudentAffairsCenter {
-		publisher = "PFStudentAffairsCenter"
-	} else if user.Type == models.MGSStudentAffairsCenter {
-		publisher = "MGSStudentAffairsCenter"
-	} else {
-		_ = c.AbortWithError(200, apiException.NotAdmin)
-		return nil
+	if user.Username == "zhforu" {
+		publisher = "For You 朝晖校区"
+	} else if user.Username == "pfforu" {
+		publisher = "For You 屏峰校区"
+	} else if user.Username == "mgsforu" {
+		publisher = "For You 莫干山校区"
+	} else if user.Username == "zhstuac" {
+		publisher = "朝晖学生事务大厅"
+	} else if user.Username == "pfstuac" {
+		publisher = "屏峰学生事务大厅"
+	} else if user.Username == "mgsstuac" {
+		publisher = "莫干山学生事务大厅"
+	} else if user.Type == models.Admin {
+		publisher = "Admin"
 	}
 	return &publisher
 }
@@ -196,29 +219,52 @@ func UploadImg(c *gin.Context) {
 	imgName := img.Filename
 	_ = c.SaveUploadedFile(img, "./tmp/"+imgName)
 	file, _ := os.Open("./tmp/" + imgName)
+	buffer := make([]byte, 512)
+	_, _ = file.Read(buffer)
+	contentType := http.DetectContentType(buffer)
+	file.Close()
+	file, _ = os.Open("./tmp/" + imgName)
 	defer file.Close()
-	if path.Ext(path.Base(img.Filename)) == ".png" {
-		imgNew, _ := png.Decode(file)
-		out, _ := os.Create("./tmp/" + strings.TrimSuffix(img.Filename, path.Ext(path.Base(img.Filename))) + ".jpg")
+	if contentType == "image/png" {
+		newTypeName := "./tmp/" + strings.TrimSuffix(img.Filename, path.Ext(path.Base(img.Filename))) + ".png"
+		_ = os.Rename("./tmp/"+imgName, newTypeName)
+		imgNew, err := png.Decode(file)
+		if err != nil {
+			fmt.Println(err)
+			_ = c.AbortWithError(200, apiException.ImgTypeError)
+			return
+		}
+		out, err := os.Create("./tmp/" + strings.TrimSuffix(img.Filename, path.Ext(path.Base(img.Filename))) + ".jpg")
+		if err != nil {
+			fmt.Println(err)
+			_ = c.AbortWithError(200, apiException.ImgTypeError)
+			return
+		}
 		defer out.Close()
-		_ = jpeg.Encode(out, imgNew, &jpeg.Options{Quality: 95})
-		_ = os.Remove("./tmp/" + img.Filename)
+		err = jpeg.Encode(out, imgNew, &jpeg.Options{Quality: 95})
+		if err != nil {
+			fmt.Println(err)
+			_ = c.AbortWithError(200, apiException.ImgTypeError)
+			return
+		}
+		_ = os.Remove(newTypeName)
 		imgName = strings.TrimSuffix(img.Filename, path.Ext(path.Base(img.Filename))) + ".jpg"
 		file.Close()
 		file, _ = os.Open("./tmp/" + imgName)
 	}
-	imgNew, _ := jpeg.Decode(file)
-	fileName := uuid.NewString() + ".webp"
-	output, _ := os.Create("./img/" + fileName)
-	defer output.Close()
-	options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
+	imgNew, err := jpeg.Decode(file)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		fmt.Println(err)
+		_ = c.AbortWithError(200, apiException.ImgTypeError)
 		return
 	}
-	err = webp.Encode(output, imgNew, options)
+	fileName := uuid.NewString() + ".jpg"
+	output, _ := os.Create("./img/" + fileName)
+	defer output.Close()
+	err = jpeg.Encode(output, imgNew, &jpeg.Options{Quality: 40})
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		fmt.Println(err)
+		_ = c.AbortWithError(200, apiException.ImgTypeError)
 		return
 	}
 	_ = os.Remove("./tmp/" + imgName)
@@ -243,6 +289,11 @@ func DeleteRecord(c *gin.Context) {
 		return
 	}
 	err = lostAndFoundRecordServices.UpdateRecord(lostId, models.LostAndFoundRecord{
+		Type:        record.Type,
+		Campus:      record.Campus,
+		Kind:        record.Kind,
+		Content:     record.Content,
+		Publisher:   *publisher,
 		IsProcessed: true,
 	})
 	_ = os.Remove("./img/" + strings.TrimPrefix(record.Img1, config.GetWebpUrlKey()))

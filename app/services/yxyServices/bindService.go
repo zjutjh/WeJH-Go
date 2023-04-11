@@ -141,3 +141,23 @@ func LoginByCode(code, deviceId, phoneNum string) (*string, error) {
 	}
 	return &data.UID, nil
 }
+
+func SilentLogin(deviceId, uid string) error {
+	var form map[string]string
+	form = make(map[string]string)
+	form["uid"] = uid
+	form["device_id"] = deviceId
+	resp, err := FetchHandleOfPost(form, yxyApi.SlientLogin)
+	if err != nil {
+		return err
+	}
+	if resp.Code == 403 {
+		fmt.Println(resp.Msg)
+		return apiException.YxySessionExpired
+	} else if resp.Code != 0 {
+		return apiException.ServerError
+	}
+	var data userInfo
+	err = mapstructure.Decode(resp.Data, &data)
+	return err
+}

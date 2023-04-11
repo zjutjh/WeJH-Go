@@ -14,9 +14,7 @@ func CheckLostAndFoundAdmin(c *gin.Context) {
 		return
 	}
 	if user.Type != models.ForU && user.Type != models.Admin &&
-		user.Type != models.ZHStudentAffairsCenter &&
-		user.Type != models.PFStudentAffairsCenter &&
-		user.Type != models.MGSStudentAffairsCenter {
+		user.Type != models.StudentAffairsCenter {
 		_ = c.AbortWithError(200, apiException.NotAdmin)
 		return
 	}

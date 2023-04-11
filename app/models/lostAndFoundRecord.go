@@ -12,6 +12,6 @@ type LostAndFoundRecord struct {
 	Img1        string    `json:"img1"`
 	Img2        string    `json:"img2"`
 	Img3        string    `json:"img3"`
-	Publisher   string    `json:"-"`
+	Publisher   string    `json:"publisher"`
 	Content     string    `json:"content"`
 }
