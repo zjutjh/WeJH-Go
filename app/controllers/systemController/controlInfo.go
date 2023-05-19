@@ -24,7 +24,7 @@ func Info(c *gin.Context) {
 		"termYear":      year,
 		"term":          term,
 		"week":          week,
-		"score":         "上", //TODO 特殊时期过去后删除
+		"score":         "下", //TODO 特殊时期过去后删除
 		"schoolBusUrl":  schoolBusUrl,
 	})
 
