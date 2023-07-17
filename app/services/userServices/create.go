@@ -14,8 +14,7 @@ func CreateStudentUser(username, password, studentID, IDCardNumber, email string
 	if CheckUsername(username) {
 		return nil, apiException.UserAlreadyExisted
 	}
-
-	err := userCenterServices.OldActiveStudent(studentID, password, IDCardNumber, email)
+	err := userCenterServices.RegWithoutVerify(studentID, password, IDCardNumber, email)
 	if err != nil && err != apiException.ReactiveError {
 		return nil, err
 	}
