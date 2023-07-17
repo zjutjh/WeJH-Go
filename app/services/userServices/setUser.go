@@ -48,10 +48,6 @@ func SetDeviceID(user *models.User, deviceID string) {
 }
 
 func DelPassword(user *models.User, passwordType string) {
-	if user.Username == "202103150901" {
-		println(user.ZFPassword)
-		println(user.LibPassword)
-	}
 	switch passwordType {
 	case "ZF":
 		{
