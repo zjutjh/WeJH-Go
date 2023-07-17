@@ -71,6 +71,7 @@ func BindLibraryPassword(c *gin.Context) {
 	utils.JsonSuccessResponse(c, nil)
 }
 
+// SendVerificationCode 这一函数实际上不再被使用
 func SendVerificationCode(c *gin.Context) {
 	var postForm phoneForm
 	err := c.ShouldBindJSON(&postForm)
@@ -118,7 +119,7 @@ func GetCaptcha(c *gin.Context) {
 	}
 	u := uuid.New()
 	deviceId := u.String()
-	redis.RedisClient.Set(context.Background(), user.Username + "_device_id", deviceId, time.Minute * 5)
+	redis.RedisClient.Set(context.Background(), user.Username+"_device_id", deviceId, time.Minute*5)
 	data, err := yxyServices.GetSecurityToken(deviceId)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
@@ -189,6 +190,7 @@ func LoginYxy(c *gin.Context) {
 		return
 	}
 	userServices.SetDeviceID(user, deviceId)
+	userServices.DecryptUserKeyInfo(user)
 	userServices.SetYxyUid(user, *uid)
 	userServices.DecryptUserKeyInfo(user)
 	userServices.SetPhoneNum(user, postForm.PhoneNum)
