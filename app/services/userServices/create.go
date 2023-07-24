@@ -54,3 +54,22 @@ func CreateStudentUserWechat(username, password, studentID, IDCardNumber, email,
 	database.DB.Save(user)
 	return user, nil
 }
+
+func CreateAdmin(userName, password string, adminType int) error {
+	h := sha256.New()
+	h.Write([]byte(password))
+	pass := hex.EncodeToString(h.Sum(nil))
+	admin := &models.User{
+		JHPassword:  pass,
+		Username:    userName,
+		Type:        models.UserType(adminType),
+		StudentID:   userName,
+		LibPassword: "",
+		PhoneNum:    "",
+		YxyUid:      "",
+		DeviceID:    "",
+		CreateTime:  time.Now(),
+	}
+	res := database.DB.Create(&admin)
+	return res.Error
+}

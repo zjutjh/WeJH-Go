@@ -37,6 +37,10 @@ func adminRouterInit(r *gin.RouterGroup) {
 			set.POST("/encrypt", adminController.SetEncryptKey)
 			set.POST("/terminfo", adminController.SetTermInfo)
 		}
+		user := admin.Group("/user")
+		{
+			user.POST("/create", adminController.CreateAdminAccount)
+		}
 	}
 
 	forU := r.Group("/foru", midwares.CheckLostAndFoundAdmin)
