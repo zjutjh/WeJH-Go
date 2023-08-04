@@ -17,5 +17,6 @@ func autoMigrate(db *gorm.DB) error {
 		&models.CustomizeHome{},
 		&models.LostAndFoundRecord{},
 		&models.LostKind{},
+		&models.Notice{},
 		&models.LowBatteryQueryRecord{})
 }

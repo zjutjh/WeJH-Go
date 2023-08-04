@@ -7,6 +7,7 @@ import (
 	"wejh-go/app/controllers/funcControllers/lessonController"
 	"wejh-go/app/controllers/funcControllers/libraryController"
 	"wejh-go/app/controllers/funcControllers/lostAndFoundRecordController"
+	"wejh-go/app/controllers/funcControllers/noticeController"
 	"wejh-go/app/controllers/funcControllers/schoolBusController"
 	"wejh-go/app/controllers/funcControllers/zfController"
 	"wejh-go/app/controllers/yxyController/electricityController"
@@ -75,6 +76,10 @@ func funcRouterInit(r *gin.RouterGroup) {
 		{
 			lost.GET("", lostAndFoundRecordController.GetRecords)
 			lost.GET("/kind_list", lostAndFoundRecordController.GetKindList)
+		}
+		notice := fun.Group("/information", midwares.CheckLogin)
+		{
+			notice.GET("", noticeController.GetNotice)
 		}
 	}
 }
