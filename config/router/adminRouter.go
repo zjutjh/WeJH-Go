@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"wejh-go/app/controllers/adminController"
 	"wejh-go/app/controllers/funcControllers/lostAndFoundRecordController"
+	"wejh-go/app/controllers/funcControllers/noticeController"
 	"wejh-go/app/midwares"
 )
 
@@ -45,10 +46,20 @@ func adminRouterInit(r *gin.RouterGroup) {
 
 	forU := r.Group("/foru", midwares.CheckLostAndFoundAdmin)
 	{
-		forU.POST("/lost", lostAndFoundRecordController.InsertRecord)
 		forU.POST("/upload_img", lostAndFoundRecordController.UploadImg)
-		forU.PUT("/lost", lostAndFoundRecordController.UpdateRecord)
-		forU.GET("/lost", lostAndFoundRecordController.GetRecordsByAdmin)
-		forU.DELETE("/lost", lostAndFoundRecordController.DeleteRecord)
+		lost := forU.Group("/lost")
+		{
+			lost.POST("", lostAndFoundRecordController.InsertRecord)
+			lost.PUT("", lostAndFoundRecordController.UpdateRecord)
+			lost.GET("", lostAndFoundRecordController.GetRecordsByAdmin)
+			lost.DELETE("", lostAndFoundRecordController.DeleteRecord)
+		}
+		notice := forU.Group("/information")
+		{
+			notice.POST("", noticeController.InsertNotice)
+			notice.GET("", noticeController.GetNoticeByAdmin)
+			notice.DELETE("", noticeController.DeleteNotice)
+			notice.PUT("", noticeController.UpdateNotice)
+		}
 	}
 }
