@@ -52,7 +52,7 @@ func getRedisConfig() redisConfig {
 		Info.DB = config.Config.GetInt("redis.db")
 	}
 	if config.Config.IsSet("redis.password") {
-		Info.DB = config.Config.GetInt("redis.password")
+		Info.Password = config.Config.GetString("redis.password")
 	}
 	return Info
 }
