@@ -1,11 +1,13 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
 	"wejh-go/app/controllers/adminController"
 	"wejh-go/app/controllers/funcControllers/lostAndFoundRecordController"
 	"wejh-go/app/controllers/funcControllers/noticeController"
+	"wejh-go/app/controllers/funcControllers/suppliesBorrowController"
 	"wejh-go/app/midwares"
+
+	"github.com/gin-gonic/gin"
 )
 
 // 注册杂项路由
@@ -60,6 +62,20 @@ func adminRouterInit(r *gin.RouterGroup) {
 			notice.GET("", noticeController.GetNoticeByAdmin)
 			notice.DELETE("", noticeController.DeleteNotice)
 			notice.PUT("", noticeController.UpdateNotice)
+		}
+	}
+
+	stuAC := r.Group("/stuac", midwares.CheckSuppliesBorrowAdmin)
+	{
+		supplies := stuAC.Group("/supplies")
+		{
+			qa := supplies.Group("/qa")
+			{
+				qa.GET("", suppliesBorrowController.GetQAListByAdmin)
+				qa.POST("", suppliesBorrowController.CreateQA)
+				qa.PUT("", suppliesBorrowController.UpdateQA)
+				qa.DELETE("", suppliesBorrowController.DeleteQA)
+			}
 		}
 	}
 }
