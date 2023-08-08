@@ -23,7 +23,7 @@ func RegWithoutVerify(stu_id string, pass string, iid string, email string) erro
 	if err != nil {
 		return err
 	}
-	if resp.Code == 400 {
+	if resp.Code == 400 || resp.Code == 402 {
 		return apiException.StudentNumAndIidError
 	} else if resp.Code == 401 {
 		return apiException.PwdError
