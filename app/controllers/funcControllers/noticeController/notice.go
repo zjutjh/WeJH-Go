@@ -14,6 +14,21 @@ import (
 	"wejh-go/app/utils"
 )
 
+type Publisher struct {
+	Name               string `json:"name"`
+	BackgroundImageUrl string `json:"backgroundImageUrl"`
+}
+
+type RepNotice struct {
+	ID        int         `json:"id"`
+	Title     string      `json:"title"`
+	Img1      interface{} `json:"img1"`
+	Img2      interface{} `json:"img2"`
+	Img3      interface{} `json:"img3"`
+	Content   string      `json:"content"`
+	Publisher Publisher   `json:"publisher"`
+}
+
 type NoticeForm struct {
 	ID      int         `json:"id"`
 	Title   string      `json:"title"`
@@ -134,7 +149,23 @@ func GetNotice(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
-	utils.JsonSuccessResponse(c, notice)
+	var data []RepNotice
+	for _, i := range notice {
+		temp := RepNotice{
+			ID:      i.ID,
+			Title:   i.Title,
+			Img1:    i.Img1,
+			Img2:    i.Img2,
+			Img3:    i.Img3,
+			Content: i.Content,
+			Publisher: Publisher{
+				Name:               i.Publisher,
+				BackgroundImageUrl: getPublisherImage(i.Publisher),
+			},
+		}
+		data = append(data, temp)
+	}
+	utils.JsonSuccessResponse(c, data)
 }
 
 func getPublisher(c *gin.Context) *string {
@@ -144,14 +175,20 @@ func getPublisher(c *gin.Context) *string {
 		return nil
 	}
 	var publisher string
-	if user.Username == "zhforu" {
-		publisher = "For You 朝晖校区"
-	} else if user.Username == "pfforu" {
-		publisher = "For You 屏峰校区"
-	} else if user.Username == "mgsforu" {
-		publisher = "For You 莫干山校区"
+	if user.Username == "zhforu" || user.Username == "pfforu" || user.Username == "mgsforu" {
+		publisher = "For You工程"
 	} else if user.Type == models.Admin {
 		publisher = "Admin"
 	}
 	return &publisher
+}
+
+func getPublisherImage(publisher string) string {
+	var img string
+	if publisher == "For You工程" {
+		img = config.GetNoticeBackGround("ForYou_img")
+	} else if publisher == "Admin" {
+		img = config.GetNoticeBackGround("JH_img")
+	}
+	return img
 }
