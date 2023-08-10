@@ -24,9 +24,9 @@ import (
 )
 
 type GetRecordsData struct {
-	LostOrFound int `form:"lost_or_found"`
-	PageNum     int `form:"page_num"`
-	PageSize    int `form:"page_size"`
+	LostOrFound string `form:"lost_or_found"`
+	PageNum     int    `form:"page_num"`
+	PageSize    int    `form:"page_size"`
 }
 
 func GetRecords(c *gin.Context) {
@@ -39,11 +39,21 @@ func GetRecords(c *gin.Context) {
 		return
 	}
 
+	var _type int
+	switch data.LostOrFound {
+	case "":
+		_type = 2
+	case "失物":
+		_type = 1
+	case "寻物":
+		_type = 0
+	}
+
 	var lostAndFoundRecords []models.LostAndFoundRecord
-	if data.LostOrFound == 2 {
+	if _type == 2 {
 		lostAndFoundRecords, err = lostAndFoundRecordServices.GetAllLostAndFoundRecord(campus, kind, data.PageNum, data.PageSize)
 	} else {
-		lostAndFoundRecords, err = lostAndFoundRecordServices.GetRecord(campus, kind, data.LostOrFound, data.PageNum, data.PageSize)
+		lostAndFoundRecords, err = lostAndFoundRecordServices.GetRecord(campus, kind, _type, data.PageNum, data.PageSize)
 	}
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
@@ -51,10 +61,10 @@ func GetRecords(c *gin.Context) {
 	}
 
 	var totalPageNum *int64
-	if data.LostOrFound == 2 {
+	if _type == 2 {
 		totalPageNum, err = lostAndFoundRecordServices.GetAllLostAndFoundTotalPageNum(campus, kind)
 	} else {
-		totalPageNum, err = lostAndFoundRecordServices.GetTotalPageNum(campus, kind, data.LostOrFound)
+		totalPageNum, err = lostAndFoundRecordServices.GetTotalPageNum(campus, kind, _type)
 	}
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
@@ -75,27 +85,37 @@ func GetRecordsByAdmin(c *gin.Context) {
 		return
 	}
 
+	var _type int
+	switch data.LostOrFound {
+	case "":
+		_type = 2
+	case "失物":
+		_type = 1
+	case "寻物":
+		_type = 0
+	}
+
 	var lostAndFoundRecords []models.LostAndFoundRecord
 	var totalPageNum *int64
 	publisher := getPublisher(c)
 	if *publisher == "Admin" {
-		lostAndFoundRecords, err = lostAndFoundRecordServices.GetRecordBySuperAdmin(data.LostOrFound, data.PageNum, data.PageSize)
+		lostAndFoundRecords, err = lostAndFoundRecordServices.GetRecordBySuperAdmin(_type, data.PageNum, data.PageSize)
 		if err != nil {
 			_ = c.AbortWithError(200, apiException.ServerError)
 			return
 		}
-		totalPageNum, err = lostAndFoundRecordServices.GetTotalPageNumBySuperAdmin(data.LostOrFound)
+		totalPageNum, err = lostAndFoundRecordServices.GetTotalPageNumBySuperAdmin(_type)
 		if err != nil {
 			_ = c.AbortWithError(200, apiException.ServerError)
 			return
 		}
 	} else {
-		lostAndFoundRecords, err = lostAndFoundRecordServices.GetRecordByAdmin(*publisher, data.LostOrFound, data.PageNum, data.PageSize)
+		lostAndFoundRecords, err = lostAndFoundRecordServices.GetRecordByAdmin(*publisher, _type, data.PageNum, data.PageSize)
 		if err != nil {
 			_ = c.AbortWithError(200, apiException.ServerError)
 			return
 		}
-		totalPageNum, err = lostAndFoundRecordServices.GetTotalPageNumByAdmin(*publisher, data.LostOrFound)
+		totalPageNum, err = lostAndFoundRecordServices.GetTotalPageNumByAdmin(*publisher, _type)
 		if err != nil {
 			_ = c.AbortWithError(200, apiException.ServerError)
 			return
