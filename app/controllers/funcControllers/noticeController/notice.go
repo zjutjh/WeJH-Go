@@ -19,16 +19,6 @@ type Publisher struct {
 	BackgroundImageUrl string `json:"backgroundImageUrl"`
 }
 
-type RepNotice struct {
-	ID        int         `json:"id"`
-	Title     string      `json:"title"`
-	Img1      interface{} `json:"img1"`
-	Img2      interface{} `json:"img2"`
-	Img3      interface{} `json:"img3"`
-	Content   string      `json:"content"`
-	Publisher Publisher   `json:"publisher"`
-}
-
 type NoticeForm struct {
 	ID      int         `json:"id"`
 	Title   string      `json:"title"`
@@ -143,29 +133,12 @@ func GetNoticeByAdmin(c *gin.Context) {
 }
 
 func GetNotice(c *gin.Context) {
-	var notice []models.Notice
 	notice, err := noticeServices.GetNoticeBySuperAdmin()
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
-	var data []RepNotice
-	for _, i := range notice {
-		temp := RepNotice{
-			ID:      i.ID,
-			Title:   i.Title,
-			Img1:    i.Img1,
-			Img2:    i.Img2,
-			Img3:    i.Img3,
-			Content: i.Content,
-			Publisher: Publisher{
-				Name:               i.Publisher,
-				BackgroundImageUrl: getPublisherImage(i.Publisher),
-			},
-		}
-		data = append(data, temp)
-	}
-	utils.JsonSuccessResponse(c, data)
+	utils.JsonSuccessResponse(c, notice)
 }
 
 func getPublisher(c *gin.Context) *string {
@@ -181,14 +154,4 @@ func getPublisher(c *gin.Context) *string {
 		publisher = "Admin"
 	}
 	return &publisher
-}
-
-func getPublisherImage(publisher string) string {
-	var img string
-	if publisher == "For You工程" {
-		img = config.GetNoticeBackGround("ForYou_img")
-	} else if publisher == "Admin" {
-		img = config.GetNoticeBackGround("JH_img")
-	}
-	return img
 }
