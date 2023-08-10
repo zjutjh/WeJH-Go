@@ -19,7 +19,3 @@ func GetWebpUrlKey() string {
 func SetWebpUrlKey(url string) error {
 	return setConfig(webpUrlKey, url)
 }
-
-func GetNoticeBackGround(name string) string {
-	return getConfig(name)
-}
