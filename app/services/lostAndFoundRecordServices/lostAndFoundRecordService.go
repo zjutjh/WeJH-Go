@@ -13,7 +13,8 @@ func GetAllLostAndFoundRecord(campus, kind string, pageNum, pageSize int) ([]mod
 	result := database.DB.Where(models.LostAndFoundRecord{
 		Campus: campus,
 		Kind:   kind,
-	}).Not("is_processed", true).Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&record)
+	}).Not("is_processed", true).Limit(pageSize).Offset((pageNum - 1) * pageSize).
+		Order("publish_time desc").Find(&record)
 	if result.Error != nil {
 		return nil, result.Error
 	}
