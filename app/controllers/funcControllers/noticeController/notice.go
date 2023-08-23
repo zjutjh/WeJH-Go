@@ -149,7 +149,7 @@ func getPublisher(c *gin.Context) *string {
 	}
 	var publisher string
 	if user.Username == "zhforu" || user.Username == "pfforu" || user.Username == "mgsforu" {
-		publisher = "For You工程"
+		publisher = "\"For You\" 工程"
 	} else if user.Type == models.Admin {
 		publisher = "Admin"
 	}
