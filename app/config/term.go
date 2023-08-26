@@ -3,8 +3,10 @@ package config
 const termYearKey = "termYearKey"
 const termKey = "termKey"
 const termStartDate = "termStartDate"
+const scoreTermYearKey = "scoreTermYearKey"
+const scoreTermKey = "scoreTermKey"
 
-func SetTermInfo(yearValue, termValue, termStartDateValue string) error {
+func SetTermInfo(yearValue, termValue, termStartDateValue, scoreYearValue, scoreTermValue string) error {
 	err := setConfig(termYearKey, yearValue)
 	if err != nil {
 		return err
@@ -14,11 +16,19 @@ func SetTermInfo(yearValue, termValue, termStartDateValue string) error {
 		return err
 	}
 	err = setConfig(termStartDate, termStartDateValue)
+	if err != nil {
+		return err
+	}
+	err = setConfig(scoreTermYearKey, scoreYearValue)
+	if err != nil {
+		return err
+	}
+	err = setConfig(scoreTermKey, scoreTermValue)
 	return err
 }
 
-func GetTermInfo() (string, string, string) {
-	return getConfig(termYearKey), getConfig(termKey), getConfig(termStartDate)
+func GetTermInfo() (string, string, string, string, string) {
+	return getConfig(termYearKey), getConfig(termKey), getConfig(termStartDate), getConfig(scoreTermYearKey), getConfig(scoreTermKey)
 }
 
 func IsSetTermInfo() bool {

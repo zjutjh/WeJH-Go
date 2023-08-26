@@ -12,6 +12,8 @@ type termInfoForm struct {
 	YearValue          string `json:"yearValue"`
 	TermValue          string `json:"termValue"`
 	TermStartDateValue string `json:"termStartDateValue"`
+	ScoreYearValue     string `json:"scoreYearValue"`
+	ScoreTermValue     string `json:"scoreTermValue"`
 }
 
 type encryptForm struct {
@@ -65,7 +67,7 @@ func SetTermInfo(c *gin.Context) {
 		return
 	}
 
-	err = config.SetTermInfo(postForm.YearValue, postForm.TermValue, postForm.TermStartDateValue)
+	err = config.SetTermInfo(postForm.YearValue, postForm.TermValue, postForm.TermStartDateValue, postForm.ScoreYearValue, postForm.ScoreTermValue)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return

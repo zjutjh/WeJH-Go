@@ -8,7 +8,7 @@ import (
 )
 
 func Info(c *gin.Context) {
-	year, term, startTimeString := config.GetTermInfo()
+	year, term, startTimeString, scoreYear, scoreTerm := config.GetTermInfo()
 	startTime, _ := time.Parse("2006-01-02", startTimeString) // 学期开始的时间
 	currentTime := time.Now()
 	schoolBusUrl := config.GetSchoolBusUrl()
@@ -23,8 +23,9 @@ func Info(c *gin.Context) {
 		"termStartDate": startTimeString,
 		"termYear":      year,
 		"term":          term,
+		"scoreYear":     scoreYear,
+		"scoreTerm":     scoreTerm,
 		"week":          week,
-		"score":         "下", //TODO 特殊时期过去后删除
 		"schoolBusUrl":  schoolBusUrl,
 	})
 
