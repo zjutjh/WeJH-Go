@@ -26,6 +26,7 @@ func userRouterInit(r *gin.RouterGroup) {
 			bind.POST("/yxy/send/captcha", userController.SendVerificationCodeByCaptcha)
 			bind.POST("/yxy/get/captcha", userController.GetCaptcha)
 			bind.POST("/yxy/login", userController.LoginYxy)
+			bind.POST("/oauth", userController.BindOauthPassword)
 		}
 	}
 }

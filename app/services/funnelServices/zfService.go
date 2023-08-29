@@ -8,17 +8,25 @@ import (
 )
 
 func genTermForm(u *models.User, year, term string) url.Values {
-
+	var password, loginType string
+	if u.OauthPassword != "" {
+		password = u.OauthPassword
+		loginType = "OAUTH"
+	} else {
+		password = u.ZFPassword
+		loginType = "ZF"
+	}
 	form := url.Values{}
 	form.Add("username", u.StudentID)
-	form.Add("password", u.ZFPassword)
+	form.Add("password", password)
+	form.Add("type", loginType)
 	form.Add("year", year)
 	form.Add("term", term)
 	return form
 }
 
 func GetClassTable(u *models.User, year, term string) (interface{}, error) {
-	if u.ZFPassword == "" {
+	if u.ZFPassword == "" && u.OauthPassword == "" {
 		return nil, apiException.NoThatPasswordOrWrong
 	}
 	form := genTermForm(u, year, term)
@@ -26,7 +34,7 @@ func GetClassTable(u *models.User, year, term string) (interface{}, error) {
 }
 
 func GetScore(u *models.User, year, term string) (interface{}, error) {
-	if u.ZFPassword == "" {
+	if u.ZFPassword == "" && u.OauthPassword == "" {
 		return nil, apiException.NoThatPasswordOrWrong
 	}
 	form := genTermForm(u, year, term)
@@ -34,7 +42,7 @@ func GetScore(u *models.User, year, term string) (interface{}, error) {
 }
 
 func GetMidTermScore(u *models.User, year, term string) (interface{}, error) {
-	if u.ZFPassword == "" {
+	if u.ZFPassword == "" && u.OauthPassword == "" {
 		return nil, apiException.NoThatPasswordOrWrong
 	}
 	form := genTermForm(u, year, term)
@@ -42,7 +50,7 @@ func GetMidTermScore(u *models.User, year, term string) (interface{}, error) {
 }
 
 func GetExam(u *models.User, year, term string) (interface{}, error) {
-	if u.ZFPassword == "" {
+	if u.ZFPassword == "" && u.OauthPassword == "" {
 		return nil, apiException.NoThatPasswordOrWrong
 	}
 	form := genTermForm(u, year, term)
@@ -50,7 +58,7 @@ func GetExam(u *models.User, year, term string) (interface{}, error) {
 }
 
 func GetRoom(u *models.User, year, term, campus, weekday, week, sections string) (interface{}, error) {
-	if u.ZFPassword == "" {
+	if u.ZFPassword == "" && u.OauthPassword == "" {
 		return nil, apiException.NoThatPasswordOrWrong
 	}
 	form := genTermForm(u, year, term)

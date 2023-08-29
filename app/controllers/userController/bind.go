@@ -71,6 +71,26 @@ func BindLibraryPassword(c *gin.Context) {
 	utils.JsonSuccessResponse(c, nil)
 }
 
+func BindOauthPassword(c *gin.Context) {
+	var postForm bindForm
+	err := c.ShouldBindJSON(&postForm)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ParamError)
+		return
+	}
+	user, err := sessionServices.GetUserSession(c)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.NotLogin)
+		return
+	}
+	err = userServices.SetOauthPassword(user, postForm.PassWord)
+	if err != nil {
+		_ = c.AbortWithError(200, err)
+		return
+	}
+	utils.JsonSuccessResponse(c, nil)
+}
+
 // SendVerificationCode 这一函数实际上不再被使用
 func SendVerificationCode(c *gin.Context) {
 	var postForm phoneForm
