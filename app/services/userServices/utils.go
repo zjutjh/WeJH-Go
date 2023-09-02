@@ -20,6 +20,10 @@ func DecryptUserKeyInfo(user *models.User) {
 		slt := utils.AesDecrypt(user.PhoneNum, key)
 		user.PhoneNum = slt[0 : len(slt)-len(user.JHPassword)]
 	}
+	if user.OauthPassword != "" {
+		slt := utils.AesDecrypt(user.OauthPassword, key)
+		user.OauthPassword = slt[0 : len(slt)-len(user.JHPassword)]
+	}
 }
 
 func EncryptUserKeyInfo(user *models.User) {
@@ -32,5 +36,8 @@ func EncryptUserKeyInfo(user *models.User) {
 	}
 	if user.PhoneNum != "" {
 		user.PhoneNum = utils.AesEncrypt(user.PhoneNum+user.JHPassword, key)
+	}
+	if user.OauthPassword != "" {
+		user.OauthPassword = utils.AesEncrypt(user.OauthPassword+user.JHPassword, key)
 	}
 }
