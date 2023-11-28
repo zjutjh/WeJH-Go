@@ -9,7 +9,7 @@ import (
 
 func SetZFPassword(user *models.User, password string) error {
 	user.ZFPassword = password
-	_, err := funnelServices.GetExam(user, string(rune(time.Now().Year())), "3")
+	_, err := funnelServices.BindPassword(user, string(rune(time.Now().Year())), "3", "ZF")
 	if err != nil {
 		return err
 	}
@@ -20,7 +20,7 @@ func SetZFPassword(user *models.User, password string) error {
 
 func SetOauthPassword(user *models.User, password string) error {
 	user.OauthPassword = password
-	_, err := funnelServices.GetExam(user, string(rune(time.Now().Year())), "3")
+	_, err := funnelServices.BindPassword(user, string(rune(time.Now().Year())), "3", "OAUTH")
 	if err != nil {
 		return err
 	}
