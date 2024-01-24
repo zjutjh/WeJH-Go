@@ -1,36 +1,20 @@
 package funnelServices
 
 import (
-	"math/rand"
 	"net/url"
-	"time"
-	"wejh-go/app/apiException"
 	"wejh-go/app/models"
 	"wejh-go/config/api/funnelApi"
 )
 
-func genTermForm(u *models.User, year, term string) url.Values {
-	var password, loginType string
+func genTermForm(u *models.User, year, term, loginType string) url.Values {
+	var password string
 
-	rand.Seed(time.Now().UnixNano())
-	oauthVal := rand.Intn(40)
-	zfVal := rand.Intn(60)
-
-	if u.OauthPassword != "" && u.ZFPassword != "" {
-		if oauthVal > zfVal {
-			password = u.OauthPassword
-			loginType = "OAUTH"
-		} else {
-			password = u.ZFPassword
-			loginType = "ZF"
-		}
-	} else if u.OauthPassword != "" {
+	if loginType == "OAUTH" {
 		password = u.OauthPassword
-		loginType = "OAUTH"
 	} else {
 		password = u.ZFPassword
-		loginType = "ZF"
 	}
+
 	form := url.Values{}
 	form.Add("username", u.StudentID)
 	form.Add("password", password)
@@ -40,43 +24,28 @@ func genTermForm(u *models.User, year, term string) url.Values {
 	return form
 }
 
-func GetClassTable(u *models.User, year, term string) (interface{}, error) {
-	if u.ZFPassword == "" && u.OauthPassword == "" {
-		return nil, apiException.NoThatPasswordOrWrong
-	}
-	form := genTermForm(u, year, term)
+func GetClassTable(u *models.User, year, term, loginType string) (interface{}, error) {
+	form := genTermForm(u, year, term, loginType)
 	return FetchHandleOfPost(form, funnelApi.ZFClassTable)
 }
 
-func GetScore(u *models.User, year, term string) (interface{}, error) {
-	if u.ZFPassword == "" && u.OauthPassword == "" {
-		return nil, apiException.NoThatPasswordOrWrong
-	}
-	form := genTermForm(u, year, term)
+func GetScore(u *models.User, year, term, loginType string) (interface{}, error) {
+	form := genTermForm(u, year, term, loginType)
 	return FetchHandleOfPost(form, funnelApi.ZFScore)
 }
 
-func GetMidTermScore(u *models.User, year, term string) (interface{}, error) {
-	if u.ZFPassword == "" && u.OauthPassword == "" {
-		return nil, apiException.NoThatPasswordOrWrong
-	}
-	form := genTermForm(u, year, term)
+func GetMidTermScore(u *models.User, year, term, loginType string) (interface{}, error) {
+	form := genTermForm(u, year, term, loginType)
 	return FetchHandleOfPost(form, funnelApi.ZFMidTermScore)
 }
 
-func GetExam(u *models.User, year, term string) (interface{}, error) {
-	if u.ZFPassword == "" && u.OauthPassword == "" {
-		return nil, apiException.NoThatPasswordOrWrong
-	}
-	form := genTermForm(u, year, term)
+func GetExam(u *models.User, year, term, loginType string) (interface{}, error) {
+	form := genTermForm(u, year, term, loginType)
 	return FetchHandleOfPost(form, funnelApi.ZFExam)
 }
 
-func GetRoom(u *models.User, year, term, campus, weekday, week, sections string) (interface{}, error) {
-	if u.ZFPassword == "" && u.OauthPassword == "" {
-		return nil, apiException.NoThatPasswordOrWrong
-	}
-	form := genTermForm(u, year, term)
+func GetRoom(u *models.User, year, term, campus, weekday, week, sections, loginType string) (interface{}, error) {
+	form := genTermForm(u, year, term, loginType)
 	form.Add("campus", campus)
 	form.Add("weekday", weekday)
 	form.Add("week", week)
