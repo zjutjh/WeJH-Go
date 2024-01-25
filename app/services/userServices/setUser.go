@@ -64,6 +64,10 @@ func DelPassword(user *models.User, passwordType string) {
 		{
 			user.ZFPassword = ""
 		}
+	case "OAUTH":
+		{
+			user.OauthPassword = ""
+		}
 	case "Library":
 		{
 			user.LibPassword = ""
