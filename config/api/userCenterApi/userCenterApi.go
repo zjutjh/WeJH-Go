@@ -13,4 +13,6 @@ const (
 	ReSendEmail        UserCenterApi = "api/email"
 	Auth               UserCenterApi = "api/auth"
 	RePass             UserCenterApi = "api/changePwd"
+	RePassWithoutEmail UserCenterApi = "api/repass"
+	DelAccount         UserCenterApi = "api/del"
 )
