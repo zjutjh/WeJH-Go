@@ -1,8 +1,9 @@
 package database
 
 import (
-	"gorm.io/gorm"
 	"wejh-go/app/models"
+
+	"gorm.io/gorm"
 )
 
 func autoMigrate(db *gorm.DB) error {
@@ -18,5 +19,10 @@ func autoMigrate(db *gorm.DB) error {
 		&models.LostAndFoundRecord{},
 		&models.LostKind{},
 		&models.Notice{},
-		&models.LowBatteryQueryRecord{})
+		&models.LowBatteryQueryRecord{},
+		&models.QA{},
+		&models.PersonalInfo{},
+		&models.Supplies{},
+		&models.BorrowRecord{},
+	)
 }

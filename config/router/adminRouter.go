@@ -1,11 +1,13 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
 	"wejh-go/app/controllers/adminController"
 	"wejh-go/app/controllers/funcControllers/lostAndFoundRecordController"
 	"wejh-go/app/controllers/funcControllers/noticeController"
+	"wejh-go/app/controllers/funcControllers/suppliesController"
 	"wejh-go/app/midwares"
+
+	"github.com/gin-gonic/gin"
 )
 
 // 注册杂项路由
@@ -60,6 +62,39 @@ func adminRouterInit(r *gin.RouterGroup) {
 			notice.GET("", noticeController.GetNoticeByAdmin)
 			notice.DELETE("", noticeController.DeleteNotice)
 			notice.PUT("", noticeController.UpdateNotice)
+		}
+	}
+
+	// 物资借用
+	stuAC := r.Group("/stuac", midwares.CheckSuppliesAdmin)
+	{
+		suppliesBorrow := stuAC.Group("/supplies-borrow")
+		{
+			qa := suppliesBorrow.Group("/qa")
+			{
+				qa.GET("", suppliesController.GetQAListByAdmin)
+				qa.POST("", suppliesController.CreateQA)
+				qa.PUT("", suppliesController.UpdateQA)
+				qa.DELETE("", suppliesController.DeleteQA)
+			}
+			supplies := suppliesBorrow.Group("/supplies")
+			{
+				supplies.POST("", suppliesController.InsertSupplies)
+				supplies.PUT("", suppliesController.UpdateSupplies)
+				supplies.DELETE("", suppliesController.DeleteSupplies)
+				supplies.GET("", suppliesController.GetSuppliesByAdmin)
+			}
+			suppliesBorrow.GET("/student-info", suppliesController.GetPersonalInfoByAdmin)
+			suppliesBorrow.POST("/supplies-import", suppliesController.InsertSuppliesRecord)
+			suppliesBorrow.GET("/supplies-export", suppliesController.ExportSuppliesRecord)
+
+			suppliesBorrow.GET("record", suppliesController.GetSuppliesRecordByAdmin)
+			suppliesBorrow.POST("supplies-check", suppliesController.CheckRecordByAdmin)
+			suppliesBorrow.POST("cancel-reject", suppliesController.CancelRejectRecordByAdmin)
+			suppliesBorrow.POST("supplies-return", suppliesController.ReturnRecordByAdmin)
+			suppliesBorrow.POST("supplies-cancel", suppliesController.CancelReturnRecordByAdmin)
+			suppliesBorrow.PUT("supplies-update", suppliesController.UpdateRecordByAdmin)
+
 		}
 	}
 }

@@ -1,7 +1,6 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
 	"wejh-go/app/controllers/funcControllers/canteenController"
 	"wejh-go/app/controllers/funcControllers/customizeHomeController"
 	"wejh-go/app/controllers/funcControllers/lessonController"
@@ -9,10 +8,13 @@ import (
 	"wejh-go/app/controllers/funcControllers/lostAndFoundRecordController"
 	"wejh-go/app/controllers/funcControllers/noticeController"
 	"wejh-go/app/controllers/funcControllers/schoolBusController"
+	"wejh-go/app/controllers/funcControllers/suppliesController"
 	"wejh-go/app/controllers/funcControllers/zfController"
 	"wejh-go/app/controllers/yxyController/electricityController"
 	"wejh-go/app/controllers/yxyController/schoolCardController"
 	"wejh-go/app/midwares"
+
+	"github.com/gin-gonic/gin"
 )
 
 func funcRouterInit(r *gin.RouterGroup) {
@@ -77,9 +79,29 @@ func funcRouterInit(r *gin.RouterGroup) {
 			lost.GET("", lostAndFoundRecordController.GetRecords)
 			lost.GET("/kind_list", lostAndFoundRecordController.GetKindList)
 		}
+
 		notice := fun.Group("/information", midwares.CheckLogin)
 		{
 			notice.GET("", noticeController.GetNotice)
+		}
+
+		// 正装借用
+		suppliesBorrow := fun.Group("/supplies-borrow", midwares.CheckLogin)
+		{
+			suppliesBorrow.GET("/qa", suppliesController.GetQAList)
+			suppliesBorrow.GET("/supplies", suppliesController.GetSuppliesList)
+			info := suppliesBorrow.Group("/info")
+			{
+				info.GET("", suppliesController.GetPersonalInfo)
+				info.POST("", suppliesController.SavePersonalInfo)
+			}
+			borrow := suppliesBorrow.Group("/borrow")
+			{
+				borrow.POST("", suppliesController.ApplyBorrow)
+				borrow.GET("", suppliesController.GetBorrowRecord)
+				borrow.DELETE("", suppliesController.CancelBorrow)
+			}
+			
 		}
 	}
 }
