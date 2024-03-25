@@ -84,9 +84,7 @@ func GetRecordByAdmin(pageNum, pageSize, status, choice, id int, campus uint8, s
 			ID:        id,
 			Campus:    campus,
 			StudentID: studentID,
-		}).
-		Limit(pageSize).Offset((pageNum - 1) * pageSize).
-		Order("status").Debug()
+		})
 
 	if name != "" {
 		query = query.Where("supplies.name = ?", name)
@@ -107,11 +105,12 @@ func GetRecordByAdmin(pageNum, pageSize, status, choice, id int, campus uint8, s
 		}
 	}
 
-	result := query.Find(&record)
+	result := query.Count(&num)
 	if result.Error != nil {
 		return nil, nil, result.Error
 	}
-	result = query.Count(&num)
+	query = query.Offset((pageNum - 1) * pageSize).Limit(pageSize)
+	result = query.Find(&record)
 	if result.Error != nil {
 		return nil, nil, result.Error
 	}
@@ -158,7 +157,7 @@ func ReturnBorrow(id int, sid int, num uint) error {
 	if result.Error != nil {
 		return result.Error
 	}
-	var  supplies models.Supplies
+	var supplies models.Supplies
 	result = database.DB.Where(models.Supplies{ID: sid}).Unscoped().First(&supplies)
 	if result.Error != nil {
 		return result.Error
