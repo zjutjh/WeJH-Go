@@ -90,8 +90,10 @@ func adminRouterInit(r *gin.RouterGroup) {
 
 			suppliesBorrow.GET("record", suppliesController.GetSuppliesRecordByAdmin)
 			suppliesBorrow.POST("supplies-check", suppliesController.CheckRecordByAdmin)
+			suppliesBorrow.POST("batch-supplies-check", suppliesController.BatchCheckRecordByAdmin)
 			suppliesBorrow.POST("cancel-reject", suppliesController.CancelRejectRecordByAdmin)
 			suppliesBorrow.POST("supplies-return", suppliesController.ReturnRecordByAdmin)
+			suppliesBorrow.POST("batch-supplies-return", suppliesController.BatchReturnRecordByAdmin)
 			suppliesBorrow.POST("supplies-cancel", suppliesController.CancelReturnRecordByAdmin)
 			suppliesBorrow.PUT("supplies-update", suppliesController.UpdateRecordByAdmin)
 
