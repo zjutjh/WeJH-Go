@@ -97,11 +97,11 @@ func GetRecordByAdmin(pageNum, pageSize, status, choice, id int, campus uint8, s
 	} else {
 		switch choice {
 		case 0:
-			query = query.Where("status IN ?", []int{1, 2, 3, 4}).Order("apply_time desc")
+			query = query.Where("status IN ?", []int{1, 2, 3, 4}).Order("status").Order("apply_time desc")
 		case 1:
-			query = query.Where("status IN ?", []int{1, 2}).Order("apply_time desc")
+			query = query.Where("status IN ?", []int{1, 2}).Order("status").Order("apply_time desc")
 		case 2:
-			query = query.Where("status IN ?", []int{3, 4}).Order("CASE WHEN DATE_ADD(borrow_time, INTERVAL 7 DAY) > NOW() THEN 1 ELSE 0 END, borrow_time").Order("apply_time desc")
+			query = query.Where("status IN ?", []int{3, 4}).Order("status").Order("CASE WHEN DATE_ADD(borrow_time, INTERVAL 7 DAY) > NOW() THEN 1 ELSE 0 END, borrow_time").Order("apply_time desc")
 		}
 	}
 
