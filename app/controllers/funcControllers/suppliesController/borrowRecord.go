@@ -321,7 +321,7 @@ type CheckRecordData struct {
 	ID            int `json:"id" binding:"required"`                       // 申请id
 }
 
-// 管理员审批
+// 管理员单次审批
 func CheckRecordByAdmin(c *gin.Context) {
 	// 获取参数
 	var data CheckRecordData
@@ -348,7 +348,7 @@ func CheckRecordByAdmin(c *gin.Context) {
 	}
 	// 判断是否已经待审核
 	if record.Status == 2 {
-		_ = c.AbortWithError(200, apiException.RecordRejected)
+		_ = c.AbortWithError(200, apiException.RecordAlreadyRejected)
 		return
 	} else if record.Status != 1 && record.Status != 2 {
 		_ = c.AbortWithError(200, apiException.ServerError)
@@ -370,6 +370,75 @@ func CheckRecordByAdmin(c *gin.Context) {
 		err = suppliesServices.PassBorrow(data.ID, record.SuppliesID, record.Count)
 	} else if data.SuppliesCheck == 2 {
 		err = suppliesServices.RejectBorrow(data.ID)
+	}
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+	utils.JsonSuccessResponse(c, nil)
+}
+
+type BatchCheckRecordData struct {
+	SuppliesCheck int   `json:"supplies_check" binding:"required,oneof=1 2"` // 1:通过 2:驳回
+	IDs           []int `json:"ids" binding:"required"`                      // 申请id
+}
+
+// 管理员批量审批
+func BatchCheckRecordByAdmin(c *gin.Context) {
+	// 获取参数
+	var data BatchCheckRecordData
+	err := c.ShouldBindJSON(&data)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ParamError)
+		return
+	}
+	// 判断鉴权
+	user, err := sessionServices.GetUserSession(c)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.NotLogin)
+		return
+	}
+	if user.Type != models.Admin && user.Type != models.StudentAffairsCenter {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+	// 获取记录，逐个判断是否存在且合法
+	records, err := suppliesServices.GetBorrowRecordsByBorrowIDs(data.IDs)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+	if len(records) != len(data.IDs) {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+	for _, record := range records {
+		if record.Status == 2 {
+			_ = c.AbortWithError(200, apiException.RecordAlreadyRejected)
+			return
+		} else if record.Status != 1 && record.Status != 2 {
+			_ = c.AbortWithError(200, apiException.ServerError)
+			return
+		}
+		if data.SuppliesCheck == 1 {
+			//查询物资是否充足
+			var supplies models.Supplies
+			supplies, err = suppliesServices.GetALLSuppliesById(record.SuppliesID)
+			if err != nil {
+				_ = c.AbortWithError(200, apiException.ServerError)
+				return
+			}
+			if supplies.Stock < record.Count {
+				_ = c.AbortWithError(200, apiException.StockNotEnough)
+				return
+			}
+		}
+	}
+	// 批量审批
+	if data.SuppliesCheck == 1 {
+		err = suppliesServices.PassBorrows(data.IDs)
+	} else if data.SuppliesCheck == 2 {
+		err = suppliesServices.RejectBorrows(data.IDs)
 	}
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
@@ -453,7 +522,7 @@ func ReturnRecordByAdmin(c *gin.Context) {
 	}
 	// 判断是否已经审批
 	if record.Status != 3 {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		_ = c.AbortWithError(200, apiException.NotBorrowingRecord)
 		return
 	}
 	// 归还清点
@@ -464,6 +533,57 @@ func ReturnRecordByAdmin(c *gin.Context) {
 	} else {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
+	}
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+	utils.JsonSuccessResponse(c, nil)
+}
+
+// 管理员批量归还清点
+type BatchReturnRecordData struct {
+	SuppliesReturn int   `json:"supplies_return" binding:"required,oneof=1 2"` // 1:确认归还 2:取消借出
+	IDs            []int `json:"ids" binding:"required"`
+}
+
+func BatchReturnRecordByAdmin(c *gin.Context) {
+	// 获取参数
+	var data BatchReturnRecordData
+	err := c.ShouldBindJSON(&data)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ParamError)
+		return
+	}
+	// 判断鉴权
+	user, err := sessionServices.GetUserSession(c)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.NotLogin)
+		return
+	}
+	if user.Type != models.Admin && user.Type != models.StudentAffairsCenter {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+	records, err := suppliesServices.GetBorrowRecordsByBorrowIDs(data.IDs)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+	if len(records) != len(data.IDs) {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+	for _, record := range records {
+		if record.Status != 3 {
+			_ = c.AbortWithError(200, apiException.NotBorrowingRecord)
+			return
+		}
+	}
+	if data.SuppliesReturn == 1 {
+		err = suppliesServices.ReturnBorrows(data.IDs)
+	} else if data.SuppliesReturn == 2 {
+		err = suppliesServices.CancelBorrows(data.IDs)
 	}
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
