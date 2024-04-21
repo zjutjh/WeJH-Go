@@ -69,6 +69,18 @@ func GetBorrowRecordByBorrowID(borrowID int) (models.BorrowRecord, error) {
 	return borrowRecord, nil
 }
 
+func GetBorrowRecordsByBorrowIDs(borrowIDs []int) ([]models.BorrowRecord, error) {
+	var borrowRecords []models.BorrowRecord
+	result := database.DB.Where("id IN ?", borrowIDs).Find(&borrowRecords)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	for i := range borrowRecords {
+		aesDecryptContact(&borrowRecords[i])
+	}
+	return borrowRecords, nil
+}
+
 func DeleteRecord(RecordID int) error {
 	result := database.DB.Delete(models.BorrowRecord{ID: RecordID})
 	return result.Error
@@ -97,11 +109,11 @@ func GetRecordByAdmin(pageNum, pageSize, status, choice, id int, campus uint8, s
 	} else {
 		switch choice {
 		case 0:
-			query = query.Where("status IN ?", []int{1, 2, 3, 4}).Order("apply_time desc")
+			query = query.Where("status IN ?", []int{1, 2, 3, 4}).Order("status").Order("apply_time desc")
 		case 1:
-			query = query.Where("status IN ?", []int{1, 2}).Order("apply_time desc")
+			query = query.Where("status IN ?", []int{1, 2}).Order("status").Order("apply_time desc")
 		case 2:
-			query = query.Where("status IN ?", []int{3, 4}).Order("CASE WHEN DATE_ADD(borrow_time, INTERVAL 7 DAY) > NOW() THEN 1 ELSE 0 END, borrow_time").Order("apply_time desc")
+			query = query.Where("status IN ?", []int{3, 4}).Order("status").Order("CASE WHEN DATE_ADD(borrow_time, INTERVAL 7 DAY) > NOW() THEN 1 ELSE 0 END, borrow_time").Order("apply_time desc")
 		}
 	}
 
@@ -142,8 +154,32 @@ func PassBorrow(id int, sid int, num uint) error {
 	return result.Error
 }
 
+func PassBorrows(ids []int) error {
+	result := database.DB.Model(models.BorrowRecord{}).Where("id IN ?", ids).Updates(map[string]interface{}{"status": 3, "borrow_time": time.Now()})
+	if result.Error != nil {
+		return result.Error
+	}
+	var records []models.BorrowRecord
+	result = database.DB.Where("id IN ?", ids).Find(&records)
+	if result.Error != nil {
+		return result.Error
+	}
+	for i := range records {
+		result = database.DB.Model(models.Supplies{}).Unscoped().Where(models.Supplies{ID: records[i].SuppliesID}).Updates(map[string]interface{}{"stock": gorm.Expr("stock - ?", records[i].Count), "borrowed": gorm.Expr("borrowed + ?", records[i].Count)})
+		if result.Error != nil {
+			return result.Error
+		}
+	}
+	return nil
+}
+
 func RejectBorrow(id int) error {
 	result := database.DB.Model(models.BorrowRecord{}).Where(models.BorrowRecord{ID: id}).Update("status", 2)
+	return result.Error
+}
+
+func RejectBorrows(id []int) error {
+	result := database.DB.Model(models.BorrowRecord{}).Where("id IN ?", id).Update("status", 2)
 	return result.Error
 }
 
@@ -168,6 +204,36 @@ func ReturnBorrow(id int, sid int, num uint) error {
 	return result.Error
 }
 
+func ReturnBorrows(ids []int) error {
+	result := database.DB.Model(models.BorrowRecord{}).Where("id IN ?", ids).Updates(map[string]interface{}{"status": 4, "return_time": time.Now()})
+	if result.Error != nil {
+		return result.Error
+	}
+	var records []models.BorrowRecord
+	result = database.DB.Where("id IN ?", ids).Find(&records)
+	if result.Error != nil {
+		return result.Error
+	}
+	var supplies []models.Supplies
+	for i := range records {
+		var supply models.Supplies
+		result := database.DB.Where(models.Supplies{ID: records[i].SuppliesID}).Unscoped().First(&supply)
+		if result.Error != nil {
+			return result.Error
+		}
+		supplies = append(supplies, supply)
+	}
+	for i := range supplies {
+		if supplies[i].Kind == "正装" {
+			result = database.DB.Model(models.Supplies{}).Where(models.Supplies{ID: supplies[i].ID}).Unscoped().Updates(map[string]interface{}{"stock": gorm.Expr("stock + ?", records[i].Count), "borrowed": gorm.Expr("borrowed - ?", records[i].Count)})
+			if result.Error != nil {
+				return result.Error
+			}
+		}
+	}
+	return nil
+}
+
 func CancelBorrow(id int, sid int, num uint) error {
 	var supplies models.Supplies
 	result := database.DB.Where(models.Supplies{ID: sid}).Unscoped().First(&supplies)
@@ -182,6 +248,35 @@ func CancelBorrow(id int, sid int, num uint) error {
 		result = database.DB.Model(models.Supplies{}).Where(models.Supplies{ID: sid}).Unscoped().Updates(map[string]interface{}{"stock": gorm.Expr("stock + ?", num), "borrowed": gorm.Expr("borrowed - ?", num)})
 	} else {
 		result = database.DB.Delete(models.BorrowRecord{ID: id})
+	}
+	return result.Error
+}
+
+func CancelBorrows(id []int) error {
+	var records []models.BorrowRecord
+	result := database.DB.Where("id IN ?", id).Find(&records)
+	if result.Error != nil {
+		return result.Error
+	}
+	var supplies []models.Supplies
+	for i := range records {
+		var supply models.Supplies
+		result := database.DB.Where(models.Supplies{ID: records[i].SuppliesID}).Unscoped().First(&supply)
+		if result.Error != nil {
+			return result.Error
+		}
+		supplies = append(supplies, supply)
+	}
+	for i := range supplies {
+		if supplies[i].Kind == "正装" {
+			result = database.DB.Model(models.BorrowRecord{}).Where("id IN ?", id).Updates(map[string]interface{}{"status": 1, "borrow_time": nil})
+			if result.Error != nil {
+				return result.Error
+			}
+			result = database.DB.Model(models.Supplies{}).Where(models.Supplies{ID: supplies[i].ID}).Unscoped().Updates(map[string]interface{}{"stock": gorm.Expr("stock + ?", records[i].Count), "borrowed": gorm.Expr("borrowed - ?", records[i].Count)})
+		} else {
+			result = database.DB.Delete(models.BorrowRecord{ID: records[i].ID})
+		}
 	}
 	return result.Error
 }
