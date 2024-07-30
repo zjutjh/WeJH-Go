@@ -2,6 +2,8 @@ package config
 
 import (
 	"context"
+	"errors"
+	"gorm.io/gorm"
 	"time"
 	"wejh-go/app/models"
 	"wejh-go/config/database"
@@ -28,22 +30,24 @@ func getConfig(key string) string {
 
 func setConfig(key, value string) error {
 	redis.RedisClient.Set(ctx, key, value, 0)
-	res := database.DB.Model(models.Config{}).Where(
-		&models.Config{
-			Key: key,
-		}).Updates(&models.Config{
-		Key:   key,
-		Value: value,
-	})
-	if res.RowsAffected == 0 {
-		rc := database.DB.Create(&models.Config{
+	var config models.Config
+	result := database.DB.Where("`key` = ?", key).First(&config)
+	if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return result.Error
+	}
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		config = models.Config{
 			Key:        key,
 			Value:      value,
 			UpdateTime: time.Now(),
-		})
-		return rc.Error
+		}
+		result = database.DB.Create(&config)
+	} else {
+		config.Value = value
+		config.UpdateTime = time.Now()
+		result = database.DB.Updates(&config)
 	}
-	return res.Error
+	return result.Error
 }
 
 func checkConfig(key string) bool {

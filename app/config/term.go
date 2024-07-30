@@ -6,7 +6,7 @@ const termStartDate = "termStartDate"
 const scoreTermYearKey = "scoreTermYearKey"
 const scoreTermKey = "scoreTermKey"
 
-func SetTermInfo(yearValue, termValue, termStartDateValue, scoreYearValue, scoreTermValue string) error {
+func SetSystemInfo(yearValue, termValue, termStartDateValue, scoreYearValue, scoreTermValue, jpgUrlValue, fileUrlValue, registerTipsValue, schoolBusUrlValue string) error {
 	err := setConfig(termYearKey, yearValue)
 	if err != nil {
 		return err
@@ -24,6 +24,25 @@ func SetTermInfo(yearValue, termValue, termStartDateValue, scoreYearValue, score
 		return err
 	}
 	err = setConfig(scoreTermKey, scoreTermValue)
+	if err != nil {
+		return err
+	}
+	err = setConfig(schoolBusUrlKey, schoolBusUrlValue)
+	if err != nil {
+		return err
+	}
+	err = setConfig(webpUrlKey, jpgUrlValue)
+	if err != nil {
+		return err
+	}
+	err = setConfig(fileUrlKey, fileUrlValue)
+	if err != nil {
+		return err
+	}
+	err = setConfig(registerTipsKey, registerTipsValue)
+	if err != nil {
+		return err
+	}
 	return err
 }
 

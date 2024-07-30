@@ -8,5 +8,5 @@ import (
 func initRouterInit(r *gin.RouterGroup) {
 	r.GET("/init", adminController.SetInit)
 	r.POST("/encrypt", adminController.SetEncryptKey)
-	r.POST("/terminfo", adminController.SetTermInfo)
+	r.POST("/systeminfo", adminController.SetSystemInfo)
 }

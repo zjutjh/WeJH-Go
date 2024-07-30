@@ -8,12 +8,16 @@ import (
 	"wejh-go/app/utils"
 )
 
-type termInfoForm struct {
+type SystemInfoForm struct {
 	YearValue          string `json:"yearValue"`
 	TermValue          string `json:"termValue"`
 	TermStartDateValue string `json:"termStartDateValue"`
 	ScoreYearValue     string `json:"scoreYearValue"`
 	ScoreTermValue     string `json:"scoreTermValue"`
+	SchoolBusUrlValue  string `json:"schoolBusUrlValue"`
+	JpgUrlValue        string `json:"jpgUrlValue"`
+	FileUrlValue       string `json:"fileUrlValue"`
+	RegisterTips       string `json:"registerTips"`
 }
 
 type encryptForm struct {
@@ -59,15 +63,15 @@ func ResetInit(c *gin.Context) {
 	utils.JsonSuccessResponse(c, nil)
 }
 
-func SetTermInfo(c *gin.Context) {
-	var postForm termInfoForm
+func SetSystemInfo(c *gin.Context) {
+	var postForm SystemInfoForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
 
-	err = config.SetTermInfo(postForm.YearValue, postForm.TermValue, postForm.TermStartDateValue, postForm.ScoreYearValue, postForm.ScoreTermValue)
+	err = config.SetSystemInfo(postForm.YearValue, postForm.TermValue, postForm.TermStartDateValue, postForm.ScoreYearValue, postForm.ScoreTermValue, postForm.JpgUrlValue, postForm.FileUrlValue, postForm.RegisterTips, postForm.SchoolBusUrlValue)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
