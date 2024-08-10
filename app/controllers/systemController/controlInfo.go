@@ -12,12 +12,15 @@ func Info(c *gin.Context) {
 	startTime, _ := time.Parse("2006-01-02", startTimeString) // 学期开始的时间
 	currentTime := time.Now()
 	schoolBusUrl := config.GetSchoolBusUrl()
+	jpgUrl := config.GetWebpUrlKey()
+	fileUrl := config.GetFileUrlKey()
+	registerTips := config.GetRegisterTipsKey()
 
 	week := ((currentTime.Unix()-startTime.Unix())/3600+8)/24/7 + 1
 	if currentTime.Unix() < startTime.Unix()-8*3600 {
 		week = -1
 	}
-	utils.JsonSuccessResponse(c, gin.H{
+	response := gin.H{
 		"time":          time.Now(),
 		"is_begin":      week > 0,
 		"termStartDate": startTimeString,
@@ -27,6 +30,10 @@ func Info(c *gin.Context) {
 		"scoreTerm":     scoreTerm,
 		"week":          week,
 		"schoolBusUrl":  schoolBusUrl,
-	})
+		"jpgUrl":        jpgUrl,
+		"fileUrl":       fileUrl,
+		"registerTips":  registerTips,
+	}
+	utils.JsonSuccessResponse(c, response)
 
 }

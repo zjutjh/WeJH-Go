@@ -6,6 +6,8 @@ const webpUrlKey = "jpgUrlKey"
 
 const fileUrlKey = "fileUrlKey"
 
+const registerTipsKey = "registerTipsKey"
+
 func GetSchoolBusUrl() string {
 	return getConfig(schoolBusUrlKey)
 }
@@ -29,3 +31,7 @@ func GetFileUrlKey() string {
 func SetFileUrlKey(url string) error {
 	return setConfig(fileUrlKey, url)
 }
+
+func GetRegisterTipsKey() string { return getConfig(registerTipsKey) }
+
+func SetRegisterTipsKey(url string) error { return setConfig(registerTipsKey, url) }

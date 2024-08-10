@@ -38,7 +38,7 @@ func adminRouterInit(r *gin.RouterGroup) {
 		{
 			set.GET("/reset", adminController.ResetInit)
 			set.POST("/encrypt", adminController.SetEncryptKey)
-			set.POST("/terminfo", adminController.SetTermInfo)
+			set.POST("/systeminfo", adminController.SetSystemInfo)
 		}
 		user := admin.Group("/user")
 		{
