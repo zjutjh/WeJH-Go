@@ -43,6 +43,7 @@ func adminRouterInit(r *gin.RouterGroup) {
 		user := admin.Group("/user")
 		{
 			user.POST("/create", adminController.CreateAdminAccount)
+			user.GET("/status", adminController.GetUserBindStatus)
 		}
 	}
 
