@@ -24,7 +24,7 @@ func DelAccount(stuID, iid string) error {
 	}
 	if resp.Code == 400 {
 		return apiException.StudentNumAndIidError
-	} else if resp.Code != 200 {
+	} else if resp.Code != 200 && resp.Code != 401 {
 		return apiException.ServerError
 	}
 	return nil
