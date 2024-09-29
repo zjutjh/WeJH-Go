@@ -1,8 +1,6 @@
 package userController
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"wejh-go/app/apiException"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/userServices"
@@ -41,11 +39,9 @@ func AuthByPassword(c *gin.Context) {
 		return
 	}
 
-	h := sha256.New()
-	h.Write([]byte(postForm.Password))
-	pass := hex.EncodeToString(h.Sum(nil))
-	if user.JHPassword != pass {
-		_ = c.AbortWithError(200, apiException.NoThatPasswordOrWrong)
+	err = userServices.CheckLogin(postForm.Username,postForm.Password)
+	if err != nil {
+		_ = c.AbortWithError(200, err)
 		return
 	}
 
