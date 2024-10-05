@@ -70,7 +70,6 @@ func AuthByPassword(c *gin.Context) {
 			"createTime": user.CreateTime,
 		},
 	})
-
 }
 
 func AuthBySession(c *gin.Context) {
