@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"wejh-go/app/apiException"
 	"wejh-go/app/services/sessionServices"
+	"wejh-go/app/services/themeServices"
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
 )
@@ -29,6 +30,12 @@ func DelAccount(c *gin.Context) {
 
 	if user.Username != postForm.StudentID {
 		_ = c.AbortWithError(200, apiException.StudentIdError)
+		return
+	}
+
+	err = themeServices.DeleteThemePermission(user.StudentID)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 
