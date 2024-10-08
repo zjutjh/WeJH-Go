@@ -45,6 +45,15 @@ func adminRouterInit(r *gin.RouterGroup) {
 			user.POST("/create", adminController.CreateAdminAccount)
 			user.GET("/status", adminController.GetUserBindStatus)
 		}
+		theme := admin.Group("/theme")
+		{
+			theme.POST("/create", adminController.CreateTheme)
+			theme.PUT("/update", adminController.UpdateTheme)
+			theme.GET("/get", adminController.GetThemes)
+			theme.DELETE("/delete", adminController.DeleteTheme)
+			theme.POST("/permission/create", adminController.AddThemePermission)
+			theme.GET("/permission/get", adminController.GetThemePermission)
+		}
 	}
 
 	forU := r.Group("/foru", midwares.CheckLostAndFoundAdmin)
