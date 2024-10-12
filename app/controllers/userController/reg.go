@@ -5,6 +5,7 @@ import (
 	"strings"
 	"wejh-go/app/apiException"
 	"wejh-go/app/services/sessionServices"
+	"wejh-go/app/services/themeServices"
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
 	"wejh-go/config/wechat"
@@ -57,6 +58,12 @@ func BindOrCreateStudentUserFromWechat(c *gin.Context) {
 		return
 	}
 
+	err = themeServices.AddDefaultThemePermission(postForm.StudentID)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+
 	err = sessionServices.SetUserSession(c, user)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
@@ -83,6 +90,12 @@ func CreateStudentUser(c *gin.Context) {
 		postForm.Email)
 	if err != nil && err != apiException.ReactiveError {
 		_ = c.AbortWithError(200, err)
+		return
+	}
+
+	err = themeServices.AddDefaultThemePermission(postForm.StudentID)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 

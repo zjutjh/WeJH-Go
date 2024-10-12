@@ -24,5 +24,7 @@ func autoMigrate(db *gorm.DB) error {
 		&models.PersonalInfo{},
 		&models.Supplies{},
 		&models.BorrowRecord{},
+		&models.Theme{},
+		&models.ThemePermission{},
 	)
 }

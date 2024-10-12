@@ -9,6 +9,7 @@ import (
 	"wejh-go/app/controllers/funcControllers/noticeController"
 	"wejh-go/app/controllers/funcControllers/schoolBusController"
 	"wejh-go/app/controllers/funcControllers/suppliesController"
+	"wejh-go/app/controllers/funcControllers/themeController"
 	"wejh-go/app/controllers/funcControllers/zfController"
 	"wejh-go/app/controllers/yxyController/electricityController"
 	"wejh-go/app/controllers/yxyController/schoolCardController"
@@ -101,7 +102,13 @@ func funcRouterInit(r *gin.RouterGroup) {
 				borrow.GET("", suppliesController.GetBorrowRecord)
 				borrow.DELETE("", suppliesController.CancelBorrow)
 			}
-			
+		}
+
+		// 主题色
+		theme := fun.Group("/theme", midwares.CheckLogin)
+		{
+			theme.GET("/get", themeController.GetThemeList)
+			theme.POST("/choose", themeController.ChooseCurrentTheme)
 		}
 	}
 }
