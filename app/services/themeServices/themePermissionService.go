@@ -86,7 +86,8 @@ func AddThemePermission(themeID int, reqStudentIDs []string) ([]string, error) {
 		}
 	}
 
-	err = database.DB.Save(&permissions).Error
+	// 使用批量保存
+	err = savePermissionsInBatches(permissions)
 	if err != nil {
 		return nil, err
 	}
@@ -207,4 +208,23 @@ func containThemeID(themeIDs []int, id int) bool {
 		}
 	}
 	return false
+}
+
+const batchSize = 100 // 每次保存 100 条记录
+
+func savePermissionsInBatches(permissions []models.ThemePermission) error {
+	totalPermissions := len(permissions)
+	for i := 0; i < totalPermissions; i += batchSize {
+		end := i + batchSize
+		if end > totalPermissions {
+			end = totalPermissions
+		}
+
+		// 保存当前批次
+		err := database.DB.Save(permissions[i:end]).Error
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
