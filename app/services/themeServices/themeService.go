@@ -2,6 +2,8 @@ package themeServices
 
 import (
 	"encoding/json"
+	"strconv"
+	"wejh-go/app/config"
 	"wejh-go/app/models"
 	"wejh-go/config/database"
 )
@@ -12,9 +14,9 @@ func CheckThemeExist(id int) error {
 	return result.Error
 }
 
-func CreateTheme(record models.Theme) (int, error) {
+func CreateTheme(record models.Theme) error {
 	result := database.DB.Create(&record)
-	return record.ID, result.Error
+	return result.Error
 }
 
 func UpdateTheme(id int, record models.Theme) error {
@@ -34,7 +36,7 @@ func GetThemes() ([]models.Theme, error) {
 	return themes, result.Error
 }
 
-func DeleteTheme(id int) error {
+func DeleteTheme(id int, themeType string) error {
 	tx := database.DB.Begin()
 	if err := tx.Delete(&models.Theme{}, id).Error; err != nil {
 		tx.Rollback()
@@ -47,20 +49,36 @@ func DeleteTheme(id int) error {
 		return err
 	}
 
-	var permissions []models.ThemePermission
-	if err := tx.Where("current_theme_id = ?", id).Find(&permissions).Error; err != nil {
-		tx.Rollback()
-		return err
+	var defaultThemeID int
+	defaultThemeIDStr := config.GetDefaultThemeKey()
+	if defaultThemeIDStr != "" {
+		defaultThemeID, _ = strconv.Atoi(defaultThemeIDStr)
+		if id == defaultThemeID {
+			defaultThemeID = theme.ID
+			err := config.SetDefaultThemeKey(strconv.Itoa(defaultThemeID))
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	} else {
+		defaultThemeID = theme.ID
 	}
 
 	if err := tx.Model(&models.ThemePermission{}).
 		Where("current_theme_id = ?", id).
-		Update("current_theme_id", theme.ID).Error; err != nil {
+		Update("current_theme_id", defaultThemeID).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	result := tx.Find(&permissions)
+	if themeType == "all" {
+		tx.Commit()
+		return nil
+	}
+
+	var permissions []models.ThemePermission
+	result := tx.Model(models.ThemePermission{}).Find(&permissions)
 	if result.Error != nil {
 		tx.Rollback()
 		return result.Error
@@ -77,6 +95,9 @@ func DeleteTheme(id int) error {
 		updatedThemeIDs := removeThemeID(themePermissionData.ThemeIDs, id)
 		if len(updatedThemeIDs) != len(themePermissionData.ThemeIDs) {
 			themePermissionData.ThemeIDs = updatedThemeIDs
+			if len(updatedThemeIDs) == 0 {
+				themePermissionData.ThemeIDs = []int{}
+			}
 			updatedPermissionMap[permission.StudentID] = themePermissionData
 		}
 	}
