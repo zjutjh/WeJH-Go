@@ -28,23 +28,10 @@ func CreateTheme(c *gin.Context) {
 		Type:        data.Type,
 		ThemeConfig: data.ThemeConfig,
 	}
-	themeID, err := themeServices.CreateTheme(record)
+	err = themeServices.CreateTheme(record)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
-	}
-	if data.Type == "all" {
-		studentIDs, err := themeServices.GetAllStudentIDs()
-		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
-			return
-		}
-
-		_, err = themeServices.AddThemePermission(themeID, studentIDs)
-		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
-			return
-		}
 	}
 
 	utils.JsonSuccessResponse(c, nil)
@@ -110,7 +97,13 @@ func DeleteTheme(c *gin.Context) {
 		return
 	}
 
-	err = themeServices.DeleteTheme(data.ID)
+	theme, err := themeServices.GetThemeByID(data.ID)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+
+	err = themeServices.DeleteTheme(data.ID, theme.Type)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
@@ -138,7 +131,13 @@ func AddThemePermission(c *gin.Context) {
 		return
 	}
 
-	invalidStudentIDs, err := themeServices.AddThemePermission(data.ThemeID, data.StudentID)
+	theme, err := themeServices.GetThemeByID(data.ThemeID)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+
+	invalidStudentIDs, err := themeServices.AddThemePermission(data.ThemeID, data.StudentID, theme.Type)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
