@@ -13,13 +13,11 @@ import (
 )
 
 type autoLoginForm struct {
-	Code      string `json:"code" binding:"required"`
-	LoginType string `json:"type"` // 未使用
+	Code string `json:"code" binding:"required"`
 }
 type passwordLoginForm struct {
-	Username  string `json:"username" binding:"required"`
-	Password  string `json:"password" binding:"required"`
-	LoginType string `json:"type"` // 未使用
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 func AuthByPassword(c *gin.Context) {
