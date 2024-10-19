@@ -2,6 +2,7 @@ package userController
 
 import (
 	"wejh-go/app/apiException"
+	"wejh-go/app/models"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
@@ -12,23 +13,21 @@ import (
 )
 
 type autoLoginForm struct {
-	Code      string `json:"code" binding:"required"`
-	LoginType string `json:"type"`
+	Code string `json:"code" binding:"required"`
 }
 type passwordLoginForm struct {
-	Username  string `json:"username" binding:"required"`
-	Password  string `json:"password" binding:"required"`
-	LoginType string `json:"type"`
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 func AuthByPassword(c *gin.Context) {
 	var postForm passwordLoginForm
 	err := c.ShouldBindJSON(&postForm)
-
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ParamError)
 		return
 	}
+
 	user, err := userServices.GetUserByUsername(postForm.Username)
 	if err == gorm.ErrRecordNotFound {
 		_ = c.AbortWithError(200, apiException.UserNotFind)
@@ -39,7 +38,11 @@ func AuthByPassword(c *gin.Context) {
 		return
 	}
 
-	err = userServices.CheckLogin(postForm.Username,postForm.Password)
+	if user.Type != models.Postgraduate && user.Type != models.Undergraduate {
+		err = userServices.CheckLocalLogin(user, postForm.Password)
+	} else {
+		err = userServices.CheckLogin(postForm.Username, postForm.Password)
+	}
 	if err != nil {
 		_ = c.AbortWithError(200, err)
 		return

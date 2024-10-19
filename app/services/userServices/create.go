@@ -73,7 +73,3 @@ func CreateAdmin(userName, password string, adminType int) error {
 	res := database.DB.Create(&admin)
 	return res.Error
 }
-
-func CheckLogin(username, password string) error {
-	return userCenterServices.Login(username, password)
-}
