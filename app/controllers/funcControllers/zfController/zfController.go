@@ -1,6 +1,8 @@
 package zfController
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"math/rand"
 	"time"
@@ -10,6 +12,7 @@ import (
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
+	"wejh-go/config/redis"
 )
 
 type form struct {
@@ -170,13 +173,40 @@ func GetRoom(c *gin.Context) {
 		return
 	}
 
+	// 使用 Redis 缓存键，包含查询参数
+	cacheKey := fmt.Sprintf("room:%s:%s:%s:%s:%s:%s", postForm.Year, postForm.Term, postForm.Campus, postForm.Weekday, postForm.Week, postForm.Sections)
+
+	// 从 Redis 中获取缓存结果
+	cachedResult, cacheErr := redis.RedisClient.Get(c, cacheKey).Result()
+	if cacheErr == nil {
+		var result []map[string]interface{}
+		if err := json.Unmarshal([]byte(cachedResult), &result); err == nil {
+			utils.JsonSuccessResponse(c, result)
+			return
+		} else {
+			_ = c.AbortWithError(200, apiException.ServerError)
+			return
+		}
+	}
+
 	result, err := funnelServices.GetRoom(user, postForm.Year, postForm.Term, postForm.Campus, postForm.Weekday, postForm.Week, postForm.Sections, loginType)
 	if err != nil {
 		if err == apiException.NoThatPasswordOrWrong {
 			userServices.DelPassword(user, loginType)
+			_ = c.AbortWithError(200, err)
+			return
 		}
 		_ = c.AbortWithError(200, err)
 		return
+	}
+	// 将结果缓存到 Redis 中
+	if result != nil {
+		resultJson, _ := json.Marshal(result)
+		err = redis.RedisClient.Set(c, cacheKey, string(resultJson), 1*time.Hour).Err()
+		if err != nil {
+			_ = c.AbortWithError(200, apiException.ServerError)
+			return
+		}
 	}
 	utils.JsonSuccessResponse(c, result)
 }
