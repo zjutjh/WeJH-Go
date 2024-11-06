@@ -27,7 +27,7 @@ func Login(stu_id string, pass string) error {
 		return apiException.NoThatPasswordOrWrong
 	} else if resp.Code == 200 {
 		return nil
-	}else{
+	} else {
 		return apiException.ServerError
 	}
 }
