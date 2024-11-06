@@ -71,7 +71,10 @@ func GetRechargeRecords(c *gin.Context) {
 		postForm.Campus = "zhpf"
 	}
 	roomStrConcat, err := yxyServices.GetElecRoomStrConcat(*token, postForm.Campus, user.YxyUid)
-	if err != nil {
+	if err == apiException.CampusMismatch {
+		_ = c.AbortWithError(200, err)
+		return
+	} else if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
@@ -107,7 +110,10 @@ func GetConsumptionRecords(c *gin.Context) {
 		postForm.Campus = "zhpf"
 	}
 	roomStrConcat, err := yxyServices.GetElecRoomStrConcat(*token, postForm.Campus, user.YxyUid)
-	if err != nil {
+	if err == apiException.CampusMismatch {
+		_ = c.AbortWithError(200, err)
+		return
+	} else if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}

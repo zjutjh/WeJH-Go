@@ -66,11 +66,11 @@ func GetCaptchaImage(deviceId, securityToken string) (*string, error) {
 	return &data.Img, nil
 }
 
-func SendVerificationCode(securityToken, deviceId, captcha, phoneNum string) error {
+func SendVerificationCode(securityToken, deviceId, phoneNum string) error {
 	form := make(map[string]string)
 	form["phone_num"] = phoneNum
 	form["security_token"] = securityToken
-	form["captcha"] = captcha
+	form["captcha"] = ""
 	form["device_id"] = deviceId
 	resp, err := FetchHandleOfPost(form, yxyApi.SendVerificationCode)
 	if err != nil {
