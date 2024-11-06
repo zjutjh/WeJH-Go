@@ -1,35 +1,53 @@
 package electricityController
 
 import (
-	"github.com/gin-gonic/gin"
 	"wejh-go/app/apiException"
 	"wejh-go/app/models"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/yxyServices"
 	"wejh-go/app/utils"
+
+	"github.com/gin-gonic/gin"
 )
 
 type recordForm struct {
-	Page string `json:"page"`
+	Page   string `form:"page" json:"page"`
+	Campus string `form:"campus" json:"campus"`
+}
+
+type CampusForm struct {
+	Campus string `form:"campus"`
 }
 
 func GetBalance(c *gin.Context) {
+	var postForm CampusForm
+	err := c.ShouldBindQuery(&postForm)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ParamError)
+		return
+	}
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
-	token, err := yxyServices.Auth(user.YxyUid)
+	token, err := yxyServices.GetElecAuthToken(user.YxyUid)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
-	electricityBalance, err := yxyServices.ElectricityBalance(*token)
-	if err != nil {
+	if postForm.Campus != "mgs" {
+		postForm.Campus = "zhpf"
+	}
+	balance, err := yxyServices.ElectricityBalance(*token, postForm.Campus)
+	if err == apiException.CampusMismatch {
+		_ = c.AbortWithError(200, err)
+		return
+	} else if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
-	utils.JsonSuccessResponse(c, electricityBalance)
+	utils.JsonSuccessResponse(c, balance)
 }
 
 func GetRechargeRecords(c *gin.Context) {
@@ -44,63 +62,64 @@ func GetRechargeRecords(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
-	token, err := yxyServices.Auth(user.YxyUid)
+	token, err := yxyServices.GetElecAuthToken(user.YxyUid)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
-	roomInfo, err := yxyServices.Bind(*token)
+	if postForm.Campus != "mgs" {
+		postForm.Campus = "zhpf"
+	}
+	roomStrConcat, err := yxyServices.GetElecRoomStrConcat(*token, postForm.Campus, user.YxyUid)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
-	records, err := yxyServices.ElectricityRechargeRecords(
-		*token,
-		(*roomInfo)["area_id"].(string),
-		(*roomInfo)["building_code"].(string),
-		(*roomInfo)["floor_code"].(string),
-		(*roomInfo)["room_code"].(string),
-		postForm.Page)
-	if err != nil {
+	records, err := yxyServices.ElectricityRechargeRecords(*token, postForm.Campus, postForm.Page, *roomStrConcat)
+	if err == apiException.CampusMismatch {
+		_ = c.AbortWithError(200, err)
+		return
+	} else if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
-	utils.JsonSuccessResponse(c, records)
+	utils.JsonSuccessResponse(c, records.List)
 }
 
 func GetConsumptionRecords(c *gin.Context) {
+	var postForm CampusForm
+	err := c.ShouldBindQuery(&postForm)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ParamError)
+		return
+	}
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
-	token, err := yxyServices.Auth(user.YxyUid)
+	token, err := yxyServices.GetElecAuthToken(user.YxyUid)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
-	roomInfo, err := yxyServices.Bind(*token)
+	if postForm.Campus != "mgs" {
+		postForm.Campus = "zhpf"
+	}
+	roomStrConcat, err := yxyServices.GetElecRoomStrConcat(*token, postForm.Campus, user.YxyUid)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
-	electricityBalance, err := yxyServices.ElectricityBalance(*token)
-	if err != nil {
+	records, err := yxyServices.ElectricityConsumptionRecords(*token, postForm.Campus, *roomStrConcat)
+	if err == apiException.CampusMismatch {
+		_ = c.AbortWithError(200, err)
+		return
+	} else if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
-	records, err := yxyServices.ElectricityConsumptionRecords(
-		*token,
-		(*roomInfo)["area_id"].(string),
-		(*roomInfo)["building_code"].(string),
-		(*roomInfo)["floor_code"].(string),
-		(*roomInfo)["room_code"].(string),
-		(*electricityBalance)["md_type"].(string))
-	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
-		return
-	}
-	utils.JsonSuccessResponse(c, records)
+	utils.JsonSuccessResponse(c, records.List)
 }
 
 func InsertLowBatteryQuery(c *gin.Context) {

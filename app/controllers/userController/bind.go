@@ -2,8 +2,6 @@ package userController
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"time"
 	"wejh-go/app/apiException"
 	"wejh-go/app/services/sessionServices"
@@ -11,6 +9,9 @@ import (
 	"wejh-go/app/services/yxyServices"
 	"wejh-go/app/utils"
 	"wejh-go/config/redis"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type bindForm struct {
@@ -115,13 +116,13 @@ func SendVerificationCode(c *gin.Context) {
 	if yxyServices.CheckToken("SecurityToken" + user.Username) {
 		yxyServices.DelToken("SecurityToken" + user.Username)
 	}
-	yxyServices.SetToken("SecurityToken"+user.Username, data.Token)
+	yxyServices.SetToken("SecurityToken"+user.Username, data.SecurityToken)
 	if data.Level == 1 {
 		_ = c.AbortWithError(200, apiException.YxyNeedCaptcha)
 		return
 	}
-	err = yxyServices.SendVerificationCode(data.Token, deviceId, "", postForm.PhoneNum)
-	if err == apiException.WrongCaptcha || err == apiException.NotBindYxy {
+	err = yxyServices.SendVerificationCode(data.SecurityToken, deviceId, "", postForm.PhoneNum)
+	if err == apiException.WrongCaptcha || err == apiException.WrongPhoneNum || err == apiException.SendVerificationCodeLimit || err == apiException.NotBindYxy {
 		_ = c.AbortWithError(200, err)
 		return
 	} else if err != nil {
@@ -148,9 +149,9 @@ func GetCaptcha(c *gin.Context) {
 	if yxyServices.CheckToken("SecurityToken" + user.Username) {
 		yxyServices.DelToken("SecurityToken" + user.Username)
 	}
-	yxyServices.SetToken("SecurityToken"+user.Username, data.Token)
-	token := &data.Token
-	img, err := yxyServices.GetCaptchaImage(user.DeviceID, *token)
+	yxyServices.SetToken("SecurityToken"+user.Username, data.SecurityToken)
+	securityToken := &data.SecurityToken
+	img, err := yxyServices.GetCaptchaImage(deviceId, *securityToken)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
@@ -170,14 +171,14 @@ func SendVerificationCodeByCaptcha(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
-	token, err := yxyServices.GetToken("SecurityToken" + user.Username)
+	SecurityToken, err := yxyServices.GetToken("SecurityToken" + user.Username)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.YxyNeedCaptcha)
 		return
 	}
-	deviceId, err := redis.RedisClient.Get(context.Background(), user.Username+"_device_id").Result()
-	err = yxyServices.SendVerificationCode(*token, deviceId, postForm.Captcha, postForm.PhoneNum)
-	if err == apiException.WrongCaptcha || err == apiException.NotBindYxy {
+	deviceId, _ := redis.RedisClient.Get(context.Background(), user.Username+"_device_id").Result()
+	err = yxyServices.SendVerificationCode(*SecurityToken, deviceId, postForm.Captcha, postForm.PhoneNum)
+	if err == apiException.WrongCaptcha || err == apiException.WrongPhoneNum || err == apiException.SendVerificationCodeLimit || err == apiException.NotBindYxy {
 		_ = c.AbortWithError(200, err)
 		return
 	} else if err != nil {
@@ -205,8 +206,11 @@ func LoginYxy(c *gin.Context) {
 		return
 	}
 	uid, err := yxyServices.LoginByCode(postForm.Code, deviceId, postForm.PhoneNum)
-	if err != nil {
+	if err == apiException.WrongVerificationCode || err == apiException.WrongPhoneNum {
 		_ = c.AbortWithError(200, err)
+		return
+	} else if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 	userServices.SetDeviceID(user, deviceId)
