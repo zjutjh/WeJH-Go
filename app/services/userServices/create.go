@@ -42,7 +42,7 @@ func CreateStudentUser(username, password, studentID, IDCardNumber, email string
 }
 
 func CreateStudentUserWechat(username, password, studentID, IDCardNumber, email, wechatOpenID string) (*models.User, error) {
-	if !CheckWechatOpenID(wechatOpenID) {
+	if CheckWechatOpenID(wechatOpenID) {
 		return nil, apiException.OpenIDError
 	}
 	user, err := CreateStudentUser(username, password, studentID, IDCardNumber, email)
@@ -50,7 +50,6 @@ func CreateStudentUserWechat(username, password, studentID, IDCardNumber, email,
 		return nil, err
 	}
 	user.WechatOpenID = wechatOpenID
-	database.DB.Updates(user)
 	database.DB.Save(user)
 	return user, nil
 }
