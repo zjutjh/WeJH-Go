@@ -26,9 +26,9 @@ func userRouterInit(r *gin.RouterGroup) {
 		{
 			bind.POST("/zf", userController.BindZFPassword)
 			bind.POST("/library", userController.BindLibraryPassword)
-			bind.POST("/yxy/send/verification", userController.SendVerificationCode)
-			bind.POST("/yxy/send/captcha", userController.SendVerificationCodeByCaptcha)
-			bind.POST("/yxy/get/captcha", userController.GetCaptcha)
+			bind.POST("/yxy/get/captcha", userController.GetCaptcha)            // 待废弃
+			bind.POST("/yxy/send/captcha", userController.SendVerificationCode) // 兼容用，待删除
+			bind.POST("/yxy/send/code", userController.SendVerificationCode)
 			bind.POST("/yxy/login", userController.LoginYxy)
 			bind.POST("/oauth", userController.BindOauthPassword)
 		}

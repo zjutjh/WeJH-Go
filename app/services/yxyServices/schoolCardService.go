@@ -1,29 +1,26 @@
 package yxyServices
 
 import (
-	"github.com/mitchellh/mapstructure"
 	"net/url"
 	"wejh-go/app/apiException"
 	"wejh-go/config/api/yxyApi"
+
+	"github.com/mitchellh/mapstructure"
 )
 
-const ZJUTSchoolCode = "10337"
-
 type BalanceResp struct {
-	Balance string `json:"balance"`
+	Balance string `json:"balance" mapstructure:"balance"`
 }
 
-type ConsumptionRecords []struct {
-	Type     string `json:"type"`
-	FeeName  string `json:"fee_name"`
-	Time     string `json:"time"`
-	SerialNo string `json:"serial_no"`
-	Money    string `json:"money"`
-	DealTime string `json:"deal_time"`
-	Address  string `json:"address"`
+type ConsumptionRecords struct {
+	List []struct {
+		Address string `json:"address" mapstructure:"address"`
+		Money   string `json:"money" mapstructure:"money"`
+		Time    string `json:"time" mapstructure:"time"`
+	} `json:"list" mapstructure:"list"`
 }
 
-func GetCardBalance(deviceId, uid string) (*string, error) {
+func GetCardBalance(deviceId, uid, phoneNum string) (*string, error) {
 	params := url.Values{}
 	Url, err := url.Parse(string(yxyApi.CardBalance))
 	if err != nil {
@@ -31,17 +28,20 @@ func GetCardBalance(deviceId, uid string) (*string, error) {
 	}
 	params.Set("device_id", deviceId)
 	params.Set("uid", uid)
-	params.Set("school_code", ZJUTSchoolCode)
 	Url.RawQuery = params.Encode()
 	urlPath := Url.String()
-	_ = SilentLogin(deviceId, uid)
+	_ = SilentLogin(deviceId, uid, phoneNum)
 	resp, err := FetchHandleOfGet(yxyApi.YxyApi(urlPath))
 	if err != nil {
 		return nil, err
 	}
-	if resp.Code != 0 {
+
+	if resp.Code == 100101 || resp.Code == 100102 {
 		return nil, apiException.YxySessionExpired
+	} else if resp.Code != 0 {
+		return nil, apiException.ServerError
 	}
+
 	var data BalanceResp
 	err = mapstructure.Decode(resp.Data, &data)
 	if err != nil {
@@ -50,7 +50,7 @@ func GetCardBalance(deviceId, uid string) (*string, error) {
 	return &data.Balance, nil
 }
 
-func GetCardConsumptionRecord(deviceId, uid, queryTime string) (ConsumptionRecords, error) {
+func GetCardConsumptionRecord(deviceId, uid, phoneNum, queryTime string) (*ConsumptionRecords, error) {
 	params := url.Values{}
 	Url, err := url.Parse(string(yxyApi.ConsumptionRecords))
 	if err != nil {
@@ -59,27 +59,26 @@ func GetCardConsumptionRecord(deviceId, uid, queryTime string) (ConsumptionRecor
 	params.Set("device_id", deviceId)
 	params.Set("uid", uid)
 	params.Set("query_time", queryTime)
-	params.Set("school_code", ZJUTSchoolCode)
 	Url.RawQuery = params.Encode()
 	urlPath := Url.String()
-	_ = SilentLogin(deviceId, uid)
+	_ = SilentLogin(deviceId, uid, phoneNum)
 	resp, err := FetchHandleOfGet(yxyApi.YxyApi(urlPath))
 	if err != nil {
 		return nil, err
 	}
-	if resp.Code == 204 {
-		return nil, nil
-	} else if resp.Code == 500 {
+
+	if resp.Code == 100101 || resp.Code == 100102 {
 		return nil, apiException.YxySessionExpired
-	} else if resp.Code == 403 {
+	} else if resp.Code == 100002 {
 		return nil, apiException.ParamError
 	} else if resp.Code != 0 {
 		return nil, apiException.ServerError
 	}
+
 	var data ConsumptionRecords
 	err = mapstructure.Decode(resp.Data, &data)
 	if err != nil {
 		return nil, err
 	}
-	return data, nil
+	return &data, nil
 }
