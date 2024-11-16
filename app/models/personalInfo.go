@@ -1,7 +1,6 @@
 package models
 
 type PersonalInfo struct {
-	ID        int    `json:"id" gorm:"autoIncrement;unique"`
 	Name      string `json:"name"`
 	Gender    string `json:"gender"`
 	StudentID string `gorm:"primaryKey" json:"student_id"`

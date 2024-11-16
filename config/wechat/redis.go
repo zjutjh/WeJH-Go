@@ -1,8 +1,10 @@
 package wechat
 
 import (
-	"github.com/silenceper/wechat/v2/cache"
+	"context"
 	"wejh-go/config/redis"
+
+	"github.com/silenceper/wechat/v2/cache"
 )
 
 func setRedis(wcCache cache.Cache) cache.Cache {
@@ -14,6 +16,6 @@ func setRedis(wcCache cache.Cache) cache.Cache {
 		MaxIdle:     10,
 		IdleTimeout: 60,
 	}
-	wcCache = cache.NewRedis(redisOpts)
+	wcCache = cache.NewRedis(context.Background(), redisOpts)
 	return wcCache
 }
