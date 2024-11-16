@@ -5,10 +5,15 @@ import (
 	"time"
 	r "wejh-go/config/redis"
 
+	"golang.org/x/sync/singleflight"
+
 	"github.com/go-redis/redis/v8"
 )
 
-var ctx = context.Background()
+var (
+	ctx = context.Background()
+	g   singleflight.Group
+)
 
 func GetElecRoomStrConcat(token, campus, yxyUid string) (*string, error) {
 	cacheKey := "elec:room_str_concat:" + campus + ":" + yxyUid
@@ -33,15 +38,22 @@ func GetElecAuthToken(yxyUid string) (*string, error) {
 	cacheKey := "elec:auth_token:" + yxyUid
 	cachedToken, err := r.RedisClient.Get(ctx, cacheKey).Result()
 	if err == redis.Nil {
-		token, err := Auth(yxyUid)
+		// 使用 singleflight 防止缓存击穿
+		token, err, _ := g.Do(cacheKey, func() (interface{}, error) {
+			t, e := Auth(yxyUid)
+			if e != nil {
+				return nil, e
+			}
+			e = r.RedisClient.Set(ctx, cacheKey, *t, 7*24*time.Hour).Err()
+			if e != nil {
+				return nil, e
+			}
+			return t, nil
+		})
 		if err != nil {
 			return nil, err
 		}
-		err = r.RedisClient.Set(ctx, cacheKey, *token, 7*24*time.Hour).Err()
-		if err != nil {
-			return nil, err
-		}
-		return token, nil
+		return token.(*string), nil
 	} else if err != nil {
 		return nil, err
 	}

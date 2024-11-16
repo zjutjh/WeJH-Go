@@ -25,6 +25,7 @@ require (
 	github.com/ugorji/go v1.2.5 // indirect
 	github.com/xuri/excelize/v2 v2.8.0
 	go.opentelemetry.io/otel v0.20.0 // indirect
+	golang.org/x/sync v0.1.0
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gorm.io/driver/mysql v1.0.6
