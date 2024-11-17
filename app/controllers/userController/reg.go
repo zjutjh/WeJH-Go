@@ -17,7 +17,7 @@ type createStudentUserForm struct {
 	StudentID    string `json:"studentID"  binding:"required"`
 	IDCardNumber string `json:"idCardNumber"  binding:"required"`
 	Email        string `json:"email"  binding:"required"`
-	LoginType    string `json:"type"`
+	Type         uint   `json:"type"  ` // 用户类型 0-本科生 1-研究生
 }
 type createStudentUserWechatForm struct {
 	Username     string `json:"username"  binding:"required"`
@@ -26,7 +26,7 @@ type createStudentUserWechatForm struct {
 	IDCardNumber string `json:"idCardNumber"  binding:"required"`
 	Email        string `json:"email"  binding:"required"`
 	Code         string `json:"code"  binding:"required"`
-	LoginType    string `json:"type"`
+	Type         uint   `json:"type" ` // 用户类型 0-本科生 1-研究生
 }
 
 func BindOrCreateStudentUserFromWechat(c *gin.Context) {
@@ -52,7 +52,8 @@ func BindOrCreateStudentUserFromWechat(c *gin.Context) {
 		postForm.StudentID,
 		postForm.IDCardNumber,
 		postForm.Email,
-		session.OpenID)
+		session.OpenID,
+		postForm.Type)
 	if err != nil && err != apiException.ReactiveError {
 		_ = c.AbortWithError(200, err)
 		return
@@ -87,7 +88,8 @@ func CreateStudentUser(c *gin.Context) {
 		postForm.Password,
 		postForm.StudentID,
 		postForm.IDCardNumber,
-		postForm.Email)
+		postForm.Email,
+		postForm.Type)
 	if err != nil && err != apiException.ReactiveError {
 		_ = c.AbortWithError(200, err)
 		return

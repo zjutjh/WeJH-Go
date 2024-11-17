@@ -67,7 +67,7 @@ func GetCaptchaImage(deviceId, securityToken string) (*string, error) {
 }
 
 func SendVerificationCode(securityToken, deviceId, phoneNum string) error {
-	form := make(map[string]string)
+	form := make(map[string]any)
 	form["phone_num"] = phoneNum
 	form["security_token"] = securityToken
 	form["captcha"] = ""
@@ -95,7 +95,7 @@ func SendVerificationCode(securityToken, deviceId, phoneNum string) error {
 }
 
 func LoginByCode(code, deviceId, phoneNum string) (*string, error) {
-	form := make(map[string]string)
+	form := make(map[string]any)
 	form["phone_num"] = phoneNum
 	form["code"] = code
 	form["device_id"] = deviceId
@@ -121,7 +121,7 @@ func LoginByCode(code, deviceId, phoneNum string) (*string, error) {
 }
 
 func SilentLogin(deviceId, uid, phoneNum string) error {
-	form := make(map[string]string)
+	form := make(map[string]any)
 	form["uid"] = uid
 	form["device_id"] = deviceId
 	form["phone_num"] = phoneNum

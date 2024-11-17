@@ -7,7 +7,6 @@ import (
 )
 
 func DelAccount(user *models.User, iid string) error {
-
 	if err := userCenterServices.DelAccount(user.Username, iid); err != nil {
 		return err
 	}
