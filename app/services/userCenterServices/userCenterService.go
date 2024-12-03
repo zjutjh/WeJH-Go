@@ -13,7 +13,7 @@ type UserCenterResponse struct {
 	Data interface{} `json:"data"`
 }
 
-func FetchHandleOfPost(form map[string]string, url userCenterApi.UserCenterApi) (*UserCenterResponse, error) {
+func FetchHandleOfPost(form map[string]any, url userCenterApi.UserCenterApi) (*UserCenterResponse, error) {
 	f := fetch.Fetch{}
 	f.Init()
 	res, err := f.PostJsonForm(userCenterApi.UserCenterHost+string(url), form)

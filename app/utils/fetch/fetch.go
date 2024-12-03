@@ -84,7 +84,7 @@ func (f *Fetch) PostForm(url string, requestData url.Values) ([]byte, error) {
 	return ioutil.ReadAll(response.Body)
 }
 
-func (f *Fetch) PostJsonFormRaw(url string, requestData map[string]string) (*http.Response, error) {
+func (f *Fetch) PostJsonFormRaw(url string, requestData map[string]any) (*http.Response, error) {
 	bytesData, _ := json.Marshal(requestData)
 	request, _ := http.NewRequest("POST", url, bytes.NewReader(bytesData))
 	request.Header.Set("Content-Type", "application/json")
@@ -94,7 +94,7 @@ func (f *Fetch) PostJsonFormRaw(url string, requestData map[string]string) (*htt
 	return f.client.Do(request)
 }
 
-func (f *Fetch) PostJsonForm(url string, requestData map[string]string) ([]byte, error) {
+func (f *Fetch) PostJsonForm(url string, requestData map[string]any) ([]byte, error) {
 	response, err := f.PostJsonFormRaw(url, requestData)
 	if err != nil {
 		return nil, err

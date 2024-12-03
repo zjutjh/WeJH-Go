@@ -10,11 +10,11 @@ import (
 	"wejh-go/config/database"
 )
 
-func CreateStudentUser(username, password, studentID, IDCardNumber, email string) (*models.User, error) {
+func CreateStudentUser(username, password, studentID, IDCardNumber, email string, userType uint) (*models.User, error) {
 	if CheckUsername(username) {
 		return nil, apiException.UserAlreadyExisted
 	}
-	err := userCenterServices.RegWithoutVerify(studentID, password, IDCardNumber, email)
+	err := userCenterServices.RegWithoutVerify(studentID, password, IDCardNumber, email, userType)
 	if err != nil && err != apiException.ReactiveError {
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func CreateStudentUser(username, password, studentID, IDCardNumber, email string
 	user := &models.User{
 		JHPassword:  pass,
 		Username:    username,
-		Type:        models.Undergraduate,
+		Type:        models.UserType(userType),
 		StudentID:   studentID,
 		LibPassword: "",
 		PhoneNum:    "",
@@ -41,11 +41,11 @@ func CreateStudentUser(username, password, studentID, IDCardNumber, email string
 	return user, res.Error
 }
 
-func CreateStudentUserWechat(username, password, studentID, IDCardNumber, email, wechatOpenID string) (*models.User, error) {
+func CreateStudentUserWechat(username, password, studentID, IDCardNumber, email, wechatOpenID string, userType uint) (*models.User, error) {
 	if CheckWechatOpenID(wechatOpenID) {
 		return nil, apiException.OpenIDError
 	}
-	user, err := CreateStudentUser(username, password, studentID, IDCardNumber, email)
+	user, err := CreateStudentUser(username, password, studentID, IDCardNumber, email, userType)
 	if err != nil && err != apiException.ReactiveError {
 		return nil, err
 	}

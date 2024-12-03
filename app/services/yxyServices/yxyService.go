@@ -14,7 +14,7 @@ type YxyResponse struct {
 	Data interface{} `json:"data"`
 }
 
-func FetchHandleOfPost(form map[string]string, url yxyApi.YxyApi) (*YxyResponse, error) {
+func FetchHandleOfPost(form map[string]any, url yxyApi.YxyApi) (*YxyResponse, error) {
 	f := fetch.Fetch{}
 	f.Init()
 	res, err := f.PostJsonForm(yxyApi.YxyHost+string(url), form)

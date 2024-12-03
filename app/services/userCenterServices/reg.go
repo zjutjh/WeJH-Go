@@ -6,7 +6,7 @@ import (
 	"wejh-go/config/api/userCenterApi"
 )
 
-func RegWithoutVerify(stu_id string, pass string, iid string, email string) error {
+func RegWithoutVerify(stu_id string, pass string, iid string, email string, userType uint) error {
 	params := url.Values{}
 	Url, err := url.Parse(string(userCenterApi.UCRegWithoutVerify))
 	if err != nil {
@@ -14,11 +14,13 @@ func RegWithoutVerify(stu_id string, pass string, iid string, email string) erro
 	}
 	Url.RawQuery = params.Encode()
 	urlPath := Url.String()
-	regMap := make(map[string]string)
+	regMap := make(map[string]any)
 	regMap["stu_id"] = stu_id
 	regMap["password"] = pass
 	regMap["iid"] = iid
 	regMap["email"] = email
+	regMap["type"] = userType
+	regMap["bound_system"] = 0
 	resp, err := FetchHandleOfPost(regMap, userCenterApi.UserCenterApi(urlPath))
 	if err != nil {
 		return err
