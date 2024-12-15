@@ -24,7 +24,7 @@ func Login(stu_id string, pass string) error {
 	}
 	if resp.Code == 404 {
 		return apiException.UserNotFind
-	} else if resp.Code == 405 {
+	} else if resp.Code == 409 {
 		return apiException.NoThatPasswordOrWrong
 	} else if resp.Code == 200 {
 		return nil

@@ -2,6 +2,7 @@ package userServices
 
 import (
 	"time"
+	"wejh-go/app/apiException"
 	"wejh-go/app/models"
 	"wejh-go/app/services/funnelServices"
 	"wejh-go/config/database"
@@ -58,21 +59,17 @@ func SetDeviceID(user *models.User, deviceID string) {
 	database.DB.Save(user)
 }
 
-func DelPassword(user *models.User, passwordType string) {
-	switch passwordType {
-	case "ZF":
-		{
+func DelPassword(err error, user *models.User, passwordType string) {
+	if err == apiException.NoThatPasswordOrWrong || err == apiException.OAuthNotUpdate {
+		switch passwordType {
+		case "ZF":
 			user.ZFPassword = ""
-		}
-	case "OAUTH":
-		{
+		case "OAUTH":
 			user.OauthPassword = ""
-		}
-	case "Library":
-		{
+		case "Library":
 			user.LibPassword = ""
 		}
+		EncryptUserKeyInfo(user)
+		database.DB.Save(user)
 	}
-	EncryptUserKeyInfo(user)
-	database.DB.Save(user)
 }

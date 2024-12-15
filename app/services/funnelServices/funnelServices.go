@@ -46,6 +46,9 @@ func FetchHandleOfPost(form url.Values, url funnelApi.FunnelApi) (interface{}, e
 	if rc.Code == 412 {
 		return rc.Data, apiException.NoThatPasswordOrWrong
 	}
+	if rc.Code == 416 {
+		return rc.Data, apiException.OAuthNotUpdate
+	}
 	return rc.Data, nil
 }
 func FetchHandleOfGet(url funnelApi.FunnelApi) (interface{}, error) {
