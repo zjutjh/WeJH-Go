@@ -29,17 +29,6 @@ func SetOauthPassword(user *models.User, password string) error {
 	return nil
 }
 
-func SetLibraryPassword(user *models.User, password string) error {
-	user.LibPassword = password
-	_, err := funnelServices.GetCurrentBorrow(user)
-	if err != nil {
-		return err
-	}
-	EncryptUserKeyInfo(user)
-	database.DB.Save(user)
-	return nil
-}
-
 func SetPhoneNum(user *models.User, phoneNum string) {
 	user.PhoneNum = phoneNum
 	EncryptUserKeyInfo(user)

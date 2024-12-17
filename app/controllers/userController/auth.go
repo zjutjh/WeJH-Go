@@ -59,8 +59,8 @@ func AuthByPassword(c *gin.Context) {
 			"username":  user.Username,
 			"studentID": user.StudentID,
 			"bind": gin.H{
-				"zf":    user.ZFPassword != "",
-				"lib":   user.LibPassword != "",
+				"zf": user.ZFPassword != "",
+				//"lib":   user.LibPassword != "",
 				"yxy":   user.YxyUid != "",
 				"oauth": user.OauthPassword != "",
 			},
@@ -83,8 +83,8 @@ func AuthBySession(c *gin.Context) {
 			"username":  user.Username,
 			"studentID": user.StudentID,
 			"bind": gin.H{
-				"zf":  user.ZFPassword != "",
-				"lib": user.LibPassword != "",
+				"zf": user.ZFPassword != "",
+				//"lib": user.LibPassword != "" //已废弃
 				"yxy": user.YxyUid != "",
 			},
 			"userType":   user.Type,
@@ -125,8 +125,8 @@ func WeChatLogin(c *gin.Context) {
 			"username":  user.Username,
 			"studentID": user.StudentID,
 			"bind": gin.H{
-				"zf":    user.ZFPassword != "",
-				"lib":   user.LibPassword != "",
+				"zf": user.ZFPassword != "",
+				//"lib":   user.LibPassword != "",
 				"yxy":   user.YxyUid != "",
 				"oauth": user.OauthPassword != "",
 			},

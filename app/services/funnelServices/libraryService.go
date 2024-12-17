@@ -8,22 +8,22 @@ import (
 )
 
 func GetCurrentBorrow(u *models.User) (interface{}, error) {
-	if u.LibPassword == "" {
+	if u.OauthPassword == "" {
 		return nil, apiException.NoThatPasswordOrWrong
 	}
 	form := url.Values{}
 	form.Add("username", u.StudentID)
-	form.Add("password", u.LibPassword)
+	form.Add("password", u.OauthPassword)
 	return FetchHandleOfPost(form, funnelApi.LibraryCurrent)
 }
 
 func GetHistoryBorrow(u *models.User) (interface{}, error) {
-	if u.LibPassword == "" {
+	if u.OauthPassword == "" {
 		return nil, apiException.NoThatPasswordOrWrong
 	}
 	form := url.Values{}
 	form.Add("username", u.StudentID)
-	form.Add("password", u.LibPassword)
+	form.Add("password", u.OauthPassword)
 
 	return FetchHandleOfPost(form, funnelApi.LibraryHistory)
 }
