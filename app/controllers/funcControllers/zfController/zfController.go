@@ -42,9 +42,7 @@ func GetClassTable(c *gin.Context) {
 
 	result, err := funnelServices.GetClassTable(user, postForm.Year, postForm.Term, loginType)
 	if err != nil {
-		if err == apiException.NoThatPasswordOrWrong {
-			userServices.DelPassword(user, loginType)
-		}
+		userServices.DelPassword(err, user, loginType)
 		_ = c.AbortWithError(200, err)
 		return
 	}
@@ -73,9 +71,7 @@ func GetScore(c *gin.Context) {
 
 	result, err := funnelServices.GetScore(user, postForm.Year, postForm.Term, loginType)
 	if err != nil {
-		if err == apiException.NoThatPasswordOrWrong {
-			userServices.DelPassword(user, loginType)
-		}
+		userServices.DelPassword(err, user, loginType)
 		_ = c.AbortWithError(200, err)
 		return
 	}
@@ -104,9 +100,7 @@ func GetMidTermScore(c *gin.Context) {
 
 	result, err := funnelServices.GetMidTermScore(user, postForm.Year, postForm.Term, loginType)
 	if err != nil {
-		if err == apiException.NoThatPasswordOrWrong {
-			userServices.DelPassword(user, loginType)
-		}
+		userServices.DelPassword(err, user, loginType)
 		_ = c.AbortWithError(200, err)
 		return
 	}
@@ -135,9 +129,7 @@ func GetExam(c *gin.Context) {
 
 	result, err := funnelServices.GetExam(user, postForm.Year, postForm.Term, loginType)
 	if err != nil {
-		if err == apiException.NoThatPasswordOrWrong {
-			userServices.DelPassword(user, loginType)
-		}
+		userServices.DelPassword(err, user, loginType)
 		_ = c.AbortWithError(200, err)
 		return
 	}
@@ -191,11 +183,7 @@ func GetRoom(c *gin.Context) {
 
 	result, err := funnelServices.GetRoom(user, postForm.Year, postForm.Term, postForm.Campus, postForm.Weekday, postForm.Week, postForm.Sections, loginType)
 	if err != nil {
-		if err == apiException.NoThatPasswordOrWrong {
-			userServices.DelPassword(user, loginType)
-			_ = c.AbortWithError(200, err)
-			return
-		}
+		userServices.DelPassword(err, user, loginType)
 		_ = c.AbortWithError(200, err)
 		return
 	}

@@ -17,9 +17,7 @@ func GetCurrent(c *gin.Context) {
 	}
 	list, err := funnelServices.GetCurrentBorrow(user)
 	if err != nil {
-		if err == apiException.NoThatPasswordOrWrong {
-			userServices.DelPassword(user, "Library")
-		}
+		userServices.DelPassword(err, user, "Library")
 		_ = c.AbortWithError(200, err)
 		return
 	}
@@ -34,9 +32,7 @@ func GetHistory(c *gin.Context) {
 	}
 	list, err := funnelServices.GetHistoryBorrow(user)
 	if err != nil {
-		if err == apiException.NoThatPasswordOrWrong {
-			userServices.DelPassword(user, "Library")
-		}
+		userServices.DelPassword(err, user, "Library")
 		_ = c.AbortWithError(200, err)
 		return
 	}
