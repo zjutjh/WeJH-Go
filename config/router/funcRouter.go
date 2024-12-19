@@ -1,7 +1,6 @@
 package router
 
 import (
-	"wejh-go/app/controllers/funcControllers/canteenController"
 	"wejh-go/app/controllers/funcControllers/customizeHomeController"
 	"wejh-go/app/controllers/funcControllers/lessonController"
 	"wejh-go/app/controllers/funcControllers/libraryController"
@@ -21,9 +20,6 @@ import (
 func funcRouterInit(r *gin.RouterGroup) {
 	fun := r.Group("/func")
 	{
-		// TODO 准备删除
-		fun.POST("/canteen/flow", canteenController.GetCanteenFlowRate)
-
 		customizeHome := fun.Group("/home", midwares.CheckLogin)
 		{
 			customizeHome.GET("/get", customizeHomeController.GetCustomizeHome)
