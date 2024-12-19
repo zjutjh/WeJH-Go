@@ -117,7 +117,7 @@ func GetConsumptionRecords(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
-	records, err := yxyServices.ElectricityConsumptionRecords(*token, postForm.Campus, *roomStrConcat)
+	records, err := yxyServices.GetElecConsumptionRecords(*token, postForm.Campus, *roomStrConcat)
 	if err == apiException.CampusMismatch {
 		_ = c.AbortWithError(200, err)
 		return
