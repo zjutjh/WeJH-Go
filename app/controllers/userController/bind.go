@@ -105,7 +105,7 @@ func SendVerificationCode(c *gin.Context) {
 		return
 	}
 	err = yxyServices.SendVerificationCode(data.SecurityToken, deviceId, postForm.PhoneNum)
-	if err == apiException.WrongCaptcha || err == apiException.WrongPhoneNum || err == apiException.SendVerificationCodeLimit || err == apiException.NotBindYxy {
+	if err == apiException.WrongPhoneNum || err == apiException.SendVerificationCodeLimit || err == apiException.NotBindYxy {
 		_ = c.AbortWithError(200, err)
 		return
 	} else if err != nil {

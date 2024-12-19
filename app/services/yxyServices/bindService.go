@@ -77,9 +77,7 @@ func SendVerificationCode(securityToken, deviceId, phoneNum string) error {
 		return err
 	}
 
-	if resp.Code == 110003 {
-		return apiException.WrongCaptcha
-	} else if resp.Code == 110005 {
+	if resp.Code == 110005 {
 		return apiException.WrongPhoneNum
 	} else if resp.Code == 110006 {
 		return apiException.SendVerificationCodeLimit
