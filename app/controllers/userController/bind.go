@@ -64,28 +64,6 @@ func BindOauthPassword(c *gin.Context) {
 	utils.JsonSuccessResponse(c, nil)
 }
 
-// 待废弃
-func GetCaptcha(c *gin.Context) {
-	_, err := sessionServices.GetUserSession(c)
-	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
-		return
-	}
-	deviceId := uuid.New().String()
-	data, err := yxyServices.GetSecurityToken(deviceId)
-	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
-		return
-	}
-	securityToken := &data.SecurityToken
-	img, err := yxyServices.GetCaptchaImage(deviceId, *securityToken)
-	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
-		return
-	}
-	utils.JsonSuccessResponse(c, img)
-}
-
 func SendVerificationCode(c *gin.Context) {
 	var postForm phoneForm
 	err := c.ShouldBindJSON(&postForm)

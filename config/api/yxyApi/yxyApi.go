@@ -8,7 +8,6 @@ type YxyApi string
 
 const (
 	SecurityToken          YxyApi = "api/v1/login/security-token"
-	CaptchaImage           YxyApi = "api/v1/login/captcha-image"
 	SendVerificationCode   YxyApi = "api/v1/login/send-code"
 	LoginByCode            YxyApi = "api/v1/login/code"
 	SlientLogin            YxyApi = "api/v1/login/silent"
