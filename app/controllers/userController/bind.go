@@ -6,6 +6,7 @@ import (
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/services/yxyServices"
 	"wejh-go/app/utils"
+	"wejh-go/app/utils/circuitBreaker"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -36,7 +37,8 @@ func BindZFPassword(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
-	err = userServices.SetZFPassword(user, postForm.PassWord)
+	api, _ := circuitBreaker.CB.GetApi(true, false)
+	err = userServices.SetZFPassword(user, postForm.PassWord, api)
 	if err != nil {
 		_ = c.AbortWithError(200, err)
 		return
@@ -56,7 +58,8 @@ func BindOauthPassword(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
-	err = userServices.SetOauthPassword(user, postForm.PassWord)
+	api, _ := circuitBreaker.CB.GetApi(false, true)
+	err = userServices.SetOauthPassword(user, postForm.PassWord, api)
 	if err != nil {
 		_ = c.AbortWithError(200, err)
 		return

@@ -14,10 +14,10 @@ type FunnelResponse struct {
 	Data interface{} `json:"data"`
 }
 
-func FetchHandleOfPost(form url.Values, url funnelApi.FunnelApi) (interface{}, error) {
+func FetchHandleOfPost(form url.Values, host string, url funnelApi.FunnelApi) (interface{}, error) {
 	f := fetch.Fetch{}
 	f.Init()
-	res, err := f.PostForm(funnelApi.FunnelHost+string(url), form)
+	res, err := f.PostForm(host+string(url), form)
 	if err != nil {
 		return nil, apiException.RequestError
 	}

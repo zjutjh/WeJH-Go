@@ -5,12 +5,13 @@ import (
 	"wejh-go/app/apiException"
 	"wejh-go/app/models"
 	"wejh-go/app/services/funnelServices"
+	"wejh-go/config/api/funnelApi"
 	"wejh-go/config/database"
 )
 
-func SetZFPassword(user *models.User, password string) error {
+func SetZFPassword(user *models.User, password, api string) error {
 	user.ZFPassword = password
-	_, err := funnelServices.BindPassword(user, string(rune(time.Now().Year())), "3", "ZF")
+	_, err := funnelServices.BindPassword(user, string(rune(time.Now().Year())), "3", api, funnelApi.ZF)
 	if err != nil {
 		return err
 	}
@@ -19,9 +20,9 @@ func SetZFPassword(user *models.User, password string) error {
 	return nil
 }
 
-func SetOauthPassword(user *models.User, password string) error {
+func SetOauthPassword(user *models.User, password, api string) error {
 	user.OauthPassword = password
-	_, err := funnelServices.BindPassword(user, string(rune(time.Now().Year())), "3", "OAUTH")
+	_, err := funnelServices.BindPassword(user, string(rune(time.Now().Year())), "3", api, funnelApi.Oauth)
 	if err != nil {
 		return err
 	}
