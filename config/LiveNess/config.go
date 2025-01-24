@@ -33,9 +33,9 @@ func GetLiveNessConfig() LiveNessProbeConfig {
 }
 
 type LoadBalanceConfig struct {
-	Name string
-	Url  string
-	Type funnelApi.LoginType
+	Name string              `json:"name"`
+	Url  string              `json:"url"`
+	Type funnelApi.LoginType `json:"type"`
 }
 
 func GetLoadBalanceConfig() []LoadBalanceConfig {
