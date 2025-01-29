@@ -14,7 +14,7 @@ func GetCurrentBorrow(u *models.User) (interface{}, error) {
 	form := url.Values{}
 	form.Add("username", u.StudentID)
 	form.Add("password", u.OauthPassword)
-	return FetchHandleOfPost(form, funnelApi.LibraryCurrent)
+	return FetchHandleOfPost(form, funnelApi.FunnelHost, funnelApi.LibraryCurrent)
 }
 
 func GetHistoryBorrow(u *models.User) (interface{}, error) {
@@ -25,5 +25,5 @@ func GetHistoryBorrow(u *models.User) (interface{}, error) {
 	form.Add("username", u.StudentID)
 	form.Add("password", u.OauthPassword)
 
-	return FetchHandleOfPost(form, funnelApi.LibraryHistory)
+	return FetchHandleOfPost(form, funnelApi.FunnelHost, funnelApi.LibraryHistory)
 }

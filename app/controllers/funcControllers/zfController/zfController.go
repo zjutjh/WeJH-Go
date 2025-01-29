@@ -4,14 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"math/rand"
 	"time"
 	"wejh-go/app/apiException"
-	"wejh-go/app/models"
 	"wejh-go/app/services/funnelServices"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
+	"wejh-go/app/utils/circuitBreaker"
 	"wejh-go/config/redis"
 )
 
@@ -34,15 +33,15 @@ func GetClassTable(c *gin.Context) {
 		return
 	}
 
-	loginType, err := genLoginType(user)
+	api, loginType, err := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
 	if err != nil {
 		_ = c.AbortWithError(200, err)
 		return
 	}
 
-	result, err := funnelServices.GetClassTable(user, postForm.Year, postForm.Term, loginType)
+	result, err := funnelServices.GetClassTable(user, postForm.Year, postForm.Term, api, loginType)
 	if err != nil {
-		userServices.DelPassword(err, user, loginType)
+		userServices.DelPassword(err, user, string(loginType))
 		_ = c.AbortWithError(200, err)
 		return
 	}
@@ -63,15 +62,15 @@ func GetScore(c *gin.Context) {
 		return
 	}
 
-	loginType, err := genLoginType(user)
+	api, loginType, err := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
 	if err != nil {
 		_ = c.AbortWithError(200, err)
 		return
 	}
 
-	result, err := funnelServices.GetScore(user, postForm.Year, postForm.Term, loginType)
+	result, err := funnelServices.GetScore(user, postForm.Year, postForm.Term, api, loginType)
 	if err != nil {
-		userServices.DelPassword(err, user, loginType)
+		userServices.DelPassword(err, user, string(loginType))
 		_ = c.AbortWithError(200, err)
 		return
 	}
@@ -92,15 +91,15 @@ func GetMidTermScore(c *gin.Context) {
 		return
 	}
 
-	loginType, err := genLoginType(user)
+	api, loginType, err := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
 	if err != nil {
 		_ = c.AbortWithError(200, err)
 		return
 	}
 
-	result, err := funnelServices.GetMidTermScore(user, postForm.Year, postForm.Term, loginType)
+	result, err := funnelServices.GetMidTermScore(user, postForm.Year, postForm.Term, api, loginType)
 	if err != nil {
-		userServices.DelPassword(err, user, loginType)
+		userServices.DelPassword(err, user, string(loginType))
 		_ = c.AbortWithError(200, err)
 		return
 	}
@@ -121,15 +120,15 @@ func GetExam(c *gin.Context) {
 		return
 	}
 
-	loginType, err := genLoginType(user)
+	api, loginType, err := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
 	if err != nil {
 		_ = c.AbortWithError(200, err)
 		return
 	}
 
-	result, err := funnelServices.GetExam(user, postForm.Year, postForm.Term, loginType)
+	result, err := funnelServices.GetExam(user, postForm.Year, postForm.Term, api, loginType)
 	if err != nil {
-		userServices.DelPassword(err, user, loginType)
+		userServices.DelPassword(err, user, string(loginType))
 		_ = c.AbortWithError(200, err)
 		return
 	}
@@ -159,7 +158,7 @@ func GetRoom(c *gin.Context) {
 		return
 	}
 
-	loginType, err := genLoginType(user)
+	api, loginType, err := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
 	if err != nil {
 		_ = c.AbortWithError(200, err)
 		return
@@ -181,9 +180,9 @@ func GetRoom(c *gin.Context) {
 		}
 	}
 
-	result, err := funnelServices.GetRoom(user, postForm.Year, postForm.Term, postForm.Campus, postForm.Weekday, postForm.Week, postForm.Sections, loginType)
+	result, err := funnelServices.GetRoom(user, postForm.Year, postForm.Term, postForm.Campus, postForm.Weekday, postForm.Week, postForm.Sections, api, loginType)
 	if err != nil {
-		userServices.DelPassword(err, user, loginType)
+		userServices.DelPassword(err, user, string(loginType))
 		_ = c.AbortWithError(200, err)
 		return
 	}
@@ -197,27 +196,4 @@ func GetRoom(c *gin.Context) {
 		}
 	}
 	utils.JsonSuccessResponse(c, result)
-}
-
-func genLoginType(u *models.User) (string, error) {
-	var loginType string
-	rand.Seed(time.Now().UnixNano())
-	oauthVal := rand.Intn(40)
-	zfVal := rand.Intn(60)
-
-	if u.OauthPassword != "" && u.ZFPassword != "" {
-		if oauthVal > zfVal {
-			loginType = "OAUTH"
-		} else {
-			loginType = "ZF"
-		}
-	} else if u.OauthPassword != "" {
-		loginType = "OAUTH"
-	} else if u.ZFPassword != "" {
-		loginType = "ZF"
-	} else {
-		return "", apiException.NoThatPasswordOrWrong
-	}
-
-	return loginType, nil
 }
