@@ -25,7 +25,3 @@ func (c *atomicCounter) Get() int64 {
 func (c *atomicCounter) Zero() {
 	atomic.StoreInt64(&c.x, 0)
 }
-
-const (
-	cacheLineSize = 64
-)

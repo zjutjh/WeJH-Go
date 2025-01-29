@@ -37,7 +37,11 @@ func BindZFPassword(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
-	api, _ := circuitBreaker.CB.GetApi(true, false)
+	api, _, err := circuitBreaker.CB.GetApi(true, false)
+	if err != nil {
+		_ = c.AbortWithError(200, err)
+		return
+	}
 	err = userServices.SetZFPassword(user, postForm.PassWord, api)
 	if err != nil {
 		_ = c.AbortWithError(200, err)
@@ -58,7 +62,11 @@ func BindOauthPassword(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
-	api, _ := circuitBreaker.CB.GetApi(false, true)
+	api, _, err := circuitBreaker.CB.GetApi(false, true)
+	if err != nil {
+		_ = c.AbortWithError(200, err)
+		return
+	}
 	err = userServices.SetOauthPassword(user, postForm.PassWord, api)
 	if err != nil {
 		_ = c.AbortWithError(200, err)

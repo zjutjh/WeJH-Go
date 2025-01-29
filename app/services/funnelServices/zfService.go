@@ -9,7 +9,7 @@ import (
 func genTermForm(u *models.User, year, term string, loginType funnelApi.LoginType) url.Values {
 	var password string
 
-	if loginType == "OAUTH" {
+	if loginType == funnelApi.Oauth {
 		password = u.OauthPassword
 	} else {
 		password = u.ZFPassword

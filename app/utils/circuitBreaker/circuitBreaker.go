@@ -1,47 +1,48 @@
 package circuitBreaker
 
 import (
-	liveNessConfig "wejh-go/config/LiveNess"
 	"wejh-go/config/api/funnelApi"
+	cbConfig "wejh-go/config/circuitBreaker"
 )
 
 var CB CircuitBreaker
+
+type CircuitBreaker struct {
+	LB       LoadBalance
+	SnapShot map[string]*ApiSnapShot
+}
 
 func init() {
 	lb := LoadBalance{
 		zfLB:    &randomLB{},
 		oauthLB: &randomLB{},
 	}
-	for _, config := range liveNessConfig.GetLoadBalanceConfig() {
-		if config.Type == funnelApi.Oauth {
-			lb.oauthLB.Add(config.Url)
-		} else if config.Type == funnelApi.ZF {
-			lb.zfLB.Add(config.Url)
-		}
+	snapShot := make(map[string]*ApiSnapShot)
+
+	for _, api := range cbConfig.GetLoadBalanceConfig().Apis {
+		lb.Add(api, funnelApi.Oauth)
+		lb.Add(api, funnelApi.ZF)
+		snapShot[api+string(funnelApi.Oauth)] = NewApiSnapShot()
+		snapShot[api+string(funnelApi.ZF)] = NewApiSnapShot()
 	}
+
 	CB = CircuitBreaker{
-		lb:       lb,
-		SnapShot: make(map[string]*apiSnapShot),
+		LB:       lb,
+		SnapShot: snapShot,
 	}
 }
 
-type CircuitBreaker struct {
-	lb       LoadBalance
-	SnapShot map[string]*apiSnapShot
+func (c *CircuitBreaker) GetApi(zfFlag, oauthFlag bool) (string, funnelApi.LoginType, error) {
+	return c.LB.Pick(zfFlag, oauthFlag)
 }
 
-func (c *CircuitBreaker) GetApi(zfFlag, oauthFlag bool) (string, funnelApi.LoginType) {
-	return c.lb.Pick(zfFlag, oauthFlag)
-}
-
-func (c *CircuitBreaker) Fail(api string) {
-	if c.SnapShot[api].Fail() {
-		c.lb.Remove(api, c.SnapShot[api].LoginType)
-		Probe.Add(api, c.SnapShot[api].LoginType)
+func (c *CircuitBreaker) Fail(api string, loginType funnelApi.LoginType) {
+	if c.SnapShot[api+string(loginType)].Fail() {
+		c.LB.Remove(api, loginType)
+		Probe.Add(api, loginType)
 	}
 }
 
-func (c *CircuitBreaker) Success(api string) {
-	c.lb.Add(api, c.SnapShot[api].LoginType)
-	c.SnapShot[api].Success()
+func (c *CircuitBreaker) Success(api string, loginType funnelApi.LoginType) {
+	c.SnapShot[api+string(loginType)].Success()
 }

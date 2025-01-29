@@ -36,6 +36,7 @@ var (
 	SendVerificationCodeLimit = NewError(http.StatusInternalServerError, 200524, "短信发送超限，请1分钟后再试")
 	CampusMismatch            = NewError(http.StatusInternalServerError, 200525, "暂无该校区绑定信息")
 	OAuthNotUpdate            = NewError(http.StatusInternalServerError, 200526, "统一身份认证密码未更新")
+	NoApiAvailable            = NewError(http.StatusInternalServerError, 200527, "正方相关服务暂不可用")
 	NotInit                   = NewError(http.StatusNotFound, 200404, http.StatusText(http.StatusNotFound))
 	NotFound                  = NewError(http.StatusNotFound, 200404, http.StatusText(http.StatusNotFound))
 	Unknown                   = NewError(http.StatusInternalServerError, 300500, "系统异常，请稍后重试!")

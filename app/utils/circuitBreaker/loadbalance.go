@@ -2,14 +2,14 @@ package circuitBreaker
 
 import (
 	"github.com/bytedance/gopkg/lang/fastrand"
+	"wejh-go/app/apiException"
 	"wejh-go/config/api/funnelApi"
 )
 
 type LoadBalanceType int
 
 const (
-	RoundRobin LoadBalanceType = iota
-	Random
+	Random LoadBalanceType = iota
 )
 
 type LoadBalance struct {
@@ -17,34 +17,25 @@ type LoadBalance struct {
 	oauthLB *randomLB
 }
 
-func (lb *LoadBalance) Pick(zfFlag, oauthFlag bool) (string, funnelApi.LoginType) {
-	var loginType funnelApi.LoginType
+func (lb *LoadBalance) Pick(zfFlag, oauthFlag bool) (string, funnelApi.LoginType, error) {
+	oauthAvailable := oauthFlag && lb.oauthLB.isAvailable()
+	zfAvailable := zfFlag && lb.zfLB.isAvailable()
 
-	if oauthFlag && zfFlag {
+	if oauthAvailable && zfAvailable {
 		if fastrand.Intn(100) > 50 {
-			loginType = funnelApi.Oauth
-		} else {
-			loginType = funnelApi.ZF
+			return lb.oauthLB.Pick(), funnelApi.Oauth, nil
 		}
-	} else if oauthFlag {
-		loginType = funnelApi.Oauth
-	} else if zfFlag {
-		loginType = funnelApi.ZF
-	} else {
-		return "", funnelApi.Unknown
+		return lb.zfLB.Pick(), funnelApi.ZF, nil
 	}
-	if loginType == funnelApi.Oauth {
-		return lb.zfLB.Pick(), loginType
-	}
-	return lb.oauthLB.Pick(), loginType
-}
 
-func (lb *LoadBalance) Remove(api string, loginType funnelApi.LoginType) {
-	if loginType == funnelApi.Oauth {
-		lb.oauthLB.Remove(api)
-	} else {
-		lb.zfLB.Remove(api)
+	if oauthAvailable {
+		return lb.oauthLB.Pick(), funnelApi.Oauth, nil
 	}
+	if zfAvailable {
+		return lb.zfLB.Pick(), funnelApi.ZF, nil
+	}
+
+	return "", funnelApi.Unknown, apiException.NoApiAvailable
 }
 
 func (lb *LoadBalance) Add(api string, loginType funnelApi.LoginType) {
@@ -55,11 +46,21 @@ func (lb *LoadBalance) Add(api string, loginType funnelApi.LoginType) {
 	}
 }
 
+func (lb *LoadBalance) Remove(api string, loginType funnelApi.LoginType) {
+	if loginType == funnelApi.Oauth {
+		lb.oauthLB.Remove(api)
+	} else {
+		lb.zfLB.Remove(api)
+	}
+}
+
 type loadBalance interface {
 	LoadBalance() LoadBalanceType
 	Pick() (api string)
 	ReBalance(apis []string)
+	Add(api ...string)
 	Remove(api string)
+	isAvailable() bool
 }
 
 type randomLB struct {
@@ -76,6 +77,9 @@ func (b *randomLB) LoadBalance() LoadBalanceType {
 }
 
 func (b *randomLB) Pick() string {
+	if b.Size == 0 {
+		return ""
+	}
 	idx := fastrand.Intn(b.Size)
 	return b.Api[idx]
 }
@@ -96,4 +100,9 @@ func (b *randomLB) Remove(api string) {
 			break
 		}
 	}
+	b.Size = len(b.Api)
+}
+
+func (b *randomLB) isAvailable() bool {
+	return b.Size != 0
 }

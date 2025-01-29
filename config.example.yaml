@@ -21,7 +21,15 @@ wechat: # 微信小程序相关配置 (切记不能泄漏）
   appsecret:
 
 funnel:
-  host: http://api.
+  host:
+
+zfCircuit:
+  studentId:
+  oauthPassword:
+  zfPassword:
+  duration:
+  apis:
+    -
 
 user:
   host:

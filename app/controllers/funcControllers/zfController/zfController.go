@@ -33,7 +33,11 @@ func GetClassTable(c *gin.Context) {
 		return
 	}
 
-	api, loginType := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
+	api, loginType, err := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
+	if err != nil {
+		_ = c.AbortWithError(200, err)
+		return
+	}
 
 	result, err := funnelServices.GetClassTable(user, postForm.Year, postForm.Term, api, loginType)
 	if err != nil {
@@ -58,7 +62,11 @@ func GetScore(c *gin.Context) {
 		return
 	}
 
-	api, loginType := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
+	api, loginType, err := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
+	if err != nil {
+		_ = c.AbortWithError(200, err)
+		return
+	}
 
 	result, err := funnelServices.GetScore(user, postForm.Year, postForm.Term, api, loginType)
 	if err != nil {
@@ -83,7 +91,11 @@ func GetMidTermScore(c *gin.Context) {
 		return
 	}
 
-	api, loginType := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
+	api, loginType, err := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
+	if err != nil {
+		_ = c.AbortWithError(200, err)
+		return
+	}
 
 	result, err := funnelServices.GetMidTermScore(user, postForm.Year, postForm.Term, api, loginType)
 	if err != nil {
@@ -108,7 +120,11 @@ func GetExam(c *gin.Context) {
 		return
 	}
 
-	api, loginType := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
+	api, loginType, err := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
+	if err != nil {
+		_ = c.AbortWithError(200, err)
+		return
+	}
 
 	result, err := funnelServices.GetExam(user, postForm.Year, postForm.Term, api, loginType)
 	if err != nil {
@@ -142,7 +158,11 @@ func GetRoom(c *gin.Context) {
 		return
 	}
 
-	api, loginType := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
+	api, loginType, err := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
+	if err != nil {
+		_ = c.AbortWithError(200, err)
+		return
+	}
 
 	// 使用 Redis 缓存键，包含查询参数
 	cacheKey := fmt.Sprintf("room:%s:%s:%s:%s:%s:%s", postForm.Year, postForm.Term, postForm.Campus, postForm.Weekday, postForm.Week, postForm.Sections)
