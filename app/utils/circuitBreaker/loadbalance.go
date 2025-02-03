@@ -2,6 +2,7 @@ package circuitBreaker
 
 import (
 	"github.com/bytedance/gopkg/lang/fastrand"
+	"sync"
 	"wejh-go/app/apiException"
 	"wejh-go/config/api/funnelApi"
 )
@@ -64,6 +65,7 @@ type loadBalance interface {
 }
 
 type randomLB struct {
+	sync.Mutex
 	Api  []string
 	Size int
 }
@@ -77,6 +79,8 @@ func (b *randomLB) LoadBalance() LoadBalanceType {
 }
 
 func (b *randomLB) Pick() string {
+	b.Lock()
+	defer b.Unlock()
 	if b.Size == 0 {
 		return ""
 	}
@@ -85,15 +89,21 @@ func (b *randomLB) Pick() string {
 }
 
 func (b *randomLB) ReBalance(apis []string) {
+	b.Lock()
+	defer b.Unlock()
 	b.Api, b.Size = apis, len(apis)
 }
 
 func (b *randomLB) Add(api ...string) {
+	b.Lock()
+	defer b.Unlock()
 	b.Api = append(b.Api, api...)
 	b.Size = len(b.Api)
 }
 
 func (b *randomLB) Remove(api string) {
+	b.Lock()
+	defer b.Unlock()
 	for i, s := range b.Api {
 		if s == api {
 			b.Api = append(b.Api[:i], b.Api[i+1:]...)
@@ -104,5 +114,7 @@ func (b *randomLB) Remove(api string) {
 }
 
 func (b *randomLB) isAvailable() bool {
+	b.Lock()
+	defer b.Unlock()
 	return b.Size != 0
 }
