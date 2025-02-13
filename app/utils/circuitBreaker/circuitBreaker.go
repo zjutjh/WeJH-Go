@@ -10,7 +10,7 @@ var CB CircuitBreaker
 
 type CircuitBreaker struct {
 	LB       LoadBalance
-	SnapShot sync.Map
+	SnapShot *sync.Map
 }
 
 func init() {
@@ -18,7 +18,7 @@ func init() {
 		zfLB:    &randomLB{},
 		oauthLB: &randomLB{},
 	}
-	snapShot := sync.Map{}
+	snapShot := &sync.Map{}
 
 	for _, api := range cbConfig.GetLoadBalanceConfig().Apis {
 		lb.Add(api, funnelApi.Oauth)
