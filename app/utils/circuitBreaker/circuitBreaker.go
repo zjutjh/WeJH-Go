@@ -1,6 +1,7 @@
 package circuitBreaker
 
 import (
+	"sync"
 	"wejh-go/config/api/funnelApi"
 	cbConfig "wejh-go/config/circuitBreaker"
 )
@@ -9,7 +10,7 @@ var CB CircuitBreaker
 
 type CircuitBreaker struct {
 	LB       LoadBalance
-	SnapShot map[string]*ApiSnapShot
+	SnapShot *sync.Map
 }
 
 func init() {
@@ -17,13 +18,13 @@ func init() {
 		zfLB:    &randomLB{},
 		oauthLB: &randomLB{},
 	}
-	snapShot := make(map[string]*ApiSnapShot)
+	snapShot := &sync.Map{}
 
 	for _, api := range cbConfig.GetLoadBalanceConfig().Apis {
 		lb.Add(api, funnelApi.Oauth)
 		lb.Add(api, funnelApi.ZF)
-		snapShot[api+string(funnelApi.Oauth)] = NewApiSnapShot()
-		snapShot[api+string(funnelApi.ZF)] = NewApiSnapShot()
+		snapShot.Store(api+string(funnelApi.Oauth), NewApiSnapShot())
+		snapShot.Store(api+string(funnelApi.ZF), NewApiSnapShot())
 	}
 
 	CB = CircuitBreaker{
@@ -37,12 +38,14 @@ func (c *CircuitBreaker) GetApi(zfFlag, oauthFlag bool) (string, funnelApi.Login
 }
 
 func (c *CircuitBreaker) Fail(api string, loginType funnelApi.LoginType) {
-	if c.SnapShot[api+string(loginType)].Fail() {
+	value, _ := c.SnapShot.Load(api + string(loginType))
+	if value.(*ApiSnapShot).Fail() {
 		c.LB.Remove(api, loginType)
 		Probe.Add(api, loginType)
 	}
 }
 
 func (c *CircuitBreaker) Success(api string, loginType funnelApi.LoginType) {
-	c.SnapShot[api+string(loginType)].Success()
+	value, _ := c.SnapShot.Load(api + string(loginType))
+	value.(*ApiSnapShot).Success()
 }

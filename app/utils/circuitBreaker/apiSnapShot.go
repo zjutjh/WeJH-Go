@@ -23,7 +23,7 @@ func NewApiSnapShot() *ApiSnapShot {
 func (a *ApiSnapShot) Fail() bool {
 	a.ErrCount.Add(1)
 	a.TotalCount.Add(1)
-	if a.ErrCount.Get() > 50 {
+	if a.ErrCount.Get() > 50 && a.State == Closed {
 		a.State = Open
 		return true
 	}
