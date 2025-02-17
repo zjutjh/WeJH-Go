@@ -21,20 +21,22 @@ func GetThemeList(c *gin.Context) {
 		return
 	}
 
-	themes, err := themeServices.GetThemesByID(themePermission)
+	themes, err := themeServices.GetThemesByStudentID(user.StudentID)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 
 	utils.JsonSuccessResponse(c, gin.H{
-		"theme_list":       themes,
-		"current_theme_id": themePermission.CurrentThemeID,
+		"theme_list":            themes,
+		"current_theme_id":      themePermission.CurrentThemeID,
+		"current_theme_dark_id": themePermission.CurrentThemeDarkID,
 	})
 }
 
 type ChooseCurrentThemeData struct {
-	ID int `json:"id" binding:"required"`
+	ID     int `json:"id"`
+	DarkID int `json:"dark_id"`
 }
 
 func ChooseCurrentTheme(c *gin.Context) {
@@ -51,13 +53,13 @@ func ChooseCurrentTheme(c *gin.Context) {
 		return
 	}
 
-	err = themeServices.CheckThemeExist(data.ID)
+	err = themeServices.CheckThemeExist(data.ID, data.DarkID)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 
-	err = themeServices.UpdateCurrentTheme(data.ID, user.StudentID)
+	err = themeServices.UpdateCurrentTheme(data.ID, data.DarkID, user.StudentID)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return

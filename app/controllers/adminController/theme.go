@@ -9,9 +9,10 @@ import (
 )
 
 type CreateThemeData struct {
-	Name        string `json:"name" binding:"required"`
-	Type        string `json:"type" binding:"required"`
-	ThemeConfig string `json:"theme_config"`
+	ThemeName   string                 `json:"theme_name" binding:"required"`
+	ThemeType   string                 `json:"theme_type" binding:"required"`
+	IsDarkMode  bool                   `json:"is_dark_mode"`
+	ThemeConfig models.ThemeConfigData `json:"theme_config" binding:"required"`
 }
 
 // 管理员创建主题色
@@ -23,12 +24,7 @@ func CreateTheme(c *gin.Context) {
 		return
 	}
 
-	record := models.Theme{
-		Name:        data.Name,
-		Type:        data.Type,
-		ThemeConfig: data.ThemeConfig,
-	}
-	err = themeServices.CreateTheme(record)
+	err = themeServices.CreateTheme(data.ThemeName, data.ThemeType, data.IsDarkMode, data.ThemeConfig)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
@@ -38,9 +34,10 @@ func CreateTheme(c *gin.Context) {
 }
 
 type UpdateThemeData struct {
-	ID          int    `json:"id" binding:"required"`
-	Name        string `json:"name" binding:"required"`
-	ThemeConfig string `json:"theme_config" binding:"required"`
+	ThemeID     int                    `json:"theme_id" binding:"required"`
+	ThemeName   string                 `json:"theme_name" binding:"required"`
+	IsDarkMode  bool                   `json:"is_dark_mode"`
+	ThemeConfig models.ThemeConfigData `json:"theme_config" binding:"required"`
 }
 
 // 管理员更新主题色
@@ -52,11 +49,7 @@ func UpdateTheme(c *gin.Context) {
 		return
 	}
 
-	record := models.Theme{
-		Name:        data.Name,
-		ThemeConfig: data.ThemeConfig,
-	}
-	err = themeServices.UpdateTheme(data.ID, record)
+	err = themeServices.UpdateTheme(data.ThemeID, data.ThemeName, data.IsDarkMode, data.ThemeConfig)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
@@ -66,8 +59,8 @@ func UpdateTheme(c *gin.Context) {
 }
 
 // 管理员获取主题色列表
-func GetThemes(c *gin.Context) {
-	themes, err := themeServices.GetThemes()
+func GetAllTheme(c *gin.Context) {
+	themes, err := themeServices.GetAllTheme()
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
@@ -97,13 +90,13 @@ func DeleteTheme(c *gin.Context) {
 		return
 	}
 
-	theme, err := themeServices.GetThemeByID(data.ID)
+	themeType, isDarkMode, err := themeServices.GetThemeByID(data.ID)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 
-	err = themeServices.DeleteTheme(data.ID, theme.Type)
+	err = themeServices.DeleteTheme(data.ID, themeType, isDarkMode)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
@@ -131,13 +124,13 @@ func AddThemePermission(c *gin.Context) {
 		return
 	}
 
-	theme, err := themeServices.GetThemeByID(data.ThemeID)
+	themeType, _, err := themeServices.GetThemeByID(data.ThemeID)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 
-	invalidStudentIDs, err := themeServices.AddThemePermission(data.ThemeID, data.StudentID, theme.Type)
+	invalidStudentIDs, err := themeServices.AddThemePermission(data.ThemeID, data.StudentID, themeType)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
@@ -161,13 +154,7 @@ func GetThemePermission(c *gin.Context) {
 		return
 	}
 
-	themePermission, err := themeServices.GetThemePermissionByStudentID(data.StudentID)
-	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
-		return
-	}
-
-	themeNames, err := themeServices.GetThemeNameByID(themePermission)
+	themeNames, err := themeServices.GetThemeNameByStudentID(data.StudentID)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return

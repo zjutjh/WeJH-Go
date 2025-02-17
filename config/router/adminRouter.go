@@ -49,7 +49,7 @@ func adminRouterInit(r *gin.RouterGroup) {
 		{
 			theme.POST("/create", adminController.CreateTheme)
 			theme.PUT("/update", adminController.UpdateTheme)
-			theme.GET("/get", adminController.GetThemes)
+			theme.GET("/get", adminController.GetAllTheme)
 			theme.DELETE("/delete", adminController.DeleteTheme)
 			theme.POST("/permission/create", adminController.AddThemePermission)
 			theme.GET("/permission/get", adminController.GetThemePermission)
