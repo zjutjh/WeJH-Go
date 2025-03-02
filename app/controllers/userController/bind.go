@@ -6,6 +6,7 @@ import (
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/services/yxyServices"
 	"wejh-go/app/utils"
+	"wejh-go/app/utils/circuitBreaker"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -36,27 +37,12 @@ func BindZFPassword(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
-	err = userServices.SetZFPassword(user, postForm.PassWord)
+	api, _, err := circuitBreaker.CB.GetApi(true, false)
 	if err != nil {
 		_ = c.AbortWithError(200, err)
 		return
 	}
-	utils.JsonSuccessResponse(c, nil)
-}
-
-func BindLibraryPassword(c *gin.Context) {
-	var postForm bindForm
-	err := c.ShouldBindJSON(&postForm)
-	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
-		return
-	}
-	user, err := sessionServices.GetUserSession(c)
-	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
-		return
-	}
-	err = userServices.SetLibraryPassword(user, postForm.PassWord)
+	err = userServices.SetZFPassword(user, postForm.PassWord, api)
 	if err != nil {
 		_ = c.AbortWithError(200, err)
 		return
@@ -76,34 +62,17 @@ func BindOauthPassword(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
-	err = userServices.SetOauthPassword(user, postForm.PassWord)
+	api, _, err := circuitBreaker.CB.GetApi(false, true)
+	if err != nil {
+		_ = c.AbortWithError(200, err)
+		return
+	}
+	err = userServices.SetOauthPassword(user, postForm.PassWord, api)
 	if err != nil {
 		_ = c.AbortWithError(200, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
-}
-
-// 待废弃
-func GetCaptcha(c *gin.Context) {
-	_, err := sessionServices.GetUserSession(c)
-	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
-		return
-	}
-	deviceId := uuid.New().String()
-	data, err := yxyServices.GetSecurityToken(deviceId)
-	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
-		return
-	}
-	securityToken := &data.SecurityToken
-	img, err := yxyServices.GetCaptchaImage(deviceId, *securityToken)
-	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
-		return
-	}
-	utils.JsonSuccessResponse(c, img)
 }
 
 func SendVerificationCode(c *gin.Context) {
@@ -125,7 +94,7 @@ func SendVerificationCode(c *gin.Context) {
 		return
 	}
 	err = yxyServices.SendVerificationCode(data.SecurityToken, deviceId, postForm.PhoneNum)
-	if err == apiException.WrongCaptcha || err == apiException.WrongPhoneNum || err == apiException.SendVerificationCodeLimit || err == apiException.NotBindYxy {
+	if err == apiException.WrongPhoneNum || err == apiException.SendVerificationCodeLimit || err == apiException.NotBindYxy {
 		_ = c.AbortWithError(200, err)
 		return
 	} else if err != nil {

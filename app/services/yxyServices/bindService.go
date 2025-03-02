@@ -13,10 +13,6 @@ type securityToken struct {
 	SecurityToken string `json:"security_token" mapstructure:"security_token"`
 }
 
-type captcha struct {
-	Img string `json:"img" mapstructure:"img"`
-}
-
 type userInfo struct {
 	UID            string `json:"uid" mapstructure:"uid"`
 	Token          string `json:"token" mapstructure:"token"`
@@ -44,28 +40,6 @@ func GetSecurityToken(deviceId string) (*securityToken, error) {
 	return &data, nil
 }
 
-func GetCaptchaImage(deviceId, securityToken string) (*string, error) {
-	params := url.Values{}
-	Url, err := url.Parse(string(yxyApi.CaptchaImage))
-	if err != nil {
-		return nil, err
-	}
-	params.Set("device_id", deviceId)
-	params.Set("security_token", securityToken)
-	Url.RawQuery = params.Encode()
-	urlPath := Url.String()
-	resp, err := FetchHandleOfGet(yxyApi.YxyApi(urlPath))
-	if err != nil {
-		return nil, err
-	}
-	var data captcha
-	err = mapstructure.Decode(resp.Data, &data)
-	if err != nil {
-		return nil, err
-	}
-	return &data.Img, nil
-}
-
 func SendVerificationCode(securityToken, deviceId, phoneNum string) error {
 	form := make(map[string]any)
 	form["phone_num"] = phoneNum
@@ -77,9 +51,7 @@ func SendVerificationCode(securityToken, deviceId, phoneNum string) error {
 		return err
 	}
 
-	if resp.Code == 110003 {
-		return apiException.WrongCaptcha
-	} else if resp.Code == 110005 {
+	if resp.Code == 110005 {
 		return apiException.WrongPhoneNum
 	} else if resp.Code == 110006 {
 		return apiException.SendVerificationCodeLimit

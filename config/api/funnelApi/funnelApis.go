@@ -14,5 +14,4 @@ const (
 	ZFRoom         FunnelApi = "student/zf/room"
 	LibraryCurrent FunnelApi = "student/library/borrow/current"
 	LibraryHistory FunnelApi = "student/library/borrow/history"
-	CanteenFlow    FunnelApi = "canteen/flow"
 )

@@ -3,6 +3,7 @@ module wejh-go
 go 1.22.9
 
 require (
+	github.com/bytedance/gopkg v0.1.1
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-contrib/sessions v1.0.1
 	github.com/gin-gonic/gin v1.10.0
