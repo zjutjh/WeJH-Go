@@ -2,161 +2,153 @@ package themeServices
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"wejh-go/app/models"
 	"wejh-go/config/database"
+
+	"gorm.io/gorm"
 )
 
 func CheckThemeExist(ids ...int) error {
 	var themes []models.Theme
-	result := database.DB.Model(&models.Theme{}).Where("id IN ?", ids).Find(&themes)
+	result := database.DB.Model(&models.Theme{}).
+		Where("id IN ?", ids).
+		Find(&themes)
 	if result.Error != nil {
 		return result.Error
 	}
 	if len(themes) != len(ids) {
-		return fmt.Errorf("some theme IDs do not exist")
+		return errors.New("some theme not exist")
 	}
 	return nil
 }
 
-func CreateTheme(themeName, themeType string, isDarkMode bool, themeConfigData models.ThemeConfigData) error {
-	themeConfig, err := json.Marshal(themeConfigData)
+func CreateTheme(themeName, themeType string, isDarkMode bool, themeConfig models.ThemeConfig) error {
+	config, err := json.Marshal(themeConfig)
 	if err != nil {
 		return err
 	}
-	record := models.Theme{
+	result := database.DB.Create(&models.Theme{
 		Name:        themeName,
 		Type:        themeType,
 		IsDarkMode:  isDarkMode,
-		ThemeConfig: string(themeConfig),
-	}
-	result := database.DB.Create(&record)
+		ThemeConfig: string(config),
+	})
 	return result.Error
 }
 
-func UpdateTheme(themeID int, themeName string, isDarkMode bool, themeConfigData models.ThemeConfigData) error {
-	themeConfig, err := json.Marshal(themeConfigData)
+func UpdateTheme(themeID int, themeName string, isDarkMode bool, themeConfig models.ThemeConfig) error {
+	config, err := json.Marshal(themeConfig)
 	if err != nil {
 		return err
 	}
-	record := models.Theme{
-		Name:        themeName,
-		IsDarkMode:  isDarkMode,
-		ThemeConfig: string(themeConfig),
-	}
-	result := database.DB.Model(&models.Theme{}).Where("id = ?", themeID).
-		Select("name", "is_dark_mode", "theme_config").Updates(&record)
+	result := database.DB.Model(&models.Theme{}).
+		Where("id = ?", themeID).
+		Select("name", "is_dark_mode", "theme_config").
+		Updates(&models.Theme{
+			Name:        themeName,
+			IsDarkMode:  isDarkMode,
+			ThemeConfig: string(config),
+		})
 	return result.Error
 }
 
-func GetThemeByID(id int) (string, bool, error) {
-	var record models.Theme
-	result := database.DB.Model(models.Theme{}).Where(&models.Theme{ID: id}).First(&record)
-
-	var themeConfig models.ThemeConfigData
-	if err := json.Unmarshal([]byte(record.ThemeConfig), &themeConfig); err != nil {
-		return "", false, err
+func GetThemeByID(id int) (models.Theme, error) {
+	var theme models.Theme
+	if err := database.DB.Model(models.Theme{}).
+		Where(&models.Theme{ID: id}).
+		First(&theme).Error; err != nil {
+		return theme, err
 	}
-
-	return record.Type, record.IsDarkMode, result.Error
+	return theme, nil
 }
 
-func GetAllTheme() ([]models.FormattedTheme, error) {
+func GetAllTheme() ([]models.FormatTheme, error) {
 	var themes []models.Theme
 	result := database.DB.Model(models.Theme{}).Find(&themes)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	var parsedThemes []models.FormattedTheme
-
+	var formatThemes []models.FormatTheme
 	for _, theme := range themes {
-		var themeConfig models.ThemeConfigData
+		var themeConfig models.ThemeConfig
 		if err := json.Unmarshal([]byte(theme.ThemeConfig), &themeConfig); err != nil {
 			return nil, err
 		}
-
-		parsedTheme := models.FormattedTheme{
+		formatTheme := models.FormatTheme{
 			Name:        theme.Name,
 			ThemeID:     theme.ID,
 			ThemeConfig: themeConfig,
 			IsDarkMode:  theme.IsDarkMode,
 		}
-		parsedThemes = append(parsedThemes, parsedTheme)
+		formatThemes = append(formatThemes, formatTheme)
 	}
 
-	return parsedThemes, nil
+	return formatThemes, nil
 }
 
 func DeleteTheme(id int, themeType string, isDarkMode bool) error {
-	tx := database.DB.Begin()
-	if err := tx.Delete(&models.Theme{}, id).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	var themeID int
-	if err := tx.Model(&models.Theme{}).Where("type= ? AND is_dark_mode = ?", "all", isDarkMode).Select("id").First(&themeID).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	updateField := "current_theme_id"
-	if isDarkMode {
-		updateField = "current_theme_dark_id"
-	}
-	if err := tx.Model(&models.ThemePermission{}).
-		Where(updateField+" = ?", id).
-		Update(updateField, themeID).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	if themeType == "all" {
-		tx.Commit()
-		return nil
-	}
-
-	var permissions []models.ThemePermission
-	result := tx.Model(models.ThemePermission{}).Find(&permissions)
-	if result.Error != nil {
-		tx.Rollback()
-		return result.Error
-	}
-
-	updatedPermissionMap := make(map[string]models.ThemePermissionData)
-	for _, permission := range permissions {
-		var themePermissionData models.ThemePermissionData
-		err := json.Unmarshal([]byte(permission.ThemePermission), &themePermissionData)
-		if err != nil {
-			tx.Rollback()
+	return database.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Delete(&models.Theme{}, id).Error; err != nil {
 			return err
 		}
-		updatedThemeIDs := removeThemeID(themePermissionData.ThemeIDs, id)
-		if len(updatedThemeIDs) != len(themePermissionData.ThemeIDs) {
-			themePermissionData.ThemeIDs = updatedThemeIDs
-			if len(updatedThemeIDs) == 0 {
-				themePermissionData.ThemeIDs = []int{}
-			}
-			updatedPermissionMap[permission.StudentID] = themePermissionData
-		}
-	}
-	for studentID, data := range updatedPermissionMap {
-		newPermission, err := json.Marshal(data)
-		if err != nil {
-			tx.Rollback()
+
+		var themeID int
+		if err := tx.Model(&models.Theme{}).
+			Select("id").
+			Where("type = all AND is_dark_mode = ?", isDarkMode).
+			First(&themeID).Error; err != nil {
 			return err
 		}
+
+		updateField := map[bool]string{false: "current_theme_id", true: "current_theme_dark_id"}[isDarkMode]
 		if err := tx.Model(&models.ThemePermission{}).
-			Where("student_id = ?", studentID).
-			Update("theme_permission", string(newPermission)).Error; err != nil {
-			tx.Rollback()
+			Where(updateField+" = ?", id).
+			Update(updateField, themeID).Error; err != nil {
 			return err
 		}
-	}
 
-	tx.Commit()
-	return nil
+		if themeType == "all" {
+			return nil
+		}
+
+		var permissions []models.ThemePermission
+		if err := tx.Model(models.ThemePermission{}).Find(&permissions).Error; err != nil {
+			return err
+		}
+
+		updatedPermissionMap := make(map[string]models.ThemePermissionData)
+		for _, p := range permissions {
+			var data models.ThemePermissionData
+			err := json.Unmarshal([]byte(p.ThemePermission), &data)
+			if err != nil {
+				return err
+			}
+			updatedThemeIDs := removeThemeID(data.ThemeIDs, id)
+			if len(updatedThemeIDs) != len(data.ThemeIDs) {
+				data.ThemeIDs = updatedThemeIDs
+				if len(updatedThemeIDs) == 0 {
+					data.ThemeIDs = []int{}
+				}
+				updatedPermissionMap[p.StudentID] = data
+			}
+		}
+
+		for studentID, data := range updatedPermissionMap {
+			newPermission, err := json.Marshal(data)
+			if err != nil {
+				return err
+			}
+			if err := tx.Model(&models.ThemePermission{}).
+				Where("student_id = ?", studentID).
+				Update("theme_permission", string(newPermission)).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
 }
 
 func removeThemeID(themeIDs []int, id int) []int {

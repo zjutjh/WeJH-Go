@@ -1,11 +1,12 @@
 package themeController
 
 import (
-	"github.com/gin-gonic/gin"
 	"wejh-go/app/apiException"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/themeServices"
 	"wejh-go/app/utils"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetThemeList(c *gin.Context) {
@@ -21,7 +22,7 @@ func GetThemeList(c *gin.Context) {
 		return
 	}
 
-	themes, err := themeServices.GetThemesByStudentID(user.StudentID)
+	themes, err := themeServices.GetPermittedThemeNames(user.StudentID)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return

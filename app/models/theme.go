@@ -35,7 +35,7 @@ type BaseColor struct {
 	Base700 string `json:"base_700"`
 }
 
-type ThemeConfigData struct {
+type ThemeConfig struct {
 	BarIcon            BarIcon     `json:"bar_icon"`
 	AppListIcon        AppListIcon `json:"applist_icon"`
 	AppListDarkIcon    AppListIcon `json:"applist_dark_icon"`
@@ -46,9 +46,9 @@ type ThemeConfigData struct {
 	SelectionImg       string      `json:"selection_img"`
 }
 
-type FormattedTheme struct {
-	Name        string          `json:"name"`
-	ThemeID     int             `json:"theme_id"`
-	ThemeConfig ThemeConfigData `json:"theme_config"`
-	IsDarkMode  bool            `json:"is_dark_mode"`
+type FormatTheme struct {
+	ThemeID     int         `json:"theme_id"`
+	Name        string      `json:"name"`
+	IsDarkMode  bool        `json:"is_dark_mode"`
+	ThemeConfig ThemeConfig `json:"theme_config"`
 }

@@ -3,9 +3,12 @@ package themeServices
 import (
 	"encoding/json"
 	"errors"
-	"gorm.io/gorm"
 	"wejh-go/app/models"
 	"wejh-go/config/database"
+
+	"slices"
+
+	"gorm.io/gorm"
 )
 
 func AddThemePermission(themeID int, reqStudentIDs []string, themeType string) ([]string, error) {
@@ -17,8 +20,9 @@ func AddThemePermission(themeID int, reqStudentIDs []string, themeType string) (
 	var invalidStudentIDs []string
 	if len(reqStudentIDs) > 0 {
 		var existingUsers []models.User
-		err := database.DB.Select("student_id").Where("student_id IN ?", reqStudentIDs).Find(&existingUsers).Error
-		if err != nil {
+		if err := database.DB.Select("student_id").
+			Where("student_id IN ?", reqStudentIDs).
+			Find(&existingUsers).Error; err != nil {
 			return nil, err
 		}
 
@@ -42,13 +46,12 @@ func AddThemePermission(themeID int, reqStudentIDs []string, themeType string) (
 	}
 
 	var permissions []models.ThemePermission
-	err := database.DB.Where("student_id IN ?", studentIDs).Find(&permissions).Error
-	if err != nil {
+	if err := database.DB.Where("student_id IN ?", studentIDs).Find(&permissions).Error; err != nil {
 		return nil, err
 	}
 	permissionMap := make(map[string]*models.ThemePermission)
-	for i, permission := range permissions {
-		permissionMap[permission.StudentID] = &permissions[i]
+	for i, p := range permissions {
+		permissionMap[p.StudentID] = &permissions[i]
 	}
 
 	for _, studentID := range studentIDs {
@@ -63,11 +66,10 @@ func AddThemePermission(themeID int, reqStudentIDs []string, themeType string) (
 		}
 
 		var themePermissionData models.ThemePermissionData
-		err = json.Unmarshal([]byte(permission.ThemePermission), &themePermissionData)
-		if err != nil {
+		if err := json.Unmarshal([]byte(permission.ThemePermission), &themePermissionData); err != nil {
 			return nil, err
 		}
-		if !containThemeID(themePermissionData.ThemeIDs, themeID) {
+		if !slices.Contains(themePermissionData.ThemeIDs, themeID) {
 			themePermissionData.ThemeIDs = append(themePermissionData.ThemeIDs, themeID)
 			newPermission, err := json.Marshal(themePermissionData)
 			if err != nil {
@@ -77,38 +79,37 @@ func AddThemePermission(themeID int, reqStudentIDs []string, themeType string) (
 		}
 	}
 
-	err = database.DB.Save(&permissions).Error
-	if err != nil {
+	if err := database.DB.Save(&permissions).Error; err != nil {
 		return nil, err
 	}
 	return invalidStudentIDs, nil
 }
 
 func UpdateCurrentTheme(id int, darkID int, studentID string) error {
-	_, themeIDs, err := getPersonalAllThemePermission(studentID)
+	themeIDs, err := GetPermittedThemeIDs(studentID)
 	if err != nil {
 		return err
 	}
 
-	if !containThemeID(themeIDs, id) {
+	if !slices.Contains(themeIDs, id) {
 		return errors.New("the light theme ID is not in the user's permission list")
 	}
-	if !containThemeID(themeIDs, darkID) {
+	if !slices.Contains(themeIDs, darkID) {
 		return errors.New("the dark theme ID is not in the user's permission list")
 	}
 
-	result := database.DB.Model(&models.ThemePermission{}).
+	err = database.DB.Model(&models.ThemePermission{}).
 		Where("student_id = ?", studentID).
-		Updates(map[string]interface{}{
-			"current_theme_id":      id,
-			"current_theme_dark_id": darkID,
-		})
-	return result.Error
+		Updates(models.ThemePermission{
+			CurrentThemeID:     id,
+			CurrentThemeDarkID: darkID,
+		}).Error
+	return err
 }
 
 func GetThemePermissionByStudentID(studentID string) (models.ThemePermission, error) {
-	var record models.ThemePermission
-	result := database.DB.Model(&models.ThemePermission{}).Where("student_id = ?", studentID).First(&record)
+	var permission models.ThemePermission
+	result := database.DB.Model(&models.ThemePermission{}).Where("student_id = ?", studentID).First(&permission)
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
 			newPermission, err := AddDefaultThemePermission(studentID)
@@ -120,11 +121,47 @@ func GetThemePermissionByStudentID(studentID string) (models.ThemePermission, er
 			return models.ThemePermission{}, result.Error
 		}
 	}
-	return record, nil
+	return permission, nil
 }
 
-func GetThemeNameByStudentID(studentID string) ([]string, error) {
-	themes, _, err := getPersonalAllThemePermission(studentID)
+func GetPermittedThemesFormat(studentID string) ([]models.FormatTheme, error) {
+	themes, err := getPermittedThemes(studentID)
+	if err != nil {
+		return nil, err
+	}
+
+	var formatThemes []models.FormatTheme
+	for _, theme := range themes {
+		var themeConfig models.ThemeConfig
+		if err := json.Unmarshal([]byte(theme.ThemeConfig), &themeConfig); err != nil {
+			return nil, err
+		}
+		formatThemes = append(formatThemes, models.FormatTheme{
+			Name:        theme.Name,
+			ThemeID:     theme.ID,
+			ThemeConfig: themeConfig,
+			IsDarkMode:  theme.IsDarkMode,
+		})
+	}
+
+	return formatThemes, nil
+}
+
+func GetPermittedThemeIDs(studentID string) ([]int, error) {
+	themes, err := getPermittedThemes(studentID)
+	if err != nil {
+		return nil, err
+	}
+
+	var themeIDs []int
+	for _, theme := range themes {
+		themeIDs = append(themeIDs, theme.ID)
+	}
+	return themeIDs, nil
+}
+
+func GetPermittedThemeNames(studentID string) ([]string, error) {
+	themes, err := getPermittedThemes(studentID)
 	if err != nil {
 		return nil, err
 	}
@@ -134,31 +171,6 @@ func GetThemeNameByStudentID(studentID string) ([]string, error) {
 		themeNames = append(themeNames, theme.Name)
 	}
 	return themeNames, nil
-}
-
-func GetThemesByStudentID(studentID string) ([]models.FormattedTheme, error) {
-	themes, _, err := getPersonalAllThemePermission(studentID)
-	if err != nil {
-		return nil, err
-	}
-
-	var parsedThemes []models.FormattedTheme
-	for _, theme := range themes {
-		var themeConfig models.ThemeConfigData
-		if err := json.Unmarshal([]byte(theme.ThemeConfig), &themeConfig); err != nil {
-			return nil, err
-		}
-
-		parsedTheme := models.FormattedTheme{
-			Name:        theme.Name,
-			ThemeID:     theme.ID,
-			ThemeConfig: themeConfig,
-			IsDarkMode:  theme.IsDarkMode,
-		}
-		parsedThemes = append(parsedThemes, parsedTheme)
-	}
-
-	return parsedThemes, nil
 }
 
 func AddDefaultThemePermission(studentID string) (models.ThemePermission, error) {
@@ -180,10 +192,16 @@ func AddDefaultThemePermission(studentID string) (models.ThemePermission, error)
 	}
 
 	var defaultThemeLightID, defaultThemeDarkID int
-	if err := database.DB.Model(models.Theme{}).Where("type= ? AND is_dark_mode = ?", "all", false).Select("id").First(&defaultThemeLightID).Error; err != nil {
+	if err := database.DB.Model(models.Theme{}).
+		Select("id").
+		Where("type = all AND is_dark_mode = false").
+		First(&defaultThemeLightID).Error; err != nil {
 		return models.ThemePermission{}, err
 	}
-	if err := database.DB.Model(models.Theme{}).Where("type= ? AND is_dark_mode = ?", "all", true).Select("id").First(&defaultThemeDarkID).Error; err != nil {
+	if err := database.DB.Model(models.Theme{}).
+		Select("id").
+		Where("type = all AND is_dark_mode = true").
+		First(&defaultThemeDarkID).Error; err != nil {
 		return models.ThemePermission{}, err
 	}
 
@@ -194,64 +212,40 @@ func AddDefaultThemePermission(studentID string) (models.ThemePermission, error)
 		ThemePermission:    string(permission),
 	}
 
-	result := database.DB.Create(&newPermission)
-	return newPermission, result.Error
+	err = database.DB.Create(&newPermission).Error
+	return newPermission, err
 }
 
-func containThemeID(themeIDs []int, id int) bool {
-	for _, themeID := range themeIDs {
-		if themeID == id {
-			return true
-		}
-	}
-	return false
-}
-
-func getPersonalAllThemePermission(studentID string) ([]models.Theme, []int, error) {
+func getPermittedThemes(studentID string) ([]models.Theme, error) {
 	var themePermission models.ThemePermission
 	var themePermissionData models.ThemePermissionData
 
-	result := database.DB.Model(models.ThemePermission{}).Where("student_id = ?", studentID).First(&themePermission)
-	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
-			themePermissionData = models.ThemePermissionData{ThemeIDs: []int{}}
+	if err := database.DB.Where("student_id = ?", studentID).First(&themePermission).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
 			_, err := AddDefaultThemePermission(studentID)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
+			}
+			themePermissionData = models.ThemePermissionData{
+				ThemeIDs: []int{},
 			}
 		} else {
-			return nil, nil, result.Error
+			return nil, err
 		}
 	} else {
-		err := json.Unmarshal([]byte(themePermission.ThemePermission), &themePermissionData)
-		if err != nil {
-			return nil, nil, err
+		if err := json.Unmarshal([]byte(themePermission.ThemePermission), &themePermissionData); err != nil {
+			return nil, err
 		}
 	}
 
 	var themes []models.Theme
-	err := database.DB.Where("id IN ?", themePermissionData.ThemeIDs).Find(&themes).Error
-	if err != nil {
-		return nil, nil, err
+	query := database.DB.Where("type = all")
+	if len(themePermissionData.ThemeIDs) > 0 {
+		query = query.Or("id IN ?", themePermissionData.ThemeIDs)
+	}
+	if err := query.Find(&themes).Error; err != nil {
+		return nil, err
 	}
 
-	var allThemes []models.Theme
-	err = database.DB.Where("type = ?", "all").Find(&allThemes).Error
-	if err != nil {
-		return nil, nil, err
-	}
-
-	themeIDs := make(map[int]bool)
-	for _, id := range themePermissionData.ThemeIDs {
-		themeIDs[id] = true
-	}
-
-	for _, allTheme := range allThemes {
-		if !themeIDs[allTheme.ID] {
-			themes = append(themes, allTheme)
-			themePermissionData.ThemeIDs = append(themePermissionData.ThemeIDs, allTheme.ID)
-		}
-	}
-
-	return themes, themePermissionData.ThemeIDs, nil
+	return themes, nil
 }

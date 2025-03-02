@@ -1,18 +1,19 @@
 package adminController
 
 import (
-	"github.com/gin-gonic/gin"
 	"wejh-go/app/apiException"
 	"wejh-go/app/models"
 	"wejh-go/app/services/themeServices"
 	"wejh-go/app/utils"
+
+	"github.com/gin-gonic/gin"
 )
 
 type CreateThemeData struct {
-	ThemeName   string                 `json:"theme_name" binding:"required"`
-	ThemeType   string                 `json:"theme_type" binding:"required"`
-	IsDarkMode  bool                   `json:"is_dark_mode"`
-	ThemeConfig models.ThemeConfigData `json:"theme_config" binding:"required"`
+	ThemeName   string             `json:"theme_name" binding:"required"`
+	ThemeType   string             `json:"theme_type" binding:"required"`
+	IsDarkMode  bool               `json:"is_dark_mode"`
+	ThemeConfig models.ThemeConfig `json:"theme_config" binding:"required"`
 }
 
 // 管理员创建主题色
@@ -34,10 +35,10 @@ func CreateTheme(c *gin.Context) {
 }
 
 type UpdateThemeData struct {
-	ThemeID     int                    `json:"theme_id" binding:"required"`
-	ThemeName   string                 `json:"theme_name" binding:"required"`
-	IsDarkMode  bool                   `json:"is_dark_mode"`
-	ThemeConfig models.ThemeConfigData `json:"theme_config" binding:"required"`
+	ThemeID     int                `json:"theme_id" binding:"required"`
+	ThemeName   string             `json:"theme_name" binding:"required"`
+	IsDarkMode  bool               `json:"is_dark_mode"`
+	ThemeConfig models.ThemeConfig `json:"theme_config" binding:"required"`
 }
 
 // 管理员更新主题色
@@ -90,13 +91,13 @@ func DeleteTheme(c *gin.Context) {
 		return
 	}
 
-	themeType, isDarkMode, err := themeServices.GetThemeByID(data.ID)
+	theme, err := themeServices.GetThemeByID(data.ID)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 
-	err = themeServices.DeleteTheme(data.ID, themeType, isDarkMode)
+	err = themeServices.DeleteTheme(data.ID, theme.Type, theme.IsDarkMode)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
@@ -124,13 +125,13 @@ func AddThemePermission(c *gin.Context) {
 		return
 	}
 
-	themeType, _, err := themeServices.GetThemeByID(data.ThemeID)
+	theme, err := themeServices.GetThemeByID(data.ThemeID)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 
-	invalidStudentIDs, err := themeServices.AddThemePermission(data.ThemeID, data.StudentID, themeType)
+	invalidStudentIDs, err := themeServices.AddThemePermission(data.ThemeID, data.StudentID, theme.Type)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
@@ -154,7 +155,7 @@ func GetThemePermission(c *gin.Context) {
 		return
 	}
 
-	themeNames, err := themeServices.GetThemeNameByStudentID(data.StudentID)
+	themeNames, err := themeServices.GetPermittedThemeNames(data.StudentID)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
