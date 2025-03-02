@@ -18,7 +18,6 @@ type SystemInfoForm struct {
 	JpgUrlValue        string `json:"jpgUrlValue"`
 	FileUrlValue       string `json:"fileUrlValue"`
 	RegisterTips       string `json:"registerTips"`
-	DefaultThemeValue  string `json:"defaultThemeValue"`
 }
 
 type encryptForm struct {
@@ -72,7 +71,7 @@ func SetSystemInfo(c *gin.Context) {
 		return
 	}
 
-	err = config.SetSystemInfo(postForm.YearValue, postForm.TermValue, postForm.TermStartDateValue, postForm.ScoreYearValue, postForm.ScoreTermValue, postForm.JpgUrlValue, postForm.FileUrlValue, postForm.RegisterTips, postForm.SchoolBusUrlValue, postForm.DefaultThemeValue)
+	err = config.SetSystemInfo(postForm.YearValue, postForm.TermValue, postForm.TermStartDateValue, postForm.ScoreYearValue, postForm.ScoreTermValue, postForm.JpgUrlValue, postForm.FileUrlValue, postForm.RegisterTips, postForm.SchoolBusUrlValue)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return

@@ -59,7 +59,7 @@ func BindOrCreateStudentUserFromWechat(c *gin.Context) {
 		return
 	}
 
-	err = themeServices.AddDefaultThemePermission(postForm.StudentID)
+	_, err = themeServices.AddDefaultThemePermission(postForm.StudentID)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
@@ -95,7 +95,7 @@ func CreateStudentUser(c *gin.Context) {
 		return
 	}
 
-	err = themeServices.AddDefaultThemePermission(postForm.StudentID)
+	_, err = themeServices.AddDefaultThemePermission(postForm.StudentID)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return

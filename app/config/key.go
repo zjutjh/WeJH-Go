@@ -8,8 +8,6 @@ const fileUrlKey = "fileUrlKey"
 
 const registerTipsKey = "registerTipsKey"
 
-const defaultThemeKey = "defaultThemeKey"
-
 func GetSchoolBusUrl() string {
 	return getConfig(schoolBusUrlKey)
 }
@@ -37,7 +35,3 @@ func SetFileUrlKey(url string) error {
 func GetRegisterTipsKey() string { return getConfig(registerTipsKey) }
 
 func SetRegisterTipsKey(url string) error { return setConfig(registerTipsKey, url) }
-
-func GetDefaultThemeKey() string { return getConfig(defaultThemeKey) }
-
-func SetDefaultThemeKey(url string) error { return setConfig(defaultThemeKey, url) }
