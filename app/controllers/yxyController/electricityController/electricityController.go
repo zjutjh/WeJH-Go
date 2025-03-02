@@ -19,6 +19,11 @@ type CampusForm struct {
 	Campus string `form:"campus"`
 }
 
+type SubscribeLowBatteryAlertReq struct {
+	Campus    string `json:"campus"`
+	Threshold int    `json:"threshold"`
+}
+
 func GetBalance(c *gin.Context) {
 	var postForm CampusForm
 	err := c.ShouldBindQuery(&postForm)
@@ -128,7 +133,18 @@ func GetConsumptionRecords(c *gin.Context) {
 	utils.JsonSuccessResponse(c, records.List)
 }
 
-func InsertLowBatteryQuery(c *gin.Context) {
+func SubscribeLowBatteryAlert(c *gin.Context) {
+	// var req SubscribeLowBatteryAlertReq
+	// err := c.ShouldBindJSON(&req)
+	// if err != nil {
+	// 	_ = c.AbortWithError(200, apiException.ParamError)
+	// 	return
+	// }
+	// 临时兼容用
+	req := SubscribeLowBatteryAlertReq{
+		Campus:    "zhpf",
+		Threshold: 20,
+	}
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.NotLogin)
@@ -138,12 +154,46 @@ func InsertLowBatteryQuery(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotBindYxy)
 		return
 	}
-	err = yxyServices.InsertRecord(models.LowBatteryQueryRecord{
-		UserID: user.ID,
-	})
-	if err != nil {
+	if req.Campus != "mgs" {
+		req.Campus = "zhpf"
+	}
+	if req.Threshold <= 0 {
+		req.Threshold = 20
+	}
+	if err := yxyServices.SubscribeLowBatteryAlert(models.LowBatteryAlertSubscription{
+		UserID:    user.ID,
+		Campus:    req.Campus,
+		Threshold: req.Threshold,
+	}); err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
+}
+
+func GetLowBatteryAlertSubscription(c *gin.Context) {
+	var form CampusForm
+	err := c.ShouldBindQuery(&form)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ParamError)
+		return
+	}
+	user, err := sessionServices.GetUserSession(c)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.NotLogin)
+		return
+	}
+	if user.YxyUid == "" {
+		_ = c.AbortWithError(200, apiException.NotBindYxy)
+		return
+	}
+	if form.Campus != "mgs" {
+		form.Campus = "zhpf"
+	}
+	subscription, err := yxyServices.GetOrCreateLowBatteryAlertSubscription(user.ID, form.Campus)
+	if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+	utils.JsonSuccessResponse(c, subscription)
 }
