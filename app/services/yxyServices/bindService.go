@@ -66,7 +66,7 @@ func SendVerificationCode(securityToken, deviceId, phoneNum string) error {
 	return nil
 }
 
-func LoginByCode(code, deviceId, phoneNum string) (*string, error) {
+func LoginByCode(code, deviceId, phoneNum string) (*userInfo, error) {
 	form := make(map[string]any)
 	form["phone_num"] = phoneNum
 	form["code"] = code
@@ -89,14 +89,15 @@ func LoginByCode(code, deviceId, phoneNum string) (*string, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &data.UID, nil
+	return &data, nil
 }
 
-func SilentLogin(deviceId, uid, phoneNum string) error {
+func SilentLogin(deviceId, uid, phoneNum, token string) error {
 	form := make(map[string]any)
 	form["uid"] = uid
 	form["device_id"] = deviceId
 	form["phone_num"] = phoneNum
+	form["token"] = token
 	resp, err := FetchHandleOfPost(form, yxyApi.SlientLogin)
 	if err != nil {
 		return err
