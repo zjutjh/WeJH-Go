@@ -45,7 +45,11 @@ func GetBalance(c *gin.Context) {
 		postForm.Campus = "zhpf"
 	}
 	balance, err := yxyServices.ElectricityBalance(*token, postForm.Campus)
-	if err == apiException.CampusMismatch {
+	if err == apiException.NotBindCard {
+		_ = yxyServices.Unbind(user.ID, user.YxyUid, true)
+		_ = c.AbortWithError(200, err)
+		return
+	} else if err == apiException.CampusMismatch {
 		_ = c.AbortWithError(200, err)
 		return
 	} else if err != nil {
@@ -76,7 +80,11 @@ func GetRechargeRecords(c *gin.Context) {
 		postForm.Campus = "zhpf"
 	}
 	roomStrConcat, err := yxyServices.GetElecRoomStrConcat(*token, postForm.Campus, user.YxyUid)
-	if err == apiException.CampusMismatch {
+	if err == apiException.NotBindCard {
+		_ = yxyServices.Unbind(user.ID, user.YxyUid, true)
+		_ = c.AbortWithError(200, err)
+		return
+	} else if err == apiException.CampusMismatch {
 		_ = c.AbortWithError(200, err)
 		return
 	} else if err != nil {
@@ -115,7 +123,11 @@ func GetConsumptionRecords(c *gin.Context) {
 		postForm.Campus = "zhpf"
 	}
 	roomStrConcat, err := yxyServices.GetElecRoomStrConcat(*token, postForm.Campus, user.YxyUid)
-	if err == apiException.CampusMismatch {
+	if err == apiException.NotBindCard {
+		_ = yxyServices.Unbind(user.ID, user.YxyUid, true)
+		_ = c.AbortWithError(200, err)
+		return
+	} else if err == apiException.CampusMismatch {
 		_ = c.AbortWithError(200, err)
 		return
 	} else if err != nil {

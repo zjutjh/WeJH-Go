@@ -3,7 +3,10 @@ package yxyServices
 import (
 	"net/url"
 	"wejh-go/app/apiException"
+	"wejh-go/app/models"
 	"wejh-go/config/api/yxyApi"
+	"wejh-go/config/database"
+	r "wejh-go/config/redis"
 
 	"github.com/mitchellh/mapstructure"
 )
@@ -89,6 +92,9 @@ func LoginByCode(code, deviceId, phoneNum string) (*userInfo, error) {
 	if err != nil {
 		return nil, err
 	}
+	if data.BindCardStatus == 0 {
+		return nil, apiException.NotBindCard
+	}
 	return &data, nil
 }
 
@@ -107,5 +113,22 @@ func SilentLogin(deviceId, uid, phoneNum, token string) error {
 	} else if resp.Code != 0 {
 		return apiException.ServerError
 	}
+	return nil
+}
+
+func Unbind(id int, uid string, isNotBindCard bool) error {
+	updates := map[string]interface{}{
+		"device_id": "",
+	}
+	if isNotBindCard {
+		updates["yxy_uid"] = ""
+	}
+	if err := database.DB.Model(&models.User{}).
+		Where("id = ?", id).
+		Updates(updates).Error; err != nil {
+		return err
+	}
+	cacheKey := "card:auth_token:" + uid
+	_ = r.RedisClient.Del(ctx, cacheKey)
 	return nil
 }

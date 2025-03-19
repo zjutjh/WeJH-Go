@@ -118,7 +118,7 @@ func LoginYxy(c *gin.Context) {
 	}
 	deviceId := uuid.New().String()
 	info, err := yxyServices.LoginByCode(postForm.Code, deviceId, postForm.PhoneNum)
-	if err == apiException.WrongVerificationCode || err == apiException.WrongPhoneNum {
+	if err == apiException.WrongVerificationCode || err == apiException.WrongPhoneNum || err == apiException.NotBindYxy {
 		_ = c.AbortWithError(200, err)
 		return
 	} else if err != nil {

@@ -39,6 +39,8 @@ func GetCardBalance(deviceId, uid, phoneNum, token string) (*string, error) {
 
 	if resp.Code == 100101 || resp.Code == 100102 {
 		return nil, apiException.YxySessionExpired
+	} else if resp.Code == 100103 {
+		return nil, apiException.NotBindCard
 	} else if resp.Code != 0 {
 		return nil, apiException.ServerError
 	}
@@ -71,6 +73,8 @@ func GetCardConsumptionRecord(deviceId, uid, phoneNum, token, queryTime string) 
 
 	if resp.Code == 100101 || resp.Code == 100102 {
 		return nil, apiException.YxySessionExpired
+	} else if resp.Code == 100103 {
+		return nil, apiException.NotBindCard
 	} else if resp.Code == 100002 {
 		return nil, apiException.ParamError
 	} else if resp.Code != 0 {
