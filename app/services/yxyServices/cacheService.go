@@ -94,7 +94,7 @@ func GetElecConsumptionRecords(token, campus, roomStrConcat string) (*EleConsump
 
 func SetCardAuthToken(yxyUid, token string) error {
 	cacheKey := "card:auth_token:" + yxyUid
-	return r.RedisClient.Set(ctx, cacheKey, token, 0).Err()
+	return r.RedisClient.Set(ctx, cacheKey, token, 7*24*time.Hour).Err()
 }
 
 func GetCardAuthToken(yxyUid string) (*string, error) {

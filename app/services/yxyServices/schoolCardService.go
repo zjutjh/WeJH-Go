@@ -31,7 +31,6 @@ func GetCardBalance(deviceId, uid, phoneNum, token string) (*string, error) {
 	params.Set("token", token)
 	Url.RawQuery = params.Encode()
 	urlPath := Url.String()
-	_ = SilentLogin(deviceId, uid, phoneNum, token)
 	resp, err := FetchHandleOfGet(yxyApi.YxyApi(urlPath))
 	if err != nil {
 		return nil, err
@@ -50,6 +49,9 @@ func GetCardBalance(deviceId, uid, phoneNum, token string) (*string, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	_ = SilentLogin(deviceId, uid, phoneNum, token)
+
 	return &data.Balance, nil
 }
 
@@ -65,7 +67,6 @@ func GetCardConsumptionRecord(deviceId, uid, phoneNum, token, queryTime string) 
 	params.Set("query_time", queryTime)
 	Url.RawQuery = params.Encode()
 	urlPath := Url.String()
-	_ = SilentLogin(deviceId, uid, phoneNum, token)
 	resp, err := FetchHandleOfGet(yxyApi.YxyApi(urlPath))
 	if err != nil {
 		return nil, err
@@ -86,5 +87,8 @@ func GetCardConsumptionRecord(deviceId, uid, phoneNum, token, queryTime string) 
 	if err != nil {
 		return nil, err
 	}
+
+	_ = SilentLogin(deviceId, uid, phoneNum, token)
+
 	return &data, nil
 }

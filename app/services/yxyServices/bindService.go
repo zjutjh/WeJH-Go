@@ -113,6 +113,19 @@ func SilentLogin(deviceId, uid, phoneNum, token string) error {
 	} else if resp.Code != 0 {
 		return apiException.ServerError
 	}
+
+	var data userInfo
+	err = mapstructure.Decode(resp.Data, &data)
+	if err != nil {
+		return err
+	}
+
+	if data.Token != token {
+		if err = SetCardAuthToken(uid, data.Token); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
