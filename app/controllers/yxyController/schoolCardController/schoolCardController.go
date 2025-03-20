@@ -20,6 +20,10 @@ func GetBalance(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
+	if user.YxyUid == "" {
+		_ = c.AbortWithError(200, apiException.NotBindYxy)
+		return
+	}
 	token, err := yxyServices.GetCardAuthToken(user.YxyUid)
 	if err == redis.Nil {
 		_ = yxyServices.Unbind(user.ID, user.YxyUid, false)
@@ -55,6 +59,10 @@ func GetConsumptionRecord(c *gin.Context) {
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.NotLogin)
+		return
+	}
+	if user.YxyUid == "" {
+		_ = c.AbortWithError(200, apiException.NotBindYxy)
 		return
 	}
 	token, err := yxyServices.GetCardAuthToken(user.YxyUid)

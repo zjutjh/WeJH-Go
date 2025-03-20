@@ -36,6 +36,10 @@ func GetBalance(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
+	if user.YxyUid == "" {
+		_ = c.AbortWithError(200, apiException.NotBindYxy)
+		return
+	}
 	token, err := yxyServices.GetElecAuthToken(user.YxyUid)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
@@ -69,6 +73,10 @@ func GetRechargeRecords(c *gin.Context) {
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.NotLogin)
+		return
+	}
+	if user.YxyUid == "" {
+		_ = c.AbortWithError(200, apiException.NotBindYxy)
 		return
 	}
 	token, err := yxyServices.GetElecAuthToken(user.YxyUid)
@@ -112,6 +120,10 @@ func GetConsumptionRecords(c *gin.Context) {
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.NotLogin)
+		return
+	}
+	if user.YxyUid == "" {
+		_ = c.AbortWithError(200, apiException.NotBindYxy)
 		return
 	}
 	token, err := yxyServices.GetElecAuthToken(user.YxyUid)
