@@ -194,13 +194,13 @@ func AddDefaultThemePermission(studentID string) (models.ThemePermission, error)
 	var defaultThemeLightID, defaultThemeDarkID int
 	if err := database.DB.Model(models.Theme{}).
 		Select("id").
-		Where("type = all AND is_dark_mode = false").
+		Where("type = ? AND is_dark_mode = ?", "all", false).
 		First(&defaultThemeLightID).Error; err != nil {
 		return models.ThemePermission{}, err
 	}
 	if err := database.DB.Model(models.Theme{}).
 		Select("id").
-		Where("type = all AND is_dark_mode = true").
+		Where("type = ? AND is_dark_mode = ?", "all", true).
 		First(&defaultThemeDarkID).Error; err != nil {
 		return models.ThemePermission{}, err
 	}
@@ -239,7 +239,7 @@ func getPermittedThemes(studentID string) ([]models.Theme, error) {
 	}
 
 	var themes []models.Theme
-	query := database.DB.Where("type = all")
+	query := database.DB.Where("type = ?", "all")
 	if len(themePermissionData.ThemeIDs) > 0 {
 		query = query.Or("id IN ?", themePermissionData.ThemeIDs)
 	}

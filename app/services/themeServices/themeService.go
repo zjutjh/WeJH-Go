@@ -97,7 +97,7 @@ func DeleteTheme(id int, themeType string, isDarkMode bool) error {
 		var themeID int
 		if err := tx.Model(&models.Theme{}).
 			Select("id").
-			Where("type = all AND is_dark_mode = ?", isDarkMode).
+			Where("type = ? AND is_dark_mode = ?", "all", isDarkMode).
 			First(&themeID).Error; err != nil {
 			return err
 		}
