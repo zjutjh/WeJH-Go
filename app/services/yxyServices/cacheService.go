@@ -91,3 +91,17 @@ func GetElecConsumptionRecords(token, campus, roomStrConcat string) (*EleConsump
 	}
 	return &records, nil
 }
+
+func SetCardAuthToken(yxyUid, token string) error {
+	cacheKey := "card:auth_token:" + yxyUid
+	return r.RedisClient.Set(ctx, cacheKey, token, 7*24*time.Hour).Err()
+}
+
+func GetCardAuthToken(yxyUid string) (*string, error) {
+	cacheKey := "card:auth_token:" + yxyUid
+	cachedToken, err := r.RedisClient.Get(ctx, cacheKey).Result()
+	if err == redis.Nil {
+		return nil, err
+	}
+	return &cachedToken, nil
+}

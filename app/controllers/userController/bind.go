@@ -117,17 +117,21 @@ func LoginYxy(c *gin.Context) {
 		return
 	}
 	deviceId := uuid.New().String()
-	uid, err := yxyServices.LoginByCode(postForm.Code, deviceId, postForm.PhoneNum)
-	if err == apiException.WrongVerificationCode || err == apiException.WrongPhoneNum {
+	info, err := yxyServices.LoginByCode(postForm.Code, deviceId, postForm.PhoneNum)
+	if err == apiException.WrongVerificationCode || err == apiException.WrongPhoneNum || err == apiException.NotBindCard {
 		_ = c.AbortWithError(200, err)
 		return
 	} else if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
 	}
+	if err := yxyServices.SetCardAuthToken(info.UID, info.Token); err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
 	userServices.SetDeviceID(user, deviceId)
 	userServices.DecryptUserKeyInfo(user)
-	userServices.SetYxyUid(user, *uid)
+	userServices.SetYxyUid(user, info.UID)
 	userServices.DecryptUserKeyInfo(user)
 	userServices.SetPhoneNum(user, postForm.PhoneNum)
 	utils.JsonSuccessResponse(c, nil)
