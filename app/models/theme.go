@@ -38,7 +38,7 @@ type BaseColor struct {
 type ThemeConfig struct {
 	BarIcon            BarIcon     `json:"bar_icon"`
 	AppListIcon        AppListIcon `json:"applist_icon"`
-	AppListDarkIcon    AppListIcon `json:"applist_dark_icon"`
+	QuickViewIcon      AppListIcon `json:"quickview_icon"`
 	BackgroundImg      string      `json:"background_img"`
 	BackgroundColor    string      `json:"background_color"`
 	BackgroundPosition string      `json:"background_position"`

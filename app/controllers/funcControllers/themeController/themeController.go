@@ -22,7 +22,7 @@ func GetThemeList(c *gin.Context) {
 		return
 	}
 
-	themes, err := themeServices.GetPermittedThemeNames(user.StudentID)
+	themes, err := themeServices.GetPermittedThemesFormat(user.StudentID)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
 		return
