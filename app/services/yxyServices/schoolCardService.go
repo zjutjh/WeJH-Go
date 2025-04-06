@@ -20,7 +20,7 @@ type ConsumptionRecords struct {
 	} `json:"list" mapstructure:"list"`
 }
 
-func GetCardBalance(deviceId, uid, phoneNum string) (*string, error) {
+func GetCardBalance(deviceId, uid, phoneNum, token string) (*string, error) {
 	params := url.Values{}
 	Url, err := url.Parse(string(yxyApi.CardBalance))
 	if err != nil {
@@ -28,9 +28,9 @@ func GetCardBalance(deviceId, uid, phoneNum string) (*string, error) {
 	}
 	params.Set("device_id", deviceId)
 	params.Set("uid", uid)
+	params.Set("token", token)
 	Url.RawQuery = params.Encode()
 	urlPath := Url.String()
-	_ = SilentLogin(deviceId, uid, phoneNum)
 	resp, err := FetchHandleOfGet(yxyApi.YxyApi(urlPath))
 	if err != nil {
 		return nil, err
@@ -38,6 +38,8 @@ func GetCardBalance(deviceId, uid, phoneNum string) (*string, error) {
 
 	if resp.Code == 100101 || resp.Code == 100102 {
 		return nil, apiException.YxySessionExpired
+	} else if resp.Code == 100103 {
+		return nil, apiException.NotBindCard
 	} else if resp.Code != 0 {
 		return nil, apiException.ServerError
 	}
@@ -47,10 +49,13 @@ func GetCardBalance(deviceId, uid, phoneNum string) (*string, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	_ = SilentLogin(deviceId, uid, phoneNum, token)
+
 	return &data.Balance, nil
 }
 
-func GetCardConsumptionRecord(deviceId, uid, phoneNum, queryTime string) (*ConsumptionRecords, error) {
+func GetCardConsumptionRecord(deviceId, uid, phoneNum, token, queryTime string) (*ConsumptionRecords, error) {
 	params := url.Values{}
 	Url, err := url.Parse(string(yxyApi.ConsumptionRecords))
 	if err != nil {
@@ -58,10 +63,10 @@ func GetCardConsumptionRecord(deviceId, uid, phoneNum, queryTime string) (*Consu
 	}
 	params.Set("device_id", deviceId)
 	params.Set("uid", uid)
+	params.Set("token", token)
 	params.Set("query_time", queryTime)
 	Url.RawQuery = params.Encode()
 	urlPath := Url.String()
-	_ = SilentLogin(deviceId, uid, phoneNum)
 	resp, err := FetchHandleOfGet(yxyApi.YxyApi(urlPath))
 	if err != nil {
 		return nil, err
@@ -69,6 +74,8 @@ func GetCardConsumptionRecord(deviceId, uid, phoneNum, queryTime string) (*Consu
 
 	if resp.Code == 100101 || resp.Code == 100102 {
 		return nil, apiException.YxySessionExpired
+	} else if resp.Code == 100103 {
+		return nil, apiException.NotBindCard
 	} else if resp.Code == 100002 {
 		return nil, apiException.ParamError
 	} else if resp.Code != 0 {
@@ -80,5 +87,8 @@ func GetCardConsumptionRecord(deviceId, uid, phoneNum, queryTime string) (*Consu
 	if err != nil {
 		return nil, err
 	}
+
+	_ = SilentLogin(deviceId, uid, phoneNum, token)
+
 	return &data, nil
 }

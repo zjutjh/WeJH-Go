@@ -36,6 +36,10 @@ func GetBalance(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
+	if user.YxyUid == "" {
+		_ = c.AbortWithError(200, apiException.NotBindYxy)
+		return
+	}
 	token, err := yxyServices.GetElecAuthToken(user.YxyUid)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
@@ -45,7 +49,11 @@ func GetBalance(c *gin.Context) {
 		postForm.Campus = "zhpf"
 	}
 	balance, err := yxyServices.ElectricityBalance(*token, postForm.Campus)
-	if err == apiException.CampusMismatch {
+	if err == apiException.NotBindCard {
+		_ = yxyServices.Unbind(user.ID, user.YxyUid, true)
+		_ = c.AbortWithError(200, err)
+		return
+	} else if err == apiException.CampusMismatch {
 		_ = c.AbortWithError(200, err)
 		return
 	} else if err != nil {
@@ -67,6 +75,10 @@ func GetRechargeRecords(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
+	if user.YxyUid == "" {
+		_ = c.AbortWithError(200, apiException.NotBindYxy)
+		return
+	}
 	token, err := yxyServices.GetElecAuthToken(user.YxyUid)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
@@ -76,7 +88,11 @@ func GetRechargeRecords(c *gin.Context) {
 		postForm.Campus = "zhpf"
 	}
 	roomStrConcat, err := yxyServices.GetElecRoomStrConcat(*token, postForm.Campus, user.YxyUid)
-	if err == apiException.CampusMismatch {
+	if err == apiException.NotBindCard {
+		_ = yxyServices.Unbind(user.ID, user.YxyUid, true)
+		_ = c.AbortWithError(200, err)
+		return
+	} else if err == apiException.CampusMismatch {
 		_ = c.AbortWithError(200, err)
 		return
 	} else if err != nil {
@@ -106,6 +122,10 @@ func GetConsumptionRecords(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
+	if user.YxyUid == "" {
+		_ = c.AbortWithError(200, apiException.NotBindYxy)
+		return
+	}
 	token, err := yxyServices.GetElecAuthToken(user.YxyUid)
 	if err != nil {
 		_ = c.AbortWithError(200, apiException.ServerError)
@@ -115,7 +135,11 @@ func GetConsumptionRecords(c *gin.Context) {
 		postForm.Campus = "zhpf"
 	}
 	roomStrConcat, err := yxyServices.GetElecRoomStrConcat(*token, postForm.Campus, user.YxyUid)
-	if err == apiException.CampusMismatch {
+	if err == apiException.NotBindCard {
+		_ = yxyServices.Unbind(user.ID, user.YxyUid, true)
+		_ = c.AbortWithError(200, err)
+		return
+	} else if err == apiException.CampusMismatch {
 		_ = c.AbortWithError(200, err)
 		return
 	} else if err != nil {

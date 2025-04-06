@@ -7,6 +7,7 @@ import (
 	"wejh-go/app/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 )
 
 type recordForm struct {
@@ -19,8 +20,26 @@ func GetBalance(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
-	balance, err := yxyServices.GetCardBalance(user.DeviceID, user.YxyUid, user.PhoneNum)
-	if err == apiException.YxySessionExpired {
+	if user.YxyUid == "" {
+		_ = c.AbortWithError(200, apiException.NotBindYxy)
+		return
+	}
+	token, err := yxyServices.GetCardAuthToken(user.YxyUid)
+	if err == redis.Nil {
+		_ = yxyServices.Unbind(user.ID, user.YxyUid, false)
+		_ = c.AbortWithError(200, apiException.YxySessionExpired)
+		return
+	} else if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+	balance, err := yxyServices.GetCardBalance(user.DeviceID, user.YxyUid, user.PhoneNum, *token)
+	if err == apiException.NotBindCard {
+		_ = yxyServices.Unbind(user.ID, user.YxyUid, true)
+		_ = c.AbortWithError(200, err)
+		return
+	} else if err == apiException.YxySessionExpired {
+		_ = yxyServices.Unbind(user.ID, user.YxyUid, false)
 		_ = c.AbortWithError(200, err)
 		return
 	} else if err != nil {
@@ -42,8 +61,29 @@ func GetConsumptionRecord(c *gin.Context) {
 		_ = c.AbortWithError(200, apiException.NotLogin)
 		return
 	}
-	records, err := yxyServices.GetCardConsumptionRecord(user.DeviceID, user.YxyUid, user.PhoneNum, postForm.QueryTime)
-	if err == apiException.YxySessionExpired || err == apiException.ParamError {
+	if user.YxyUid == "" {
+		_ = c.AbortWithError(200, apiException.NotBindYxy)
+		return
+	}
+	token, err := yxyServices.GetCardAuthToken(user.YxyUid)
+	if err == redis.Nil {
+		_ = yxyServices.Unbind(user.ID, user.YxyUid, false)
+		_ = c.AbortWithError(200, apiException.YxySessionExpired)
+		return
+	} else if err != nil {
+		_ = c.AbortWithError(200, apiException.ServerError)
+		return
+	}
+	records, err := yxyServices.GetCardConsumptionRecord(user.DeviceID, user.YxyUid, user.PhoneNum, *token, postForm.QueryTime)
+	if err == apiException.NotBindCard {
+		_ = yxyServices.Unbind(user.ID, user.YxyUid, true)
+		_ = c.AbortWithError(200, err)
+		return
+	} else if err == apiException.YxySessionExpired {
+		_ = yxyServices.Unbind(user.ID, user.YxyUid, false)
+		_ = c.AbortWithError(200, err)
+		return
+	} else if err == apiException.ParamError {
 		_ = c.AbortWithError(200, err)
 		return
 	} else if err != nil {

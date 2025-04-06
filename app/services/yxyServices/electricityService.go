@@ -67,7 +67,9 @@ func ElectricityBalance(token, campus string) (*ElecBalance, error) {
 	if err != nil {
 		return nil, err
 	}
-	if resp.Code == 110102 {
+	if resp.Code == 100103 {
+		return nil, apiException.NotBindCard
+	} else if resp.Code == 110102 {
 		return nil, apiException.CampusMismatch
 	} else if resp.Code != 0 {
 		return nil, apiException.ServerError
