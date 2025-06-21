@@ -17,7 +17,6 @@ func Login(stu_id string, pass string) error {
 	regMap := make(map[string]any)
 	regMap["stu_id"] = stu_id
 	regMap["password"] = pass
-	regMap["bound_system"] = 0
 	resp, err := FetchHandleOfPost(regMap, userCenterApi.UserCenterApi(urlPath))
 	if err != nil {
 		return apiException.RequestError
