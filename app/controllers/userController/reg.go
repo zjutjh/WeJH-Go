@@ -1,6 +1,7 @@
 package userController
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"strings"
 	"wejh-go/app/apiException"
@@ -33,14 +34,14 @@ func BindOrCreateStudentUserFromWechat(c *gin.Context) {
 	var postForm createStudentUserWechatForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	session, err := wechat.MiniProgram.GetAuth().Code2Session(postForm.Code)
 
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.OpenIDError)
+		apiException.AbortWithException(c, apiException.OpenIDError, err)
 		return
 	}
 	postForm.StudentID = strings.ToUpper(postForm.StudentID)
@@ -54,20 +55,20 @@ func BindOrCreateStudentUserFromWechat(c *gin.Context) {
 		postForm.Email,
 		session.OpenID,
 		postForm.Type)
-	if err != nil && err != apiException.ReactiveError {
-		_ = c.AbortWithError(200, err)
+	if err != nil && !errors.Is(err, apiException.ReactiveError) {
+		apiException.AbortWithError(c, err)
 		return
 	}
 
 	_, err = themeServices.AddDefaultThemePermission(postForm.StudentID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
 	err = sessionServices.SetUserSession(c, user)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -77,7 +78,7 @@ func CreateStudentUser(c *gin.Context) {
 	var postForm createStudentUserForm
 	errBind := c.ShouldBindJSON(&postForm)
 	if errBind != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, errBind)
 		return
 	}
 	postForm.StudentID = strings.ToUpper(postForm.StudentID)
@@ -90,20 +91,20 @@ func CreateStudentUser(c *gin.Context) {
 		postForm.IDCardNumber,
 		postForm.Email,
 		postForm.Type)
-	if err != nil && err != apiException.ReactiveError {
-		_ = c.AbortWithError(200, err)
+	if err != nil && !errors.Is(err, apiException.ReactiveError) {
+		apiException.AbortWithError(c, err)
 		return
 	}
 
 	_, err = themeServices.AddDefaultThemePermission(postForm.StudentID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
 	err = sessionServices.SetUserSession(c, user)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)

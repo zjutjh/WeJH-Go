@@ -9,7 +9,7 @@ import (
 func CheckUninit(c *gin.Context) {
 	inited := config.GetInit()
 	if inited {
-		_ = c.AbortWithError(200, apiException.NotInit)
+		apiException.AbortWithException(c, apiException.NotInit, nil)
 		return
 	}
 	c.Next()

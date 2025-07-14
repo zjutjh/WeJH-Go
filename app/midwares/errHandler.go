@@ -1,41 +1,49 @@
 package midwares
 
 import (
-	"fmt"
+	"errors"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"wejh-go/app/apiException"
+	"wejh-go/app/utils"
 )
 
+// ErrHandler 中间件用于处理请求错误。
+// 如果存在错误，将返回相应的 JSON 响应。
 func ErrHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// 向下执行请求
 		c.Next()
-		fmt.Println(c.Errors)
-		if length := len(c.Errors); length > 0 {
-			e := c.Errors[length-1]
-			err := e.Err
-			if err != nil {
-				var Err *apiException.Error
-				if e, ok := err.(*apiException.Error); ok {
-					Err = e
-				} else if e, ok := err.(error); ok {
-					Err = apiException.OtherError(e.Error())
-				} else {
-					Err = apiException.ServerError
-				}
-				// TODO 建立日志系统
 
-				c.JSON(Err.StatusCode, Err)
+		// 如果存在错误，则处理错误
+		if len(c.Errors) > 0 {
+			err := c.Errors.Last().Err
+			if err != nil {
+				var apiErr *apiException.Error
+
+				// 尝试将错误转换为 apiException
+				ok := errors.As(err, &apiErr)
+
+				// 如果转换失败，则使用 ServerError
+				if !ok {
+					apiErr = apiException.ServerError
+					zap.L().Error("Unknown Error Occurred", zap.Error(err))
+				}
+
+				utils.JsonErrorResponse(c, apiErr.Code, apiErr.Msg)
 				return
 			}
 		}
-
 	}
 }
 
-// HandleNotFound
-//  404处理
+// HandleNotFound 404处理
 func HandleNotFound(c *gin.Context) {
 	err := apiException.NotFound
-	c.JSON(err.StatusCode, err)
-	return
+	// 记录 404 错误日志
+	zap.L().Warn("404 Not Found",
+		zap.String("path", c.Request.URL.Path),
+		zap.String("method", c.Request.Method),
+	)
+	utils.JsonErrorResponse(c, err.Code, err.Msg)
 }

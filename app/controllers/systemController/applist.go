@@ -10,7 +10,7 @@ import (
 func GetAppList(c *gin.Context) {
 	appLists, err := applistServices.GetAppList(10)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 	} else {
 		utils.JsonSuccessResponse(c, appLists)
 	}

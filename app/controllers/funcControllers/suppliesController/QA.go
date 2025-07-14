@@ -21,7 +21,7 @@ func CreateQA(c *gin.Context) {
 	var data CreateQAData
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
@@ -34,7 +34,7 @@ func CreateQA(c *gin.Context) {
 	})
 
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -50,14 +50,14 @@ func GetQAList(c *gin.Context) {
 	var data GetQAListData
 	err := c.ShouldBindQuery(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	var QAList []models.QA
 	QAList, err = suppliesServices.GetQAListByPublisher(data.Publisher)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -77,7 +77,7 @@ func GetQAListByAdmin(c *gin.Context) {
 	}
 
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -95,7 +95,7 @@ func UpdateQA(c *gin.Context) {
 	var data UpdateQAData
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
@@ -104,12 +104,12 @@ func UpdateQA(c *gin.Context) {
 	var QA *models.QA
 	QA, err = suppliesServices.GetQAbyID(data.ID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
 	if QA.Publisher != *pubisher && *pubisher != "Admin" {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 
@@ -120,7 +120,7 @@ func UpdateQA(c *gin.Context) {
 		PublishTime: time.Now(),
 	})
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -136,7 +136,7 @@ func DeleteQA(c *gin.Context) {
 	var data DeleteQAData
 	err := c.ShouldBindQuery(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
@@ -145,18 +145,18 @@ func DeleteQA(c *gin.Context) {
 	var QA *models.QA
 	QA, err = suppliesServices.GetQAbyID(data.ID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
 	if QA.Publisher != *pubisher && *pubisher != "Admin" {
-		c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
 	err = suppliesServices.DeleteQA(data.ID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -167,7 +167,7 @@ func DeleteQA(c *gin.Context) {
 func getIdentity(c *gin.Context) *string {
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return nil
 	}
 
@@ -177,7 +177,7 @@ func getIdentity(c *gin.Context) *string {
 	} else if user.Type == models.Admin {
 		identity = "Admin"
 	} else {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return nil
 	}
 

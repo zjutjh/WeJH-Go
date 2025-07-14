@@ -35,7 +35,7 @@ func GetRecords(c *gin.Context) {
 	var data GetRecordsData
 	err := c.ShouldBindQuery(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
@@ -56,7 +56,7 @@ func GetRecords(c *gin.Context) {
 		lostAndFoundRecords, err = lostAndFoundRecordServices.GetRecord(campus, kind, _type, data.PageNum, data.PageSize)
 	}
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -67,7 +67,7 @@ func GetRecords(c *gin.Context) {
 		totalPageNum, err = lostAndFoundRecordServices.GetTotalPageNum(campus, kind, _type)
 	}
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -81,7 +81,7 @@ func GetRecordsByAdmin(c *gin.Context) {
 	var data GetRecordsData
 	err := c.ShouldBindQuery(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
@@ -101,23 +101,23 @@ func GetRecordsByAdmin(c *gin.Context) {
 	if *publisher == "Admin" {
 		lostAndFoundRecords, err = lostAndFoundRecordServices.GetRecordBySuperAdmin(_type, data.PageNum, data.PageSize)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 		totalPageNum, err = lostAndFoundRecordServices.GetTotalPageNumBySuperAdmin(_type)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 	} else {
 		lostAndFoundRecords, err = lostAndFoundRecordServices.GetRecordByAdmin(*publisher, _type, data.PageNum, data.PageSize)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 		totalPageNum, err = lostAndFoundRecordServices.GetTotalPageNumByAdmin(*publisher, _type)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 	}
@@ -131,7 +131,7 @@ func GetRecordsByAdmin(c *gin.Context) {
 func GetKindList(c *gin.Context) {
 	kinds, err := lostAndFoundRecordServices.GetKindList()
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, kinds)
@@ -157,7 +157,7 @@ func InsertRecord(c *gin.Context) {
 	var postForm LostAndFoundForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
@@ -188,7 +188,7 @@ func InsertRecord(c *gin.Context) {
 
 	err = lostAndFoundRecordServices.CreateRecord(record)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -199,19 +199,19 @@ func UpdateRecord(c *gin.Context) {
 	var postForm LostAndFoundForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	publisher := getPublisher(c)
 	record, err := lostAndFoundRecordServices.GetRecordById(postForm.ID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
 	if *publisher != record.Publisher && *publisher != "Admin" {
-		_ = c.AbortWithError(200, apiException.NotAdmin)
+		apiException.AbortWithException(c, apiException.NotAdmin, nil)
 		return
 	}
 
@@ -244,7 +244,7 @@ func UpdateRecord(c *gin.Context) {
 		Introduction:     postForm.Introduction,
 	})
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -254,7 +254,7 @@ func UpdateRecord(c *gin.Context) {
 func getPublisher(c *gin.Context) *string {
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return nil
 	}
 	var publisher string
@@ -294,20 +294,20 @@ func UploadImg(c *gin.Context) {
 		imgNew, err := png.Decode(file)
 		if err != nil {
 			fmt.Println(err)
-			_ = c.AbortWithError(200, apiException.ImgTypeError)
+			apiException.AbortWithException(c, apiException.ImgTypeError, err)
 			return
 		}
 		out, err := os.Create("./tmp/" + strings.TrimSuffix(img.Filename, path.Ext(path.Base(img.Filename))) + ".jpg")
 		if err != nil {
 			fmt.Println(err)
-			_ = c.AbortWithError(200, apiException.ImgTypeError)
+			apiException.AbortWithException(c, apiException.ImgTypeError, err)
 			return
 		}
 		defer out.Close()
 		err = jpeg.Encode(out, imgNew, &jpeg.Options{Quality: 95})
 		if err != nil {
 			fmt.Println(err)
-			_ = c.AbortWithError(200, apiException.ImgTypeError)
+			apiException.AbortWithException(c, apiException.ImgTypeError, err)
 			return
 		}
 		_ = os.Remove(newTypeName)
@@ -318,7 +318,7 @@ func UploadImg(c *gin.Context) {
 	imgNew, err := jpeg.Decode(file)
 	if err != nil {
 		fmt.Println(err)
-		_ = c.AbortWithError(200, apiException.ImgTypeError)
+		apiException.AbortWithException(c, apiException.ImgTypeError, err)
 		return
 	}
 	fileName := uuid.NewString() + ".jpg"
@@ -327,7 +327,7 @@ func UploadImg(c *gin.Context) {
 	err = jpeg.Encode(output, imgNew, &jpeg.Options{Quality: 40})
 	if err != nil {
 		fmt.Println(err)
-		_ = c.AbortWithError(200, apiException.ImgTypeError)
+		apiException.AbortWithException(c, apiException.ImgTypeError, err)
 		return
 	}
 	_ = os.Remove("./tmp/" + imgName)
@@ -338,19 +338,19 @@ func DeleteRecord(c *gin.Context) {
 	lostIdRaw := c.Query("lost_id")
 	lostId, err := strconv.Atoi(lostIdRaw)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	publisher := getPublisher(c)
 	record, err := lostAndFoundRecordServices.GetRecordById(lostId)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
 	if *publisher != record.Publisher && *publisher != "Admin" {
-		_ = c.AbortWithError(200, apiException.NotAdmin)
+		apiException.AbortWithException(c, apiException.NotAdmin, nil)
 		return
 	}
 
@@ -366,7 +366,7 @@ func DeleteRecord(c *gin.Context) {
 		Introduction:     record.Introduction,
 	})
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 

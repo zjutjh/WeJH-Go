@@ -1,6 +1,7 @@
 package suppliesController
 
 import (
+	"errors"
 	"math"
 	"os"
 	"time"
@@ -42,21 +43,21 @@ func GetBorrowRecord(c *gin.Context) {
 	// 判断是否登录
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	// 获取参数
 	var data GetBorrowRecordData
 	err = c.ShouldBindQuery(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	// 判断并获取借用记录
 	var Record []models.BorrowRecord
 	Record, err = suppliesServices.GetBorrowRecord(data.Campus, data.Status, user.StudentID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	// 输出借用记录
@@ -74,7 +75,7 @@ func GetBorrowRecord(c *gin.Context) {
 		borrowRecord = append(borrowRecord, newRecord)
 		supplies, err := suppliesServices.GetALLSuppliesById(Record[i].SuppliesID)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 		borrowRecord[i].Img = supplies.Img
@@ -95,43 +96,43 @@ func ApplyBorrow(c *gin.Context) {
 	// 判断是否登录
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	// 判断个人信息是否存在
 	personalinfo, err := suppliesServices.GetPersonalInfoByStudentID(user.StudentID)
-	if err == gorm.ErrRecordNotFound {
-		_ = c.AbortWithError(200, apiException.PersonalInfoNotFill)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		apiException.AbortWithException(c, apiException.PersonalInfoNotFill, err)
 		return
 	} else if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	// 获取参数
 	var data ApplyBorrowData
 	err = c.ShouldBindJSON(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	// 判断物资是否存在
 	var supplies models.Supplies
 	supplies, err = suppliesServices.GetALLSuppliesById(data.SuppliesID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	if data.Count > supplies.Stock {
-		_ = c.AbortWithError(200, apiException.StockNotEnough)
+		apiException.AbortWithException(c, apiException.StockNotEnough, nil)
 		return
 	}
 	// 判断是否已经申请过
 	_, err = suppliesServices.GetBorrowRecordByApplyData(data.SuppliesID, user.StudentID)
 	if err == nil {
-		_ = c.AbortWithError(200, apiException.RecordAlreadyExisted)
+		apiException.AbortWithException(c, apiException.RecordAlreadyExisted, err)
 		return
-	} else if err != gorm.ErrRecordNotFound {
-		_ = c.AbortWithError(200, apiException.ServerError)
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	// 申请借用
@@ -150,7 +151,7 @@ func ApplyBorrow(c *gin.Context) {
 		ApplyTime:    time.Now(),
 	})
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -165,37 +166,37 @@ func CancelBorrow(c *gin.Context) {
 	// 判断是否登录
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	// 获取参数
 	var data DeleteRecordData
 	err = c.ShouldBindQuery(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	// 判断借用记录是否存在
 	var borrowRecord models.BorrowRecord
 	borrowRecord, err = suppliesServices.GetBorrowRecordByBorrowID(data.BorrowID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	// 判断是否有权限
 	if borrowRecord.StudentID != user.StudentID {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	// 判断是否待审核
 	if borrowRecord.Status != 1 {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	// 取消借用
 	err = suppliesServices.DeleteRecord(data.BorrowID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -237,17 +238,17 @@ func GetSuppliesRecordByAdmin(c *gin.Context) {
 	var data GetSuppliesRecordByAdminData
 	err := c.ShouldBindQuery(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	// 判断鉴权
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	if user.Type != models.Admin && user.Type != models.StudentAffairsCenter {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	// 判断choice和status是否合法
@@ -264,7 +265,7 @@ func GetSuppliesRecordByAdmin(c *gin.Context) {
 		}
 	}
 	if !valid {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	// 获取记录和总页数
@@ -272,7 +273,7 @@ func GetSuppliesRecordByAdmin(c *gin.Context) {
 	var totalPageNum *int64
 	records, totalPageNum, err = suppliesServices.GetRecordByAdmin(data.PageNum, data.PageSize, data.Status, data.Choice, data.ID, data.Campus, data.StudentID, data.SuppliesName, data.Spec)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -295,12 +296,12 @@ func GetSuppliesRecordByAdmin(c *gin.Context) {
 		response = append(response, newRecord)
 		supplies, err := suppliesServices.GetALLSuppliesById(records[i].SuppliesID)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 		record, err := suppliesServices.GetBorrowRecordByOthers(records[i].StudentID, records[i].College, records[i].SuppliesID, records[i].Count, records[i].Campus, records[i].ApplyTime)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 		response[i].ID = record.ID
@@ -327,31 +328,31 @@ func CheckRecordByAdmin(c *gin.Context) {
 	var data CheckRecordData
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	// 判断鉴权
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	if user.Type != models.Admin && user.Type != models.StudentAffairsCenter {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	// 判断记录是否存在
 	record, err := suppliesServices.GetBorrowRecordByBorrowID(data.ID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	// 判断是否已经待审核
 	if record.Status == 2 {
-		_ = c.AbortWithError(200, apiException.RecordAlreadyRejected)
+		apiException.AbortWithException(c, apiException.RecordAlreadyRejected, nil)
 		return
 	} else if record.Status != 1 && record.Status != 2 {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	// 审批
@@ -360,11 +361,11 @@ func CheckRecordByAdmin(c *gin.Context) {
 		var supplies models.Supplies
 		supplies, err = suppliesServices.GetALLSuppliesById(record.SuppliesID)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 		if supplies.Stock < record.Count {
-			_ = c.AbortWithError(200, apiException.StockNotEnough)
+			apiException.AbortWithException(c, apiException.StockNotEnough, nil)
 			return
 		}
 		err = suppliesServices.PassBorrow(data.ID, record.SuppliesID, record.Count)
@@ -372,7 +373,7 @@ func CheckRecordByAdmin(c *gin.Context) {
 		err = suppliesServices.RejectBorrow(data.ID)
 	}
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -389,35 +390,35 @@ func BatchCheckRecordByAdmin(c *gin.Context) {
 	var data BatchCheckRecordData
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	// 判断鉴权
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	if user.Type != models.Admin && user.Type != models.StudentAffairsCenter {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	// 获取记录，逐个判断是否存在且合法
 	records, err := suppliesServices.GetBorrowRecordsByBorrowIDs(data.IDs)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	if len(records) != len(data.IDs) {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	for _, record := range records {
 		if record.Status == 2 {
-			_ = c.AbortWithError(200, apiException.RecordAlreadyRejected)
+			apiException.AbortWithException(c, apiException.RecordAlreadyRejected, nil)
 			return
 		} else if record.Status != 1 && record.Status != 2 {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, nil)
 			return
 		}
 		if data.SuppliesCheck == 1 {
@@ -425,11 +426,11 @@ func BatchCheckRecordByAdmin(c *gin.Context) {
 			var supplies models.Supplies
 			supplies, err = suppliesServices.GetALLSuppliesById(record.SuppliesID)
 			if err != nil {
-				_ = c.AbortWithError(200, apiException.ServerError)
+				apiException.AbortWithException(c, apiException.ServerError, err)
 				return
 			}
 			if supplies.Stock < record.Count {
-				_ = c.AbortWithError(200, apiException.StockNotEnough)
+				apiException.AbortWithException(c, apiException.StockNotEnough, nil)
 				return
 			}
 		}
@@ -441,7 +442,7 @@ func BatchCheckRecordByAdmin(c *gin.Context) {
 		err = suppliesServices.RejectBorrows(data.IDs)
 	}
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -457,34 +458,34 @@ func CancelRejectRecordByAdmin(c *gin.Context) {
 	var data CancelRejectlDate
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	// 判断鉴权
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	if user.Type != models.Admin && user.Type != models.StudentAffairsCenter {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	// 判断记录是否存在
 	record, err := suppliesServices.GetBorrowRecordByBorrowID(data.ID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	// 判断是否已经驳回
 	if record.Status != 2 {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	// 取消驳回
 	err = suppliesServices.CancelRejectBorrow(data.ID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -501,28 +502,28 @@ func ReturnRecordByAdmin(c *gin.Context) {
 	var data ReturnRecordData
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	// 判断鉴权
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	if user.Type != models.Admin && user.Type != models.StudentAffairsCenter {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	// 判断记录是否存在
 	record, err := suppliesServices.GetBorrowRecordByBorrowID(data.ID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	// 判断是否已经审批
 	if record.Status != 3 {
-		_ = c.AbortWithError(200, apiException.NotBorrowingRecord)
+		apiException.AbortWithException(c, apiException.NotBorrowingRecord, nil)
 		return
 	}
 	// 归还清点
@@ -531,11 +532,11 @@ func ReturnRecordByAdmin(c *gin.Context) {
 	} else if data.SuppliesReturn == 2 {
 		err = suppliesServices.CancelBorrow(data.ID, record.SuppliesID, record.Count)
 	} else {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -552,31 +553,31 @@ func BatchReturnRecordByAdmin(c *gin.Context) {
 	var data BatchReturnRecordData
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	// 判断鉴权
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	if user.Type != models.Admin && user.Type != models.StudentAffairsCenter {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	records, err := suppliesServices.GetBorrowRecordsByBorrowIDs(data.IDs)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	if len(records) != len(data.IDs) {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	for _, record := range records {
 		if record.Status != 3 {
-			_ = c.AbortWithError(200, apiException.NotBorrowingRecord)
+			apiException.AbortWithException(c, apiException.NotBorrowingRecord, nil)
 			return
 		}
 	}
@@ -586,7 +587,7 @@ func BatchReturnRecordByAdmin(c *gin.Context) {
 		err = suppliesServices.CancelBorrows(data.IDs)
 	}
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -602,34 +603,34 @@ func CancelReturnRecordByAdmin(c *gin.Context) {
 	var data CancelReturnDate
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	// 判断鉴权
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	if user.Type != models.Admin && user.Type != models.StudentAffairsCenter {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	// 判断记录是否存在
 	record, err := suppliesServices.GetBorrowRecordByBorrowID(data.ID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	// 判断是否已经物资已经确认归还
 	if record.Status != 4 {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	// 取消确认归还
 	err = suppliesServices.CancelReturnBorrow(data.ID, record.SuppliesID, record.Count)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -652,38 +653,38 @@ func UpdateRecordByAdmin(c *gin.Context) {
 	var data UpdateRecordData
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	// 判断鉴权
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	if user.Type != models.Admin && user.Type != models.StudentAffairsCenter {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	// 判断记录是否存在
 	record, err := suppliesServices.GetBorrowRecordByBorrowID(data.ID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	// 判断记录是否待审核
 	if record.Status != 1 {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, nil)
 		return
 	}
 	// 判断物资是否重复借用
 	if record.SuppliesID != data.SupplisID {
 		_, err = suppliesServices.GetBorrowRecordByApplyData(data.SupplisID, record.StudentID)
 		if err == nil {
-			_ = c.AbortWithError(200, apiException.RecordAlreadyExisted)
+			apiException.AbortWithException(c, apiException.RecordAlreadyExisted, err)
 			return
-		} else if err != gorm.ErrRecordNotFound {
-			_ = c.AbortWithError(200, apiException.ServerError)
+		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+			apiException.AbortWithException(c, apiException.ServerError, nil)
 			return
 		}
 	}
@@ -691,17 +692,17 @@ func UpdateRecordByAdmin(c *gin.Context) {
 	var supplies models.Supplies
 	supplies, err = suppliesServices.GetALLSuppliesById(data.SupplisID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	if supplies.Stock < data.Count {
-		_ = c.AbortWithError(200, apiException.StockNotEnough)
+		apiException.AbortWithException(c, apiException.StockNotEnough, nil)
 		return
 	}
 	// 修改记录
 	err = suppliesServices.UpdateRecord(data.ID, data.Name, data.Gender, data.College, data.Dormitory, data.Contact, data.SupplisID, data.Count)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -726,19 +727,19 @@ func InsertSuppliesRecord(c *gin.Context) {
 	var postForm SuppliesRecordForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	publisher := getIdentity(c)
 	if *publisher != "学生事务大厅" && *publisher != "Admin" {
-		_ = c.AbortWithError(200, apiException.NotAdmin)
+		apiException.AbortWithException(c, apiException.NotAdmin, nil)
 		return
 	}
 
 	_, err = suppliesServices.GetPersonalInfoByStudentID(postForm.StudentID)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = suppliesServices.SavePersonalInfo(models.PersonalInfo{
 				Name:      postForm.Name,
 				Gender:    postForm.Gender,
@@ -748,11 +749,11 @@ func InsertSuppliesRecord(c *gin.Context) {
 				Contact:   postForm.Contact,
 			})
 			if err != nil {
-				_ = c.AbortWithError(200, apiException.ServerError)
+				apiException.AbortWithException(c, apiException.ServerError, err)
 				return
 			}
 		} else {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 	}
@@ -761,7 +762,7 @@ func InsertSuppliesRecord(c *gin.Context) {
 	if postForm.Kind != "正装" {
 		flag, err = suppliesServices.CheckSupplies(postForm.SuppliesName, postForm.Kind, postForm.Spec, *publisher, postForm.Campus)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 		if flag {
@@ -773,44 +774,44 @@ func InsertSuppliesRecord(c *gin.Context) {
 				Organization: *publisher,
 			})
 			if err != nil {
-				_ = c.AbortWithError(200, apiException.ServerError)
+				apiException.AbortWithException(c, apiException.ServerError, err)
 				return
 			}
 		}
 	} else {
 		checkExist, err := suppliesServices.CheckSupplies(postForm.SuppliesName, postForm.Kind, postForm.Spec, *publisher, postForm.Campus)
 		if checkExist == true && err == nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, nil)
 			return
 		} else if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 		flag, err = suppliesServices.CheckSuppliesStock(postForm.SuppliesName, postForm.Kind, postForm.Spec, *publisher, postForm.Campus, postForm.Count)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 		if flag {
 			suppliesId, err := suppliesServices.GetSuppliesID(postForm.Campus, *publisher, postForm.Kind, postForm.SuppliesName, postForm.Spec)
 			if err != nil {
-				_ = c.AbortWithError(200, apiException.ServerError)
+				apiException.AbortWithException(c, apiException.ServerError, err)
 				return
 			}
 			err = suppliesServices.PassSuppliesRecord(suppliesId, postForm.Count)
 			if err != nil {
-				_ = c.AbortWithError(200, apiException.ServerError)
+				apiException.AbortWithException(c, apiException.ServerError, err)
 				return
 			}
-		} else if !flag {
-			_ = c.AbortWithError(200, apiException.StockNotEnough)
+		} else {
+			apiException.AbortWithException(c, apiException.StockNotEnough, nil)
 			return
 		}
 	}
 
 	suppliesId, err := suppliesServices.GetSuppliesID(postForm.Campus, *publisher, postForm.Kind, postForm.SuppliesName, postForm.Spec)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -830,7 +831,7 @@ func InsertSuppliesRecord(c *gin.Context) {
 		BorrowTime:   time.Now(),
 	})
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -846,7 +847,7 @@ func ExportSuppliesRecord(c *gin.Context) {
 	var data GetExcelData
 	err := c.ShouldBindQuery(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
@@ -855,17 +856,17 @@ func ExportSuppliesRecord(c *gin.Context) {
 	if *publisher == "学生事务大厅" {
 		ExcelData, err = suppliesServices.GetExcelData(*publisher, data.Campus)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 	} else if *publisher == "Admin" {
 		ExcelData, err = suppliesServices.GetALLExcelData(data.Campus)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 	} else {
-		_ = c.AbortWithError(200, apiException.NotAdmin)
+		apiException.AbortWithException(c, apiException.NotAdmin, nil)
 		return
 	}
 
@@ -884,22 +885,22 @@ func ExportSuppliesRecord(c *gin.Context) {
 	f := excelize.NewFile()
 	streamWriter, err := f.NewStreamWriter("Sheet1")
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	//设置列宽
 	if err := streamWriter.SetColWidth(1, 20, 15); err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	//单独将学院这列加宽
 	if err := streamWriter.SetColWidth(5, 5, 25); err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	//将时间三列加宽
 	if err := streamWriter.SetColWidth(14, 16, 25); err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	//设置样式
@@ -910,18 +911,18 @@ func ExportSuppliesRecord(c *gin.Context) {
 		Fill: excelize.Fill{Type: "pattern", Color: []string{"#DFEBF6"}, Pattern: 1},
 	})
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	if err := streamWriter.SetRow("A1", []interface{}{
 		excelize.Cell{Value: "学生借用记录表", StyleID: styleID},
 	}, excelize.RowOpts{Height: 30, Hidden: false}); err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	//合并单元格
 	if err := streamWriter.MergeCell("A1", "P1"); err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	//设置列名
@@ -932,7 +933,7 @@ func ExportSuppliesRecord(c *gin.Context) {
 		header = append(header, cell)
 	}
 	if err := streamWriter.SetRow("A2", header); err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	//批量导入数据
@@ -941,7 +942,7 @@ func ExportSuppliesRecord(c *gin.Context) {
 		status, _ := statusMap[record.Status]
 		result, err := suppliesServices.GetALLSuppliesById(record.SuppliesID)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 		applyTime := ""
@@ -963,13 +964,13 @@ func ExportSuppliesRecord(c *gin.Context) {
 		}
 		cell, _ := excelize.CoordinatesToCellName(1, rowID+3)
 		if err := streamWriter.SetRow(cell, row); err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 	}
 	//关闭
 	if err := streamWriter.Flush(); err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	// 保存Excel文件
@@ -978,12 +979,12 @@ func ExportSuppliesRecord(c *gin.Context) {
 	if _, err := os.Stat("./files"); os.IsNotExist(err) {
 		err := os.Mkdir("./files", 0755)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 	}
 	if err := f.SaveAs(filePath); err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 

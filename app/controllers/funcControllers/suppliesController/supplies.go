@@ -1,6 +1,7 @@
 package suppliesController
 
 import (
+	"errors"
 	"gorm.io/gorm"
 	"os"
 	"strconv"
@@ -24,14 +25,14 @@ func GetSuppliesList(c *gin.Context) {
 	var data GetSuppliesDate
 	err := c.ShouldBindQuery(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	//读取各校区的物资
 	var supplies []models.Supplies
 	supplies, err = suppliesServices.GetSupplies(data.Campus)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	// 输出物资列表
@@ -81,13 +82,13 @@ func InsertSupplies(c *gin.Context) {
 	var postForm SuppliesForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	publisher := getIdentity(c)
 	if *publisher != "学生事务大厅" && *publisher != "Admin" {
-		_ = c.AbortWithError(200, apiException.NotAdmin)
+		apiException.AbortWithException(c, apiException.NotAdmin, nil)
 		return
 	}
 
@@ -107,7 +108,7 @@ func InsertSupplies(c *gin.Context) {
 
 		err := suppliesServices.CreateSupplies(record)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 	}
@@ -120,13 +121,13 @@ func UpdateSupplies(c *gin.Context) {
 	var postForm SuppliesForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	publisher := getIdentity(c)
 	if *publisher != "学生事务大厅" && *publisher != "Admin" {
-		_ = c.AbortWithError(200, apiException.NotAdmin)
+		apiException.AbortWithException(c, apiException.NotAdmin, nil)
 		return
 	}
 
@@ -145,28 +146,28 @@ func UpdateSupplies(c *gin.Context) {
 				}
 				err = suppliesServices.CreateSupplies(record)
 				if err != nil {
-					_ = c.AbortWithError(200, apiException.ServerError)
+					apiException.AbortWithException(c, apiException.ServerError, err)
 					return
 				}
 			} else if checkExist == false && err == nil {
 				suppliesId, err := suppliesServices.GetSuppliesID(postForm.Campus, *publisher, "正装", postForm.Name, spec.Spec)
 				if err != nil {
-					_ = c.AbortWithError(200, apiException.ServerError)
+					apiException.AbortWithException(c, apiException.ServerError, err)
 					return
 				}
 				err = suppliesServices.UpdateStockByInsertSpec(suppliesId, spec.Stock)
 				if err != nil {
-					_ = c.AbortWithError(200, apiException.ServerError)
+					apiException.AbortWithException(c, apiException.ServerError, err)
 					return
 				}
 			} else {
-				_ = c.AbortWithError(200, apiException.ServerError)
+				apiException.AbortWithException(c, apiException.ServerError, err)
 				return
 			}
 		} else {
 			record, err := suppliesServices.GetSuppliesById(spec.ID)
 			if err != nil {
-				_ = c.AbortWithError(200, apiException.ServerError)
+				apiException.AbortWithException(c, apiException.ServerError, err)
 				return
 			}
 
@@ -186,7 +187,7 @@ func UpdateSupplies(c *gin.Context) {
 				Img:    img,
 			})
 			if err != nil {
-				_ = c.AbortWithError(200, apiException.ServerError)
+				apiException.AbortWithException(c, apiException.ServerError, err)
 				return
 			}
 		}
@@ -200,19 +201,19 @@ func DeleteSupplies(c *gin.Context) {
 	SuppliesIDRaw := c.Query("id")
 	SuppliesID, err := strconv.Atoi(SuppliesIDRaw)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	publisher := getIdentity(c)
 	if *publisher != "学生事务大厅" && *publisher != "Admin" {
-		_ = c.AbortWithError(200, apiException.NotAdmin)
+		apiException.AbortWithException(c, apiException.NotAdmin, nil)
 		return
 	}
 
 	supplies, err := suppliesServices.GetSuppliesById(SuppliesID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -220,7 +221,7 @@ func DeleteSupplies(c *gin.Context) {
 	if checkSuppliesExist == true && err == nil {
 		borrowRecords, err := suppliesServices.GetALLBorrowRecordBySuppliesID(SuppliesID)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 		deleteImg := false
@@ -234,26 +235,26 @@ func DeleteSupplies(c *gin.Context) {
 			_ = os.Remove("./img/" + strings.TrimPrefix(supplies.Img, config.GetWebpUrlKey()))
 		}
 	} else if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
 	_, err = suppliesServices.GetBorrowRecordBySuppliesID(SuppliesID)
 	if err != nil {
-		if err != gorm.ErrRecordNotFound {
-			_ = c.AbortWithError(200, apiException.ServerError)
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		} else {
 			err = suppliesServices.CompletedDeleteSupplies(supplies)
 			if err != nil {
-				_ = c.AbortWithError(200, apiException.ServerError)
+				apiException.AbortWithException(c, apiException.ServerError, err)
 				return
 			}
 		}
 	} else {
 		allBorrowRecord, err := suppliesServices.GetALLBorrowRecordBySuppliesID(SuppliesID)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 		flag := false
@@ -261,7 +262,7 @@ func DeleteSupplies(c *gin.Context) {
 			if record.Status == 3 || record.Status == 4 {
 				err = suppliesServices.DeleteSupplies(supplies)
 				if err != nil {
-					_ = c.AbortWithError(200, apiException.ServerError)
+					apiException.AbortWithException(c, apiException.ServerError, err)
 					return
 				}
 				flag = true
@@ -271,7 +272,7 @@ func DeleteSupplies(c *gin.Context) {
 		if !flag {
 			err = suppliesServices.CompletedDeleteSupplies(supplies)
 			if err != nil {
-				_ = c.AbortWithError(200, apiException.ServerError)
+				apiException.AbortWithException(c, apiException.ServerError, err)
 				return
 			}
 		}
@@ -279,7 +280,7 @@ func DeleteSupplies(c *gin.Context) {
 			if record.Status == 1 || record.Status == 2 {
 				err = suppliesServices.DeleteBorrowRecord(record)
 				if err != nil {
-					_ = c.AbortWithError(200, apiException.ServerError)
+					apiException.AbortWithException(c, apiException.ServerError, err)
 					return
 				}
 			}
@@ -293,7 +294,7 @@ func GetSuppliesByAdmin(c *gin.Context) {
 	var data GetSuppliesDate
 	err := c.ShouldBindQuery(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
@@ -302,17 +303,17 @@ func GetSuppliesByAdmin(c *gin.Context) {
 	if *publisher == "学生事务大厅" {
 		supplies, err = suppliesServices.GetSuppliesByPublisher(data.Campus, *publisher)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 	} else if *publisher == "Admin" {
 		supplies, err = suppliesServices.GetSuppliesByAdmin(data.Campus)
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 	} else {
-		_ = c.AbortWithError(200, apiException.NotAdmin)
+		apiException.AbortWithException(c, apiException.NotAdmin, nil)
 		return
 	}
 
