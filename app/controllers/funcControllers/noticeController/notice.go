@@ -32,7 +32,7 @@ func InsertNotice(c *gin.Context) {
 	var postForm NoticeForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	publisher := getPublisher(c)
@@ -53,7 +53,7 @@ func InsertNotice(c *gin.Context) {
 	}
 	err = noticeServices.CreateRecord(notice)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -63,17 +63,17 @@ func UpdateNotice(c *gin.Context) {
 	var postForm NoticeForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	publisher := getPublisher(c)
 	record, err := noticeServices.GetNoticeById(postForm.ID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	if *publisher != record.Publisher {
-		_ = c.AbortWithError(200, apiException.NotAdmin)
+		apiException.AbortWithException(c, apiException.NotAdmin, nil)
 		return
 	}
 	err = noticeServices.UpdateNotice(postForm.ID, models.Notice{
@@ -82,7 +82,7 @@ func UpdateNotice(c *gin.Context) {
 		Content:   postForm.Content,
 	})
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -91,17 +91,17 @@ func UpdateNotice(c *gin.Context) {
 func DeleteNotice(c *gin.Context) {
 	noticeId, err := strconv.Atoi(c.Query("notice_id"))
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	publisher := getPublisher(c)
 	record, err := noticeServices.GetNoticeById(noticeId)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	if *publisher != record.Publisher {
-		_ = c.AbortWithError(200, apiException.NotAdmin)
+		apiException.AbortWithException(c, apiException.NotAdmin, nil)
 		return
 	}
 	err = noticeServices.DeleteNotice(noticeId)
@@ -118,14 +118,14 @@ func GetNoticeByAdmin(c *gin.Context) {
 		notice_, err := noticeServices.GetNoticeBySuperAdmin()
 		notice = notice_
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 	} else {
 		notice_, err := noticeServices.GetRecordByAdmin(*publisher)
 		notice = notice_
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 	}
@@ -135,7 +135,7 @@ func GetNoticeByAdmin(c *gin.Context) {
 func GetNotice(c *gin.Context) {
 	notice, err := noticeServices.GetNoticeBySuperAdmin()
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, notice)
@@ -144,7 +144,7 @@ func GetNotice(c *gin.Context) {
 func getPublisher(c *gin.Context) *string {
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return nil
 	}
 	var publisher string

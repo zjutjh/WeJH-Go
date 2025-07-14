@@ -1,6 +1,7 @@
 package userController
 
 import (
+	"errors"
 	"wejh-go/app/apiException"
 	"wejh-go/app/models"
 	"wejh-go/app/services/sessionServices"
@@ -24,17 +25,17 @@ func AuthByPassword(c *gin.Context) {
 	var postForm passwordLoginForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	user, err := userServices.GetUserByUsername(postForm.Username)
-	if err == gorm.ErrRecordNotFound {
-		_ = c.AbortWithError(200, apiException.UserNotFind)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		apiException.AbortWithException(c, apiException.UserNotFind, err)
 		return
 	}
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -44,13 +45,13 @@ func AuthByPassword(c *gin.Context) {
 		err = userServices.CheckLogin(postForm.Username, postForm.Password)
 	}
 	if err != nil {
-		_ = c.AbortWithError(200, err)
+		apiException.AbortWithError(c, err)
 		return
 	}
 
 	err = sessionServices.SetUserSession(c, user)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, gin.H{
@@ -74,7 +75,7 @@ func AuthByPassword(c *gin.Context) {
 func AuthBySession(c *gin.Context) {
 	user, err := sessionServices.UpdateUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, gin.H{
@@ -98,25 +99,25 @@ func WeChatLogin(c *gin.Context) {
 	var postForm autoLoginForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	session, err := wechat.MiniProgram.GetAuth().Code2Session(postForm.Code)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.OpenIDError)
+		apiException.AbortWithException(c, apiException.OpenIDError, err)
 		return
 	}
 
 	user := userServices.GetUserByWechatOpenID(session.OpenID)
 	if user == nil {
-		_ = c.AbortWithError(200, apiException.UserNotFind)
+		apiException.AbortWithException(c, apiException.UserNotFind, err)
 		return
 	}
 
 	err = sessionServices.SetUserSession(c, user)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, gin.H{

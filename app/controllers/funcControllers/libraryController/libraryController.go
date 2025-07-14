@@ -12,13 +12,13 @@ import (
 func GetCurrent(c *gin.Context) {
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	list, err := funnelServices.GetCurrentBorrow(user)
 	if err != nil {
 		userServices.DelPassword(err, user, "Library")
-		_ = c.AbortWithError(200, err)
+		apiException.AbortWithError(c, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, list)
@@ -27,13 +27,13 @@ func GetCurrent(c *gin.Context) {
 func GetHistory(c *gin.Context) {
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	list, err := funnelServices.GetHistoryBorrow(user)
 	if err != nil {
 		userServices.DelPassword(err, user, "Library")
-		_ = c.AbortWithError(200, err)
+		apiException.AbortWithError(c, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, list)

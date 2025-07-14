@@ -2,7 +2,7 @@ package session
 
 import (
 	"github.com/gin-gonic/gin"
-	"log"
+	"go.uber.org/zap"
 )
 
 func Init(r *gin.Engine) {
@@ -15,7 +15,6 @@ func Init(r *gin.Engine) {
 		setMemory(r, config.Name)
 		break
 	default:
-		log.Fatal("ConfigError")
+		zap.L().Fatal("Config Error")
 	}
-
 }

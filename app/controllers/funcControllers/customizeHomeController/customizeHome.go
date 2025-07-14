@@ -1,6 +1,7 @@
 package customizeHomeController
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"strings"
@@ -18,13 +19,13 @@ type updateForm struct {
 func GetCustomizeHome(c *gin.Context) {
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 
 	home, err := customizeHomeServices.GetCustomizeHome(user.Username)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	homes := strings.Split(home.Content, ";")
@@ -36,21 +37,21 @@ func UpdateCustomizeHome(c *gin.Context) {
 	var postForm updateForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	content := strings.Join(postForm.Content, ";")
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	flag := false
 	home, err := customizeHomeServices.GetCustomizeHome(user.Username)
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		flag = true
 	} else if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	if flag {
@@ -59,7 +60,7 @@ func UpdateCustomizeHome(c *gin.Context) {
 			Content:  content,
 		})
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 	} else {
@@ -68,7 +69,7 @@ func UpdateCustomizeHome(c *gin.Context) {
 			Content:  content,
 		})
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 	}

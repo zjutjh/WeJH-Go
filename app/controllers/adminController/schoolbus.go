@@ -2,7 +2,6 @@ package adminController
 
 import (
 	"github.com/gin-gonic/gin"
-	"log"
 	"time"
 	"wejh-go/app/apiException"
 	"wejh-go/app/models"
@@ -35,13 +34,12 @@ func CreateSchoolBus(c *gin.Context) {
 	var postForm createSchoolBusForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		log.Println(err.Error())
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	_, err = time.ParseInLocation("15:04:05", postForm.StartTime, cstZone)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	err = schoolBusServices.CreateSchoolBus(models.SchoolBus{
@@ -52,7 +50,7 @@ func CreateSchoolBus(c *gin.Context) {
 		StartTime:   postForm.StartTime,
 	})
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -61,12 +59,12 @@ func UpdateSchoolBus(c *gin.Context) {
 	var postForm updateSchoolBusForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	_, err = time.ParseInLocation("15:04:05", postForm.StartTime, cstZone)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	println(postForm.StartTime)
@@ -79,7 +77,7 @@ func UpdateSchoolBus(c *gin.Context) {
 	},
 	)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -89,13 +87,13 @@ func DeleteSchoolBus(c *gin.Context) {
 	var postForm deleteSchoolBusForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	err = schoolBusServices.DeleteSchoolBus(postForm.ID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)

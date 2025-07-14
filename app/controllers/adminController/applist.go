@@ -24,7 +24,7 @@ func CreateApplist(c *gin.Context) {
 	var postForm createAppListForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
@@ -36,7 +36,7 @@ func CreateApplist(c *gin.Context) {
 		Require:         postForm.Require,
 	})
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -45,13 +45,13 @@ func UpdateApplist(c *gin.Context) {
 	var postForm models.AppList
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	err = applistServices.UpdateApplist(postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -61,14 +61,13 @@ func DeleteApplist(c *gin.Context) {
 	var postForm deleteAppListForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	err = applistServices.DeleteApplist(postForm.ID)
 	if err != nil {
-
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
