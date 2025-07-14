@@ -6,10 +6,20 @@ import (
 	"wejh-go/app/utils/stateCode"
 )
 
-func JsonSuccessResponse(c *gin.Context, data interface{}) {
-	c.JSON(http.StatusOK, gin.H{
+func JsonResponse(c *gin.Context, httpStatusCode int, code int, msg string, data any) {
+	c.JSON(httpStatusCode, gin.H{
+		"code": code,
+		"msg":  msg,
 		"data": data,
-		"code": stateCode.OK,
-		"msg":  "OK",
 	})
+}
+
+// JsonSuccessResponse 返回成功json格式数据
+func JsonSuccessResponse(c *gin.Context, data any) {
+	JsonResponse(c, http.StatusOK, stateCode.OK, "OK", data)
+}
+
+// JsonErrorResponse 返回错误json格式数据
+func JsonErrorResponse(c *gin.Context, code int, msg string) {
+	JsonResponse(c, http.StatusOK, code, msg, nil)
 }

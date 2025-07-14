@@ -1,19 +1,17 @@
 package stateCode
 
-type StateCode int
-
 const (
-	OK                        StateCode = 1
-	SystemError               StateCode = -1
-	ParamError                StateCode = -2
-	UserNotFind               StateCode = -301
-	UserAlreadyExisted        StateCode = -302
-	GetOpenIDFail             StateCode = -400
-	NotLogin                  StateCode = -401
-	NotAdmin                  StateCode = -403
-	NoThatPasswordORWrong     StateCode = -413
-	HttpTimeout               StateCode = -501
-	UsernamePasswordUnmatched StateCode = -500
-	NotInit                   StateCode = -502
-	Unknown                   StateCode = -1000
+	OK                        = 1
+	SystemError               = -1
+	ParamError                = -2
+	UserNotFind               = -301
+	UserAlreadyExisted        = -302
+	GetOpenIDFail             = -400
+	NotLogin                  = -401
+	NotAdmin                  = -403
+	NoThatPasswordORWrong     = -413
+	HttpTimeout               = -501
+	UsernamePasswordUnmatched = -500
+	NotInit                   = -502
+	Unknown                   = -1000
 )

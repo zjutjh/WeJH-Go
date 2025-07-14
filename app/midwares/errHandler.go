@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"wejh-go/app/apiException"
+	"wejh-go/app/utils"
 )
 
 // ErrHandler 中间件用于处理请求错误。
@@ -29,7 +30,7 @@ func ErrHandler() gin.HandlerFunc {
 					zap.L().Error("Unknown Error Occurred", zap.Error(err))
 				}
 
-				c.JSON(apiErr.StatusCode, apiErr)
+				utils.JsonErrorResponse(c, apiErr.Code, apiErr.Msg)
 				return
 			}
 		}
@@ -44,5 +45,5 @@ func HandleNotFound(c *gin.Context) {
 		zap.String("path", c.Request.URL.Path),
 		zap.String("method", c.Request.Method),
 	)
-	c.JSON(err.StatusCode, err)
+	utils.JsonErrorResponse(c, err.Code, err.Msg)
 }
