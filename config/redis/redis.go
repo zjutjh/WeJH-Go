@@ -21,5 +21,4 @@ func init() {
 		DB:       info.DB,
 	})
 	RedisInfo = info
-
 }
