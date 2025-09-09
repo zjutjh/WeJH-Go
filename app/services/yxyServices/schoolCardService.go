@@ -20,7 +20,7 @@ type ConsumptionRecords struct {
 	} `json:"list" mapstructure:"list"`
 }
 
-func GetCardBalance(deviceId, uid, phoneNum, token string) (*string, error) {
+func GetCardBalance(deviceId, uid, phoneNum string) (*string, error) {
 	params := url.Values{}
 	Url, err := url.Parse(string(yxyApi.CardBalance))
 	if err != nil {
@@ -28,7 +28,6 @@ func GetCardBalance(deviceId, uid, phoneNum, token string) (*string, error) {
 	}
 	params.Set("device_id", deviceId)
 	params.Set("uid", uid)
-	params.Set("token", token)
 	Url.RawQuery = params.Encode()
 	urlPath := Url.String()
 	resp, err := FetchHandleOfGet(yxyApi.YxyApi(urlPath))
@@ -50,12 +49,12 @@ func GetCardBalance(deviceId, uid, phoneNum, token string) (*string, error) {
 		return nil, err
 	}
 
-	_ = SilentLogin(deviceId, uid, phoneNum, token)
+	_ = SilentLogin(deviceId, uid, phoneNum)
 
 	return &data.Balance, nil
 }
 
-func GetCardConsumptionRecord(deviceId, uid, phoneNum, token, queryTime string) (*ConsumptionRecords, error) {
+func GetCardConsumptionRecord(deviceId, uid, phoneNum, queryTime string) (*ConsumptionRecords, error) {
 	params := url.Values{}
 	Url, err := url.Parse(string(yxyApi.ConsumptionRecords))
 	if err != nil {
@@ -63,7 +62,6 @@ func GetCardConsumptionRecord(deviceId, uid, phoneNum, token, queryTime string) 
 	}
 	params.Set("device_id", deviceId)
 	params.Set("uid", uid)
-	params.Set("token", token)
 	params.Set("query_time", queryTime)
 	Url.RawQuery = params.Encode()
 	urlPath := Url.String()
@@ -88,7 +86,7 @@ func GetCardConsumptionRecord(deviceId, uid, phoneNum, token, queryTime string) 
 		return nil, err
 	}
 
-	_ = SilentLogin(deviceId, uid, phoneNum, token)
+	_ = SilentLogin(deviceId, uid, phoneNum)
 
 	return &data, nil
 }

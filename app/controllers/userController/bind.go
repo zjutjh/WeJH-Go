@@ -9,7 +9,6 @@ import (
 	"wejh-go/app/utils/circuitBreaker"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type bindForm struct {
@@ -87,7 +86,7 @@ func SendVerificationCode(c *gin.Context) {
 		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
-	deviceId := uuid.New().String()
+	deviceId := utils.GenerateRandomDeviceID()
 	data, err := yxyServices.GetSecurityToken(deviceId)
 	if err != nil {
 		apiException.AbortWithException(c, apiException.ServerError, err)
@@ -113,14 +112,10 @@ func LoginYxy(c *gin.Context) {
 		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
-	deviceId := uuid.New().String()
+	deviceId := utils.GenerateRandomDeviceID()
 	info, err := yxyServices.LoginByCode(postForm.Code, deviceId, postForm.PhoneNum)
 	if err != nil {
 		apiException.AbortWithError(c, err)
-		return
-	}
-	if err := yxyServices.SetCardAuthToken(info.UID, info.Token); err != nil {
-		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	userServices.SetDeviceID(user, deviceId)
