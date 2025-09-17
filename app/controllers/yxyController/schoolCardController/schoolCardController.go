@@ -8,7 +8,6 @@ import (
 	"wejh-go/app/utils"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
 )
 
 type recordForm struct {
@@ -25,16 +24,7 @@ func GetBalance(c *gin.Context) {
 		apiException.AbortWithException(c, apiException.NotBindYxy, nil)
 		return
 	}
-	token, err := yxyServices.GetCardAuthToken(user.YxyUid)
-	if errors.Is(err, redis.Nil) {
-		_ = yxyServices.Unbind(user.ID, user.YxyUid, false)
-		apiException.AbortWithException(c, apiException.YxySessionExpired, err)
-		return
-	} else if err != nil {
-		apiException.AbortWithException(c, apiException.ServerError, err)
-		return
-	}
-	balance, err := yxyServices.GetCardBalance(user.DeviceID, user.YxyUid, user.PhoneNum, *token)
+	balance, err := yxyServices.GetCardBalance(user.DeviceID, user.YxyUid, user.PhoneNum)
 	if errors.Is(err, apiException.NotBindCard) {
 		_ = yxyServices.Unbind(user.ID, user.YxyUid, true)
 		apiException.AbortWithError(c, err)
@@ -66,16 +56,8 @@ func GetConsumptionRecord(c *gin.Context) {
 		apiException.AbortWithException(c, apiException.NotBindYxy, nil)
 		return
 	}
-	token, err := yxyServices.GetCardAuthToken(user.YxyUid)
-	if errors.Is(err, redis.Nil) {
-		_ = yxyServices.Unbind(user.ID, user.YxyUid, false)
-		apiException.AbortWithException(c, apiException.YxySessionExpired, err)
-		return
-	} else if err != nil {
-		apiException.AbortWithException(c, apiException.ServerError, err)
-		return
-	}
-	records, err := yxyServices.GetCardConsumptionRecord(user.DeviceID, user.YxyUid, user.PhoneNum, *token, postForm.QueryTime)
+
+	records, err := yxyServices.GetCardConsumptionRecord(user.DeviceID, user.YxyUid, user.PhoneNum, postForm.QueryTime)
 	if errors.Is(err, apiException.NotBindCard) {
 		_ = yxyServices.Unbind(user.ID, user.YxyUid, true)
 		apiException.AbortWithError(c, err)

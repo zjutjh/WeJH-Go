@@ -18,7 +18,6 @@ type securityToken struct {
 
 type userInfo struct {
 	UID            string `json:"uid" mapstructure:"uid"`
-	Token          string `json:"token" mapstructure:"token"`
 	BindCardStatus int    `json:"bind_card_status" mapstructure:"bind_card_status"`
 }
 
@@ -98,12 +97,11 @@ func LoginByCode(code, deviceId, phoneNum string) (*userInfo, error) {
 	return &data, nil
 }
 
-func SilentLogin(deviceId, uid, phoneNum, token string) error {
+func SilentLogin(deviceId, uid, phoneNum string) error {
 	form := make(map[string]any)
 	form["uid"] = uid
 	form["device_id"] = deviceId
 	form["phone_num"] = phoneNum
-	form["token"] = token
 	resp, err := FetchHandleOfPost(form, yxyApi.SlientLogin)
 	if err != nil {
 		return err
@@ -118,12 +116,6 @@ func SilentLogin(deviceId, uid, phoneNum, token string) error {
 	err = mapstructure.Decode(resp.Data, &data)
 	if err != nil {
 		return err
-	}
-
-	if data.Token != token {
-		if err = SetCardAuthToken(uid, data.Token); err != nil {
-			return err
-		}
 	}
 
 	return nil
