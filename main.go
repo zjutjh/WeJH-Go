@@ -8,11 +8,12 @@ import (
 	"go.uber.org/zap"
 	"log"
 	"net/http"
-	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 	"wejh-go/app/midwares"
+	"wejh-go/app/utils/circuitBreaker"
 	"wejh-go/config/config"
 	"wejh-go/config/database"
 	"wejh-go/config/logger"
@@ -33,25 +34,32 @@ func main() {
 	session.Init(r)
 	router.Init(r)
 
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	var wg sync.WaitGroup
+
 	srv := &http.Server{
 		Addr:              ":" + config.Config.GetString("server.port"),
 		Handler:           r,
 		ReadHeaderTimeout: 2 * time.Second,
 	}
 
-	// 启动服务器协程
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			zap.L().Fatal("Server Error Occurred", zap.Error(err))
 		}
 	}()
 
-	// 阻塞并监听结束信号
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		circuitBreaker.Probe.Start(ctx)
+	}()
 
+	<-ctx.Done()
 	zap.L().Info("Shutdown Server...")
+	wg.Wait()
 
 	// 关闭服务器（5秒超时时间）
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
