@@ -2,7 +2,6 @@ package adminController
 
 import (
 	"github.com/gin-gonic/gin"
-	"log"
 	"wejh-go/app/apiException"
 	"wejh-go/app/config"
 	"wejh-go/app/utils"
@@ -27,7 +26,7 @@ type encryptForm struct {
 func SetInit(c *gin.Context) {
 	err := config.SetInit()
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 	}
 
 	utils.JsonSuccessResponse(c, nil)
@@ -38,8 +37,7 @@ func ResetInit(c *gin.Context) {
 	if config.IsSetEncryptKey() {
 		err := config.DelEncryptKey()
 		if err != nil {
-			log.Println(err.Error())
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 	}
@@ -47,16 +45,14 @@ func ResetInit(c *gin.Context) {
 		errors := config.DelTermInfo()
 		for _, err := range errors {
 			if err != nil {
-				log.Println(err.Error())
-				_ = c.AbortWithError(200, apiException.ServerError)
+				apiException.AbortWithException(c, apiException.ServerError, err)
 				return
 			}
 		}
 	}
 	err := config.ResetInit()
 	if err != nil {
-		log.Println(err.Error())
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -67,13 +63,13 @@ func SetSystemInfo(c *gin.Context) {
 	var postForm SystemInfoForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	err = config.SetSystemInfo(postForm.YearValue, postForm.TermValue, postForm.TermStartDateValue, postForm.ScoreYearValue, postForm.ScoreTermValue, postForm.JpgUrlValue, postForm.FileUrlValue, postForm.RegisterTips, postForm.SchoolBusUrlValue)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -84,15 +80,14 @@ func SetEncryptKey(c *gin.Context) {
 	var postForm encryptForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	err = config.SetEncryptKey(postForm.EncryptKey)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
-
 	utils.JsonSuccessResponse(c, nil)
 }

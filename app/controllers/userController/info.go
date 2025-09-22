@@ -10,7 +10,7 @@ import (
 func GetUserInfo(c *gin.Context) {
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, gin.H{

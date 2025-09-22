@@ -23,26 +23,26 @@ func GetClassTable(c *gin.Context) {
 	var postForm form
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 
 	api, loginType, err := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
 	if err != nil {
-		_ = c.AbortWithError(200, err)
+		apiException.AbortWithError(c, err)
 		return
 	}
 
 	result, err := funnelServices.GetClassTable(user, postForm.Year, postForm.Term, api, loginType)
 	if err != nil {
 		userServices.DelPassword(err, user, string(loginType))
-		_ = c.AbortWithError(200, err)
+		apiException.AbortWithError(c, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, result)
@@ -52,26 +52,26 @@ func GetScore(c *gin.Context) {
 	var postForm form
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	user, err := sessionServices.GetUserSession(c)
 
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 
 	api, loginType, err := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
 	if err != nil {
-		_ = c.AbortWithError(200, err)
+		apiException.AbortWithError(c, err)
 		return
 	}
 
 	result, err := funnelServices.GetScore(user, postForm.Year, postForm.Term, api, loginType)
 	if err != nil {
 		userServices.DelPassword(err, user, string(loginType))
-		_ = c.AbortWithError(200, err)
+		apiException.AbortWithError(c, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, result)
@@ -81,26 +81,26 @@ func GetMidTermScore(c *gin.Context) {
 	var postForm form
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	user, err := sessionServices.GetUserSession(c)
 
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 
 	api, loginType, err := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
 	if err != nil {
-		_ = c.AbortWithError(200, err)
+		apiException.AbortWithError(c, err)
 		return
 	}
 
 	result, err := funnelServices.GetMidTermScore(user, postForm.Year, postForm.Term, api, loginType)
 	if err != nil {
 		userServices.DelPassword(err, user, string(loginType))
-		_ = c.AbortWithError(200, err)
+		apiException.AbortWithError(c, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, result)
@@ -110,26 +110,26 @@ func GetExam(c *gin.Context) {
 	var postForm form
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	user, err := sessionServices.GetUserSession(c)
 
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 
 	api, loginType, err := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
 	if err != nil {
-		_ = c.AbortWithError(200, err)
+		apiException.AbortWithError(c, err)
 		return
 	}
 
 	result, err := funnelServices.GetExam(user, postForm.Year, postForm.Term, api, loginType)
 	if err != nil {
 		userServices.DelPassword(err, user, string(loginType))
-		_ = c.AbortWithError(200, err)
+		apiException.AbortWithError(c, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, result)
@@ -148,19 +148,19 @@ func GetRoom(c *gin.Context) {
 	var postForm roomForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	user, err := sessionServices.GetUserSession(c)
 
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 
 	api, loginType, err := circuitBreaker.CB.GetApi(user.ZFPassword != "", user.OauthPassword != "")
 	if err != nil {
-		_ = c.AbortWithError(200, err)
+		apiException.AbortWithError(c, err)
 		return
 	}
 
@@ -175,7 +175,7 @@ func GetRoom(c *gin.Context) {
 			utils.JsonSuccessResponse(c, result)
 			return
 		} else {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 	}
@@ -183,7 +183,7 @@ func GetRoom(c *gin.Context) {
 	result, err := funnelServices.GetRoom(user, postForm.Year, postForm.Term, postForm.Campus, postForm.Weekday, postForm.Week, postForm.Sections, api, loginType)
 	if err != nil {
 		userServices.DelPassword(err, user, string(loginType))
-		_ = c.AbortWithError(200, err)
+		apiException.AbortWithError(c, err)
 		return
 	}
 	// 将结果缓存到 Redis 中
@@ -191,7 +191,7 @@ func GetRoom(c *gin.Context) {
 		resultJson, _ := json.Marshal(result)
 		err = redis.RedisClient.Set(c, cacheKey, string(resultJson), 1*time.Hour).Err()
 		if err != nil {
-			_ = c.AbortWithError(200, apiException.ServerError)
+			apiException.AbortWithException(c, apiException.ServerError, err)
 			return
 		}
 	}

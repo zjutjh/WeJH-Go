@@ -16,11 +16,11 @@ type GetUserBindStatusData struct {
 func CheckAdmin(c *gin.Context) {
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	if user.Type != models.Admin {
-		_ = c.AbortWithError(200, apiException.NotAdmin)
+		apiException.AbortWithException(c, apiException.NotAdmin, nil)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -30,12 +30,12 @@ func GetUserBindStatus(c *gin.Context) {
 	var data GetUserBindStatusData
 	err := c.ShouldBindQuery(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	zfStatus, ouathStatus, err := adminServices.GetBindStatus(data.StudentID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	response := gin.H{

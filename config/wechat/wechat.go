@@ -5,7 +5,7 @@ import (
 	"github.com/silenceper/wechat/v2/cache"
 	"github.com/silenceper/wechat/v2/miniprogram"
 	miniConfig "github.com/silenceper/wechat/v2/miniprogram/config"
-	"log"
+	"go.uber.org/zap"
 )
 
 type driver string
@@ -30,7 +30,7 @@ func init() {
 		wcCache = cache.NewMemory()
 		break
 	default:
-		log.Fatal("ConfigError")
+		zap.L().Fatal("Config Error")
 	}
 
 	cfg := &miniConfig.Config{

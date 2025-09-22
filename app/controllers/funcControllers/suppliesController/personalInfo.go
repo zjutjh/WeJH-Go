@@ -1,6 +1,7 @@
 package suppliesController
 
 import (
+	"errors"
 	"wejh-go/app/apiException"
 	"wejh-go/app/models"
 	"wejh-go/app/services/sessionServices"
@@ -15,14 +16,14 @@ import (
 func GetPersonalInfo(c *gin.Context) {
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 
 	var personalInfo *models.PersonalInfo
 	personalInfo, err = suppliesServices.GetPersonalInfoByStudentID(user.StudentID)
-	if err != nil && err != gorm.ErrRecordNotFound {
-		_ = c.AbortWithError(200, apiException.ServerError)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -42,14 +43,14 @@ func SavePersonalInfo(c *gin.Context) {
 	var data PersonalInfoData
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	var user *models.User
 	user, err = sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 
@@ -62,7 +63,7 @@ func SavePersonalInfo(c *gin.Context) {
 		Contact:   data.Contact,
 	})
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -78,20 +79,20 @@ func GetPersonalInfoByAdmin(c *gin.Context) {
 	var data GetPersonalInfoData
 	err := c.ShouldBindQuery(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	admin := getIdentity(c)
 	if *admin != "学生事务大厅" && *admin != "Admin" {
-		_ = c.AbortWithError(200, apiException.NotAdmin)
+		apiException.AbortWithException(c, apiException.NotAdmin, nil)
 		return
 	}
 
 	var personalInfo *models.PersonalInfo
 	personalInfo, err = suppliesServices.GetPersonalInfoByStudentID(data.StudentID)
-	if err != nil && err != gorm.ErrRecordNotFound {
-		_ = c.AbortWithError(200, apiException.ServerError)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 

@@ -21,13 +21,13 @@ func CreateTheme(c *gin.Context) {
 	var data CreateThemeData
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	err = themeServices.CreateTheme(data.ThemeName, data.ThemeType, data.IsDarkMode, data.ThemeConfig)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -46,13 +46,13 @@ func UpdateTheme(c *gin.Context) {
 	var data UpdateThemeData
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	err = themeServices.UpdateTheme(data.ThemeID, data.ThemeName, data.IsDarkMode, data.ThemeConfig)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -63,7 +63,7 @@ func UpdateTheme(c *gin.Context) {
 func GetAllTheme(c *gin.Context) {
 	themes, err := themeServices.GetAllTheme()
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -81,25 +81,25 @@ func DeleteTheme(c *gin.Context) {
 	var data DeleteThemeData
 	err := c.ShouldBindQuery(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	err = themeServices.CheckThemeExist(data.ID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
 	theme, err := themeServices.GetThemeByID(data.ID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
 	err = themeServices.DeleteTheme(data.ID, theme.Type, theme.IsDarkMode)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
@@ -115,25 +115,25 @@ func AddThemePermission(c *gin.Context) {
 	var data AddThemePermissionData
 	err := c.ShouldBindJSON(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	err = themeServices.CheckThemeExist(data.ThemeID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
 	theme, err := themeServices.GetThemeByID(data.ThemeID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
 	invalidStudentIDs, err := themeServices.AddThemePermission(data.ThemeID, data.StudentID, theme.Type)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -151,13 +151,13 @@ func GetThemePermission(c *gin.Context) {
 	var data GetThemePermissionData
 	err := c.ShouldBindQuery(&data)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 
 	themeNames, err := themeServices.GetPermittedThemeNames(data.StudentID)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 

@@ -10,7 +10,7 @@ import (
 func GetAnnouncement(c *gin.Context) {
 	announcements, err := announcementServices.GetAnnouncements(20)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 	} else {
 		utils.JsonSuccessResponse(c, announcements)
 	}

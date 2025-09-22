@@ -1,7 +1,7 @@
 package wechat
 
 import (
-	"log"
+	"go.uber.org/zap"
 	"strings"
 	"wejh-go/config/config"
 )
@@ -16,10 +16,10 @@ func getConfigs() wechatConfig {
 
 	wc := wechatConfig{}
 	if !config.Config.IsSet("wechat.appid") {
-		log.Fatal("ConfigError")
+		zap.L().Fatal("Config Error")
 	}
 	if !config.Config.IsSet("wechat.appsecret") {
-		log.Fatal("ConfigError")
+		zap.L().Fatal("Config Error")
 	}
 	wc.AppId = config.Config.GetString("wechat.appid")
 	wc.AppSecret = config.Config.GetString("wechat.appsecret")

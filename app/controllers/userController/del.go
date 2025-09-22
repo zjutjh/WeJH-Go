@@ -17,27 +17,23 @@ func DelAccount(c *gin.Context) {
 	var postForm DelForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	user, err := sessionServices.GetUserSession(c)
 
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 
 	if user.Username != postForm.StudentID {
-		_ = c.AbortWithError(200, apiException.StudentIdError)
+		apiException.AbortWithException(c, apiException.StudentIdError, nil)
 		return
 	}
 
 	if err = userServices.DelAccount(user, postForm.IDCard); err != nil {
-		if err == apiException.StudentNumAndIidError {
-			_ = c.AbortWithError(200, apiException.StudentNumAndIidError)
-			return
-		}
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithError(c, err)
 		return
 	}
 

@@ -1,6 +1,7 @@
 package schoolBusController
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -31,7 +32,7 @@ var cstZone = time.FixedZone("GMT", 8*3600)
 func GetBusList(c *gin.Context) {
 	busList, err := schoolBusServices.GetSchoolBusList()
 	if err != nil {
-		_ = c.AbortWithError(200, err)
+		apiException.AbortWithError(c, err)
 	} else {
 		utils.JsonSuccessResponse(c, busList)
 	}
@@ -41,18 +42,18 @@ func GetBus(c *gin.Context) {
 	var postForm SchoolBusForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	var busType models.SchoolBusType
 	startDate, err := time.Parse("2006-01-02", postForm.Date)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	if startDate.Weekday() == time.Sunday || startDate.Weekday() == time.Saturday {
@@ -62,7 +63,7 @@ func GetBus(c *gin.Context) {
 	}
 	_, err = time.ParseInLocation("15:04:05", postForm.StartTime, cstZone)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	schoolBuses, err := schoolBusServices.GetSchoolBus(
@@ -72,7 +73,7 @@ func GetBus(c *gin.Context) {
 		busType,
 	)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -82,7 +83,7 @@ func GetBus(c *gin.Context) {
 		Destination: postForm.Destination,
 	})
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 
@@ -91,7 +92,7 @@ func GetBus(c *gin.Context) {
 
 func SubmitRecord(record models.SchoolBusSearchRecord) error {
 	result, err := schoolBusSearchRecordServices.GetRecord(record.Username)
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		err := schoolBusSearchRecordServices.CreateRecord(record)
 		return err
 	} else if err != nil {
@@ -104,15 +105,15 @@ func SubmitRecord(record models.SchoolBusSearchRecord) error {
 func RecommendBus(c *gin.Context) {
 	user, err := sessionServices.GetUserSession(c)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return
 	}
 	record, err := schoolBusSearchRecordServices.GetRecord(user.Username)
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		utils.JsonSuccessResponse(c, nil)
 	}
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	timeRaw := time.Now()
@@ -130,7 +131,7 @@ func RecommendBus(c *gin.Context) {
 		busType,
 	)
 	fmt.Println(bus)
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		bus, err = schoolBusServices.RecommendSchoolBus(
 			record.Departure,
 			record.Destination,
@@ -138,7 +139,7 @@ func RecommendBus(c *gin.Context) {
 			busType,
 		)
 	} else if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	busOpposite, err := schoolBusServices.RecommendSchoolBus(
@@ -147,7 +148,7 @@ func RecommendBus(c *gin.Context) {
 		timeNow,
 		busType,
 	)
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		busOpposite, err = schoolBusServices.RecommendSchoolBus(
 			record.Destination,
 			record.Departure,
@@ -155,7 +156,7 @@ func RecommendBus(c *gin.Context) {
 			busType,
 		)
 	} else if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	bus = append(bus, busOpposite...)
@@ -168,13 +169,13 @@ func GetTimeList(c *gin.Context) {
 	var postForm SchoolBusTimeForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	var busType models.SchoolBusType
 	startDate, err := time.Parse("2006-01-02", postForm.Date)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	if startDate.Weekday() == time.Sunday || startDate.Weekday() == time.Saturday {
@@ -188,7 +189,7 @@ func GetTimeList(c *gin.Context) {
 		busType,
 	)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 

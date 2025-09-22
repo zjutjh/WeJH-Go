@@ -9,7 +9,7 @@ import (
 func CheckLogin(c *gin.Context) {
 	isLogin := sessionServices.CheckUserSession(c)
 	if !isLogin {
-		_ = c.AbortWithError(200, apiException.NotLogin)
+		apiException.AbortWithException(c, apiException.NotLogin, nil)
 		return
 	}
 	c.Next()

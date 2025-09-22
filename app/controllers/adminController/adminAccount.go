@@ -17,12 +17,12 @@ func CreateAdminAccount(c *gin.Context) {
 	var postForm AccountForm
 	err := c.ShouldBindJSON(&postForm)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ParamError)
+		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
 	err = userServices.CreateAdmin(postForm.UserName, postForm.Password, postForm.AdminType)
 	if err != nil {
-		_ = c.AbortWithError(200, apiException.ServerError)
+		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
 	utils.JsonSuccessResponse(c, nil)
