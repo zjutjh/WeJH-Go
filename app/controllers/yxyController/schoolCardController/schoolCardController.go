@@ -24,6 +24,10 @@ func GetBalance(c *gin.Context) {
 		apiException.AbortWithException(c, apiException.NotBindYxy, nil)
 		return
 	}
+	if user.DeviceID == "" {
+		apiException.AbortWithException(c, apiException.YxySessionExpired, nil)
+		return
+	}
 	balance, err := yxyServices.GetCardBalance(user.DeviceID, user.YxyUid, user.PhoneNum)
 	if errors.Is(err, apiException.NotBindCard) {
 		_ = yxyServices.Unbind(user.ID, user.YxyUid, true)
@@ -54,6 +58,10 @@ func GetConsumptionRecord(c *gin.Context) {
 	}
 	if user.YxyUid == "" {
 		apiException.AbortWithException(c, apiException.NotBindYxy, nil)
+		return
+	}
+	if user.DeviceID == "" {
+		apiException.AbortWithException(c, apiException.YxySessionExpired, nil)
 		return
 	}
 
