@@ -3,7 +3,8 @@ package userServices
 import (
 	"wejh-go/app/models"
 	"wejh-go/app/services/userCenterServices"
-	"wejh-go/config/database"
+
+	"github.com/zjutjh/mygo/ndb"
 )
 
 func DelAccount(user *models.User, iid string) error {
@@ -11,6 +12,6 @@ func DelAccount(user *models.User, iid string) error {
 		return err
 	}
 
-	result := database.DB.Delete(user)
+	result := ndb.Pick().Delete(user)
 	return result.Error
 }

@@ -3,35 +3,36 @@ package config
 import (
 	"context"
 	"errors"
-	"gorm.io/gorm"
 	"time"
 	"wejh-go/app/models"
-	"wejh-go/config/database"
-	"wejh-go/config/redis"
+
+	"github.com/zjutjh/mygo/ndb"
+	"github.com/zjutjh/mygo/nedis"
+	"gorm.io/gorm"
 )
 
 var ctx = context.Background()
 
 func getConfig(key string) string {
-	val, err := redis.RedisClient.Get(ctx, key).Result()
+	val, err := nedis.Pick().Get(ctx, key).Result()
 	if err == nil {
 		return val
 	}
 	print(err)
 	var config = &models.Config{}
-	database.DB.Model(models.Config{}).Where(
+	ndb.Pick().Model(models.Config{}).Where(
 		&models.Config{
 			Key: key,
 		}).First(&config)
 
-	redis.RedisClient.Set(ctx, key, config.Value, 0)
+	nedis.Pick().Set(ctx, key, config.Value, 0)
 	return config.Value
 }
 
 func setConfig(key, value string) error {
-	redis.RedisClient.Set(ctx, key, value, 0)
+	nedis.Pick().Set(ctx, key, value, 0)
 	var config models.Config
-	result := database.DB.Where("`key` = ?", key).First(&config)
+	result := ndb.Pick().Where("`key` = ?", key).First(&config)
 	if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return result.Error
 	}
@@ -41,17 +42,17 @@ func setConfig(key, value string) error {
 			Value:      value,
 			UpdateTime: time.Now(),
 		}
-		result = database.DB.Create(&config)
+		result = ndb.Pick().Create(&config)
 	} else {
 		config.Value = value
 		config.UpdateTime = time.Now()
-		result = database.DB.Updates(&config)
+		result = ndb.Pick().Updates(&config)
 	}
 	return result.Error
 }
 
 func checkConfig(key string) bool {
-	intCmd := redis.RedisClient.Exists(ctx, key)
+	intCmd := nedis.Pick().Exists(ctx, key)
 	if intCmd.Val() == 1 {
 		return true
 	} else {
@@ -60,8 +61,8 @@ func checkConfig(key string) bool {
 }
 
 func delConfig(key string) error {
-	redis.RedisClient.Del(ctx, key)
-	res := database.DB.Where(&models.Config{
+	nedis.Pick().Del(ctx, key)
+	res := ndb.Pick().Where(&models.Config{
 		Key: key,
 	}).Delete(models.Config{})
 	return res.Error

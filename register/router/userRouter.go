@@ -2,9 +2,9 @@ package router
 
 import (
 	"wejh-go/app/controllers/userController"
-	"wejh-go/app/midwares"
 
 	"github.com/gin-gonic/gin"
+	midsession "github.com/zjutjh/mygo/session/middleware"
 )
 
 func userRouterInit(r *gin.RouterGroup) {
@@ -17,12 +17,12 @@ func userRouterInit(r *gin.RouterGroup) {
 		user.POST("/login", userController.AuthByPassword)
 		user.POST("/login/session", userController.AuthBySession)
 
-		user.POST("/info", midwares.CheckLogin, userController.GetUserInfo)
+		user.POST("/info", midsession.Auth(), userController.GetUserInfo)
 
-		user.POST("/del", midwares.CheckLogin, userController.DelAccount)
-		user.POST("/repass", midwares.CheckLogin, userController.ResetPass)
+		user.POST("/del", midsession.Auth(), userController.DelAccount)
+		user.POST("/repass",midsession.Auth(), userController.ResetPass)
 
-		bind := user.Group("/bind", midwares.CheckLogin)
+		bind := user.Group("/bind", midsession.Auth())
 		{
 			bind.POST("/zf", userController.BindZFPassword)
 			bind.POST("/yxy/send/code", userController.SendVerificationCode)

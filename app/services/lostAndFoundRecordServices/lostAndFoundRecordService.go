@@ -5,12 +5,13 @@ import (
 	"strings"
 	"wejh-go/app/config"
 	"wejh-go/app/models"
-	"wejh-go/config/database"
+
+	"github.com/zjutjh/mygo/ndb"
 )
 
 func GetAllLostAndFoundRecord(campus, kind string, pageNum, pageSize int) ([]models.LostAndFoundRecord, error) {
 	var record []models.LostAndFoundRecord
-	result := database.DB.Where(models.LostAndFoundRecord{
+	result := ndb.Pick().Where(models.LostAndFoundRecord{
 		Campus: campus,
 		Kind:   kind,
 	}).Not("is_processed", true).Limit(pageSize).Offset((pageNum - 1) * pageSize).
@@ -23,7 +24,7 @@ func GetAllLostAndFoundRecord(campus, kind string, pageNum, pageSize int) ([]mod
 
 func GetRecord(campus, kind string, lostOrFound int, pageNum, pageSize int) ([]models.LostAndFoundRecord, error) {
 	var record []models.LostAndFoundRecord
-	result := database.DB.Where(models.LostAndFoundRecord{
+	result := ndb.Pick().Where(models.LostAndFoundRecord{
 		Campus: campus,
 		Kind:   kind,
 	}).Where(map[string]interface{}{"type": lostOrFound == 1}).
@@ -37,7 +38,7 @@ func GetRecord(campus, kind string, lostOrFound int, pageNum, pageSize int) ([]m
 
 func GetAllLostAndFoundTotalPageNum(campus, kind string) (*int64, error) {
 	var pageNum int64
-	result := database.DB.Model(models.LostAndFoundRecord{}).Where(models.LostAndFoundRecord{
+	result := ndb.Pick().Model(models.LostAndFoundRecord{}).Where(models.LostAndFoundRecord{
 		Campus: campus,
 		Kind:   kind,
 	}).Not("is_processed", true).Count(&pageNum)
@@ -49,7 +50,7 @@ func GetAllLostAndFoundTotalPageNum(campus, kind string) (*int64, error) {
 
 func GetTotalPageNum(campus, kind string, lostOrFound int) (*int64, error) {
 	var pageNum int64
-	result := database.DB.Model(models.LostAndFoundRecord{}).Where(models.LostAndFoundRecord{
+	result := ndb.Pick().Model(models.LostAndFoundRecord{}).Where(models.LostAndFoundRecord{
 		Campus: campus,
 		Kind:   kind,
 	}).Where(map[string]interface{}{"type": lostOrFound == 1}).Not("is_processed", true).Count(&pageNum)
@@ -61,7 +62,7 @@ func GetTotalPageNum(campus, kind string, lostOrFound int) (*int64, error) {
 
 func GetRecordByAdmin(publisher string, lostOrFound, pageNum, pageSize int) ([]models.LostAndFoundRecord, error) {
 	var record []models.LostAndFoundRecord
-	result := database.DB.Where(models.LostAndFoundRecord{
+	result := ndb.Pick().Where(models.LostAndFoundRecord{
 		Publisher: publisher,
 	}).Where(map[string]interface{}{"type": lostOrFound == 1}).
 		Not("is_processed", true).Limit(pageSize).Offset((pageNum - 1) * pageSize).
@@ -74,7 +75,7 @@ func GetRecordByAdmin(publisher string, lostOrFound, pageNum, pageSize int) ([]m
 
 func GetTotalPageNumByAdmin(publisher string, lostOrFound int) (*int64, error) {
 	var pageNum int64
-	result := database.DB.Model(models.LostAndFoundRecord{}).Where(models.LostAndFoundRecord{
+	result := ndb.Pick().Model(models.LostAndFoundRecord{}).Where(models.LostAndFoundRecord{
 		Publisher: publisher,
 	}).Where(map[string]interface{}{"type": lostOrFound == 1}).
 		Not("is_processed", true).Count(&pageNum)
@@ -86,7 +87,7 @@ func GetTotalPageNumByAdmin(publisher string, lostOrFound int) (*int64, error) {
 
 func GetRecordBySuperAdmin(lostOrFound int, pageNum, pageSize int) ([]models.LostAndFoundRecord, error) {
 	var record []models.LostAndFoundRecord
-	result := database.DB.Where(map[string]interface{}{"type": lostOrFound == 1}).
+	result := ndb.Pick().Where(map[string]interface{}{"type": lostOrFound == 1}).
 		Not("is_processed", true).Limit(pageSize).Offset((pageNum - 1) * pageSize).
 		Order("publish_time desc").Find(&record)
 	if result.Error != nil {
@@ -97,7 +98,7 @@ func GetRecordBySuperAdmin(lostOrFound int, pageNum, pageSize int) ([]models.Los
 
 func GetTotalPageNumBySuperAdmin(lostOrFound int) (*int64, error) {
 	var pageNum int64
-	result := database.DB.Model(models.LostAndFoundRecord{}).Where(map[string]interface{}{"type": lostOrFound == 1}).
+	result := ndb.Pick().Model(models.LostAndFoundRecord{}).Where(map[string]interface{}{"type": lostOrFound == 1}).
 		Not("is_processed", true).Count(&pageNum)
 	if result.Error != nil {
 		return nil, result.Error
@@ -107,7 +108,7 @@ func GetTotalPageNumBySuperAdmin(lostOrFound int) (*int64, error) {
 
 func GetKindList() ([]models.LostKind, error) {
 	var kinds []models.LostKind
-	result := database.DB.Where(models.LostKind{}).Find(&kinds)
+	result := ndb.Pick().Where(models.LostKind{}).Find(&kinds)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -116,7 +117,7 @@ func GetKindList() ([]models.LostKind, error) {
 
 func GetRecordById(id int) (models.LostAndFoundRecord, error) {
 	var record models.LostAndFoundRecord
-	result := database.DB.Where(models.LostAndFoundRecord{
+	result := ndb.Pick().Where(models.LostAndFoundRecord{
 		ID: id,
 	}).First(&record)
 	if result.Error != nil {
@@ -126,7 +127,7 @@ func GetRecordById(id int) (models.LostAndFoundRecord, error) {
 }
 
 func CreateRecord(record models.LostAndFoundRecord) error {
-	result := database.DB.Create(&record)
+	result := ndb.Pick().Create(&record)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -146,7 +147,7 @@ func RemoveImg(record models.LostAndFoundRecord, img1 string, img2 string, img3 
 }
 
 func UpdateRecord(id int, record models.LostAndFoundRecord) error {
-	result := database.DB.Model(models.LostAndFoundRecord{}).Select("*").
+	result := ndb.Pick().Model(models.LostAndFoundRecord{}).Select("*").
 		Omit("id", "type", "publish_time", "publisher").
 		Where(&models.LostAndFoundRecord{ID: id}).Updates(&record)
 	if result.Error != nil {

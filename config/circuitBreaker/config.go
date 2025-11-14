@@ -2,7 +2,8 @@ package circuitBreaker
 
 import (
 	"time"
-	"wejh-go/config/config"
+
+	"github.com/zjutjh/mygo/config"
 )
 
 type LiveNessProbeConfig struct {
@@ -14,10 +15,10 @@ type LiveNessProbeConfig struct {
 
 func GetLiveNessConfig() LiveNessProbeConfig {
 	return LiveNessProbeConfig{
-		StudentId:     config.Config.GetString("zfCircuit.studentId"),
-		OauthPassword: config.Config.GetString("zfCircuit.oauthPassword"),
-		ZFPassword:    config.Config.GetString("zfCircuit.zfPassword"),
-		Duration:      config.Config.GetDuration("zfCircuit.duration"),
+		StudentId:     config.Pick().GetString("zfCircuit.studentId"),
+		OauthPassword: config.Pick().GetString("zfCircuit.oauthPassword"),
+		ZFPassword:    config.Pick().GetString("zfCircuit.zfPassword"),
+		Duration:      config.Pick().GetDuration("zfCircuit.duration"),
 	}
 }
 
@@ -27,6 +28,6 @@ type LoadBalanceConfig struct {
 
 func GetLoadBalanceConfig() LoadBalanceConfig {
 	return LoadBalanceConfig{
-		Apis: config.Config.GetStringSlice("zfCircuit.apis"),
+		Apis: config.Pick().GetStringSlice("zfCircuit.apis"),
 	}
 }

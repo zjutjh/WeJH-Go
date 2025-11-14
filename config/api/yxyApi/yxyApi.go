@@ -1,8 +1,11 @@
 package yxyApi
 
-import "wejh-go/config/config"
+import "github.com/zjutjh/mygo/config"
 
-var YxyHost = config.Config.GetString("yxy.host")
+
+func GetYxyHost()string{
+	return config.Pick().GetString("yxy.host")
+}
 
 type YxyApi string
 
@@ -18,3 +21,4 @@ const (
 	RechargeRecords        YxyApi = "api/v1/electricity/recharge-records"
 	ElectricityConsumption YxyApi = "api/v1/electricity/usage-records"
 )
+

@@ -1,9 +1,10 @@
 package wechat
 
 import (
-	"go.uber.org/zap"
 	"strings"
-	"wejh-go/config/config"
+
+	"github.com/zjutjh/mygo/config"
+	"go.uber.org/zap"
 )
 
 type wechatConfig struct {
@@ -15,18 +16,18 @@ type wechatConfig struct {
 func getConfigs() wechatConfig {
 
 	wc := wechatConfig{}
-	if !config.Config.IsSet("wechat.appid") {
+	if !config.Pick().IsSet("wechat.appid") {
 		zap.L().Fatal("Config Error")
 	}
-	if !config.Config.IsSet("wechat.appsecret") {
+	if !config.Pick().IsSet("wechat.appsecret") {
 		zap.L().Fatal("Config Error")
 	}
-	wc.AppId = config.Config.GetString("wechat.appid")
-	wc.AppSecret = config.Config.GetString("wechat.appsecret")
+	wc.AppId = config.Pick().GetString("wechat.appid")
+	wc.AppSecret = config.Pick().GetString("wechat.appsecret")
 
 	wc.Driver = string(Memory)
-	if config.Config.IsSet("wechat.driver") {
-		wc.Driver = strings.ToLower(config.Config.GetString("wechat.driver"))
+	if config.Pick().IsSet("wechat.driver") {
+		wc.Driver = strings.ToLower(config.Pick().GetString("wechat.driver"))
 	}
 	return wc
 }

@@ -3,7 +3,6 @@ package zfController
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"time"
 	"wejh-go/app/apiException"
 	"wejh-go/app/services/funnelServices"
@@ -11,7 +10,9 @@ import (
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
 	"wejh-go/app/utils/circuitBreaker"
-	"wejh-go/config/redis"
+
+	"github.com/gin-gonic/gin"
+	"github.com/zjutjh/mygo/nedis"
 )
 
 type form struct {
@@ -168,7 +169,7 @@ func GetRoom(c *gin.Context) {
 	cacheKey := fmt.Sprintf("room:%s:%s:%s:%s:%s:%s", postForm.Year, postForm.Term, postForm.Campus, postForm.Weekday, postForm.Week, postForm.Sections)
 
 	// 从 Redis 中获取缓存结果
-	cachedResult, cacheErr := redis.RedisClient.Get(c, cacheKey).Result()
+	cachedResult, cacheErr := nedis.Pick().Get(c, cacheKey).Result()
 	if cacheErr == nil {
 		var result []map[string]interface{}
 		if err := json.Unmarshal([]byte(cachedResult), &result); err == nil {
@@ -189,7 +190,7 @@ func GetRoom(c *gin.Context) {
 	// 将结果缓存到 Redis 中
 	if result != nil {
 		resultJson, _ := json.Marshal(result)
-		err = redis.RedisClient.Set(c, cacheKey, string(resultJson), 1*time.Hour).Err()
+		err = nedis.Pick().Set(c, cacheKey, string(resultJson), 1*time.Hour).Err()
 		if err != nil {
 			apiException.AbortWithException(c, apiException.ServerError, err)
 			return

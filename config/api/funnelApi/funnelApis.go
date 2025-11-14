@@ -1,8 +1,11 @@
 package funnelApi
 
-import "wejh-go/config/config"
+import "github.com/zjutjh/mygo/config"
 
-var FunnelHost = config.Config.GetString("funnel.host")
+
+func GetFunnelHost()string{
+	return config.Pick().GetString("funnel.host")
+}
 
 type FunnelApi string
 

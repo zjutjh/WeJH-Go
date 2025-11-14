@@ -5,7 +5,8 @@ import (
 	"encoding/hex"
 	"wejh-go/app/models"
 	"wejh-go/app/services/userCenterServices"
-	"wejh-go/config/database"
+
+	"github.com/zjutjh/mygo/ndb"
 )
 
 func ResetPass(user *models.User, iid, password string) error {
@@ -18,7 +19,7 @@ func ResetPass(user *models.User, iid, password string) error {
 	pass := hex.EncodeToString(h.Sum(nil))
 	user.JHPassword = pass
 	EncryptUserKeyInfo(user)
-	err := database.DB.Model(models.User{}).Where(
+	err := ndb.Pick().Model(models.User{}).Where(
 		models.User{
 			Username: user.Username,
 			ID:       user.ID,

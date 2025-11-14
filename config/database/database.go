@@ -2,20 +2,19 @@ package database
 
 import (
 	"fmt"
+
+	"github.com/zjutjh/mygo/config"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"wejh-go/config/config"
 )
 
-var DB *gorm.DB
-
 func Init() { // 初始化数据库
-	user := config.Config.GetString("database.user")
-	pass := config.Config.GetString("database.pass")
-	port := config.Config.GetString("database.port")
-	host := config.Config.GetString("database.host")
-	name := config.Config.GetString("database.name")
+	user := config.Pick().GetString("db.username")
+	pass := config.Pick().GetString("db.password")
+	port := config.Pick().GetString("db.port")
+	host := config.Pick().GetString("db.host")
+	name := config.Pick().GetString("db.database")
 
 	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local", user, pass, host, port, name)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
@@ -30,5 +29,5 @@ func Init() { // 初始化数据库
 	if err != nil {
 		zap.L().Fatal("Database migrate failed", zap.Error(err))
 	}
-	DB = db
+
 }

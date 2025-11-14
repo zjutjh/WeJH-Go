@@ -2,12 +2,13 @@ package schoolBusServices
 
 import (
 	"wejh-go/app/models"
-	"wejh-go/config/database"
+
+	"github.com/zjutjh/mygo/ndb"
 )
 
 func GetSchoolBusList() ([]models.SchoolBus, error) {
 	var bus []models.SchoolBus
-	result := database.DB.Find(&bus)
+	result := ndb.Pick().Find(&bus)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -16,7 +17,7 @@ func GetSchoolBusList() ([]models.SchoolBus, error) {
 
 func GetSchoolBus(departure, destination, startTime string, busType models.SchoolBusType) ([]models.SchoolBus, error) {
 	var buses []models.SchoolBus
-	result := database.DB.Where(models.SchoolBus{
+	result := ndb.Pick().Where(models.SchoolBus{
 		Departure:   departure,
 		Destination: destination,
 		StartTime:   startTime,
@@ -29,7 +30,7 @@ func GetSchoolBus(departure, destination, startTime string, busType models.Schoo
 }
 
 func CreateSchoolBus(bus models.SchoolBus) error {
-	result := database.DB.Create(&bus)
+	result := ndb.Pick().Create(&bus)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -37,7 +38,7 @@ func CreateSchoolBus(bus models.SchoolBus) error {
 }
 
 func UpdateSchoolBus(id int, bus models.SchoolBus) error {
-	result := database.DB.Model(models.SchoolBus{}).Where(
+	result := ndb.Pick().Model(models.SchoolBus{}).Where(
 		&models.SchoolBus{
 			ID: id,
 		}).Updates(&bus)
@@ -49,7 +50,7 @@ func UpdateSchoolBus(id int, bus models.SchoolBus) error {
 }
 
 func DeleteSchoolBus(id int) error {
-	result := database.DB.Delete(models.SchoolBus{
+	result := ndb.Pick().Delete(models.SchoolBus{
 		ID: id,
 	})
 	if result.Error != nil {
@@ -61,7 +62,7 @@ func DeleteSchoolBus(id int) error {
 
 func RecommendSchoolBus(departure, destination, startTime string, busType models.SchoolBusType) ([]models.SchoolBus, error) {
 	var buses []models.SchoolBus
-	result := database.DB.Where(
+	result := ndb.Pick().Where(
 		"departure = ? AND destination = ? AND type = ? AND start_time > ?",
 		departure, destination, busType, startTime,
 	).Order("start_time desc").First(&buses)
@@ -73,7 +74,7 @@ func RecommendSchoolBus(departure, destination, startTime string, busType models
 
 func GetSchoolBusTimeList(departure, destination string, busType models.SchoolBusType) ([]string, error) {
 	var time []string
-	result := database.DB.Model(models.SchoolBus{}).Select("DISTINCT start_time").Where(models.SchoolBus{
+	result := ndb.Pick().Model(models.SchoolBus{}).Select("DISTINCT start_time").Where(models.SchoolBus{
 		Departure:   departure,
 		Destination: destination,
 		Type:        busType,

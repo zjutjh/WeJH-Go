@@ -2,11 +2,12 @@ package customizeHomeServices
 
 import (
 	"wejh-go/app/models"
-	"wejh-go/config/database"
+
+	"github.com/zjutjh/mygo/ndb"
 )
 
 func CreateCustomizeHome(home models.CustomizeHome) error {
-	result := database.DB.Create(&home)
+	result := ndb.Pick().Create(&home)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -15,7 +16,7 @@ func CreateCustomizeHome(home models.CustomizeHome) error {
 
 func GetCustomizeHome(username string) (*models.CustomizeHome, error) {
 	var home models.CustomizeHome
-	result := database.DB.Where(models.CustomizeHome{
+	result := ndb.Pick().Where(models.CustomizeHome{
 		Username: username,
 	}).First(&home)
 	if result.Error != nil {
@@ -25,7 +26,7 @@ func GetCustomizeHome(username string) (*models.CustomizeHome, error) {
 }
 
 func UpdateCustomizeHome(id int, home models.CustomizeHome) error {
-	result := database.DB.Model(models.CustomizeHome{}).Where(
+	result := ndb.Pick().Model(models.CustomizeHome{}).Where(
 		&models.CustomizeHome{
 			ID: id,
 		}).Updates(&home)

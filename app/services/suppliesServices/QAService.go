@@ -2,17 +2,18 @@ package suppliesServices
 
 import (
 	"wejh-go/app/models"
-	"wejh-go/config/database"
+
+	"github.com/zjutjh/mygo/ndb"
 )
 
 func CreateQA(QA models.QA) error {
-	result := database.DB.Create(&QA)
+	result := ndb.Pick().Create(&QA)
 	return result.Error
 }
 
 func GetQAListByPublisher(publisher string) ([]models.QA, error) {
 	var QAList []models.QA
-	result := database.DB.Where("publisher = ?", publisher).Find(&QAList)
+	result := ndb.Pick().Where("publisher = ?", publisher).Find(&QAList)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -21,7 +22,7 @@ func GetQAListByPublisher(publisher string) ([]models.QA, error) {
 
 func GetQAListBySuperAdmin() ([]models.QA, error) {
 	var QAList []models.QA
-	result := database.DB.Order("publisher").Find(&QAList)
+	result := ndb.Pick().Order("publisher").Find(&QAList)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -30,7 +31,7 @@ func GetQAListBySuperAdmin() ([]models.QA, error) {
 
 func GetQAbyID(id int) (*models.QA, error) {
 	var QA models.QA
-	result := database.DB.Where(&models.QA{
+	result := ndb.Pick().Where(&models.QA{
 		ID: id,
 	}).First(&QA)
 	if result.Error != nil {
@@ -40,12 +41,12 @@ func GetQAbyID(id int) (*models.QA, error) {
 }
 
 func UpdateQA(QA models.QA) error {
-	result := database.DB.Model(&QA).Updates(QA)
+	result := ndb.Pick().Model(&QA).Updates(QA)
 	return result.Error
 }
 
 func DeleteQA(id int) error {
-	result := database.DB.Delete(models.QA{
+	result := ndb.Pick().Delete(models.QA{
 		ID: id,
 	})
 	return result.Error

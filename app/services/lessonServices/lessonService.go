@@ -2,11 +2,12 @@ package lessonServices
 
 import (
 	"wejh-go/app/models"
-	"wejh-go/config/database"
+
+	"github.com/zjutjh/mygo/ndb"
 )
 
 func CreateLesson(lesson models.Lesson) error {
-	result := database.DB.Create(&lesson)
+	result := ndb.Pick().Create(&lesson)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -15,7 +16,7 @@ func CreateLesson(lesson models.Lesson) error {
 
 func GetLesson(username, term, year string) ([]models.Lesson, error) {
 	var lessons []models.Lesson
-	result := database.DB.Where(models.Lesson{
+	result := ndb.Pick().Where(models.Lesson{
 		Username: username,
 		Term:     term,
 		Year:     year,
@@ -27,7 +28,7 @@ func GetLesson(username, term, year string) ([]models.Lesson, error) {
 }
 
 func UpdateLesson(id int, lesson models.Lesson) error {
-	result := database.DB.Model(models.Lesson{}).Where(
+	result := ndb.Pick().Model(models.Lesson{}).Where(
 		&models.Lesson{
 			ID: id,
 		}).Updates(&lesson)
@@ -38,7 +39,7 @@ func UpdateLesson(id int, lesson models.Lesson) error {
 }
 
 func DeleteLesson(id int) error {
-	result := database.DB.Delete(models.Lesson{
+	result := ndb.Pick().Delete(models.Lesson{
 		ID: id,
 	})
 	if result.Error != nil {

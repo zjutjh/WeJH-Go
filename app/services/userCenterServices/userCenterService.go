@@ -16,7 +16,7 @@ type UserCenterResponse struct {
 func FetchHandleOfPost(form map[string]any, url userCenterApi.UserCenterApi) (*UserCenterResponse, error) {
 	f := fetch.Fetch{}
 	f.Init()
-	res, err := f.PostJsonForm(userCenterApi.UserCenterHost+string(url), form)
+	res, err := f.PostJsonForm(userCenterApi.GetUserCenterHost()+string(url), form)
 	if err != nil {
 		return nil, apiException.RequestError
 	}
@@ -31,7 +31,7 @@ func FetchHandleOfPost(form map[string]any, url userCenterApi.UserCenterApi) (*U
 func FetchHandleOfGet(url userCenterApi.UserCenterApi) (*UserCenterResponse, error) {
 	f := fetch.Fetch{}
 	f.Init()
-	res, err := f.Get(userCenterApi.UserCenterHost + string(url))
+	res, err := f.Get(userCenterApi.GetUserCenterHost()+ string(url))
 	if err != nil {
 		return nil, apiException.RequestError
 	}

@@ -2,16 +2,16 @@ package wechat
 
 import (
 	"context"
-	"wejh-go/config/redis"
 
 	"github.com/silenceper/wechat/v2/cache"
+	"github.com/zjutjh/mygo/config"
 )
 
 func setRedis(wcCache cache.Cache) cache.Cache {
 
 	redisOpts := &cache.RedisOpts{
-		Host:        redis.RedisInfo.Host + ":" + redis.RedisInfo.Port,
-		Database:    redis.RedisInfo.DB,
+		Host:        config.Pick().GetString("redis.host") + ":" + config.Pick().GetString("redis.port"),
+		Database:    config.Pick().GetInt("redis.db"),
 		MaxActive:   10,
 		MaxIdle:     10,
 		IdleTimeout: 60,

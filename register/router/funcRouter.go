@@ -12,7 +12,8 @@ import (
 	"wejh-go/app/controllers/funcControllers/zfController"
 	"wejh-go/app/controllers/yxyController/electricityController"
 	"wejh-go/app/controllers/yxyController/schoolCardController"
-	"wejh-go/app/midwares"
+	midsession "github.com/zjutjh/mygo/session/middleware"
+
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,13 +21,13 @@ import (
 func funcRouterInit(r *gin.RouterGroup) {
 	fun := r.Group("/func")
 	{
-		customizeHome := fun.Group("/home", midwares.CheckLogin)
+		customizeHome := fun.Group("/home", midsession.Auth())
 		{
 			customizeHome.GET("/get", customizeHomeController.GetCustomizeHome)
 			customizeHome.POST("/update", customizeHomeController.UpdateCustomizeHome)
 		}
 
-		lesson := fun.Group("/lesson", midwares.CheckLogin)
+		lesson := fun.Group("/lesson", midsession.Auth())
 		{
 			lesson.POST("/create", lessonController.CreateLesson)
 			lesson.POST("/get", lessonController.GetLesson)
@@ -34,7 +35,7 @@ func funcRouterInit(r *gin.RouterGroup) {
 			lesson.POST("/delete", lessonController.DeleteLesson)
 		}
 
-		electricity := fun.Group("/electricity", midwares.CheckLogin)
+		electricity := fun.Group("/electricity",  midsession.Auth())
 		{
 			electricity.GET("/balance", electricityController.GetBalance)
 			electricity.POST("/record", electricityController.GetRechargeRecords)
@@ -43,7 +44,7 @@ func funcRouterInit(r *gin.RouterGroup) {
 			electricity.POST("/subscription", electricityController.SubscribeLowBatteryAlert)
 		}
 
-		bus := fun.Group("/bus", midwares.CheckLogin)
+		bus := fun.Group("/bus",  midsession.Auth())
 		{
 			bus.GET("/list", schoolBusController.GetBusList)
 			bus.POST("/get", schoolBusController.GetBus)
@@ -51,19 +52,19 @@ func funcRouterInit(r *gin.RouterGroup) {
 			bus.POST("/time", schoolBusController.GetTimeList)
 		}
 
-		card := fun.Group("/card", midwares.CheckLogin)
+		card := fun.Group("/card",  midsession.Auth())
 		{
 			card.GET("/balance", schoolCardController.GetBalance)
 			card.POST("/record", schoolCardController.GetConsumptionRecord)
 		}
 
-		library := fun.Group("/library", midwares.CheckLogin)
+		library := fun.Group("/library",  midsession.Auth())
 		{
 			library.POST("/current", libraryController.GetCurrent)
 			library.POST("/history", libraryController.GetHistory)
 		}
 
-		zf := fun.Group("/zf", midwares.CheckLogin)
+		zf := fun.Group("/zf",  midsession.Auth())
 		{
 			zf.POST("/classtable", zfController.GetClassTable)
 			zf.POST("/exam", zfController.GetExam)
@@ -72,19 +73,19 @@ func funcRouterInit(r *gin.RouterGroup) {
 			zf.POST("/midtermscore", zfController.GetMidTermScore)
 		}
 
-		lost := fun.Group("/lost", midwares.CheckLogin)
+		lost := fun.Group("/lost",  midsession.Auth())
 		{
 			lost.GET("", lostAndFoundRecordController.GetRecords)
 			lost.GET("/kind_list", lostAndFoundRecordController.GetKindList)
 		}
 
-		notice := fun.Group("/information", midwares.CheckLogin)
+		notice := fun.Group("/information",  midsession.Auth())
 		{
 			notice.GET("", noticeController.GetNotice)
 		}
 
 		// 正装借用
-		suppliesBorrow := fun.Group("/supplies-borrow", midwares.CheckLogin)
+		suppliesBorrow := fun.Group("/supplies-borrow",  midsession.Auth())
 		{
 			suppliesBorrow.GET("/qa", suppliesController.GetQAList)
 			suppliesBorrow.GET("/supplies", suppliesController.GetSuppliesList)
@@ -102,7 +103,7 @@ func funcRouterInit(r *gin.RouterGroup) {
 		}
 
 		// 主题色
-		theme := fun.Group("/theme", midwares.CheckLogin)
+		theme := fun.Group("/theme",  midsession.Auth())
 		{
 			theme.GET("/get", themeController.GetThemeList)
 			theme.POST("/choose", themeController.ChooseCurrentTheme)

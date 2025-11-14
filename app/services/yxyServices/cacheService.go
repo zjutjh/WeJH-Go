@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"time"
-	r "wejh-go/config/redis"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/zjutjh/mygo/nedis"
 )
 
 var (
@@ -16,13 +16,13 @@ var (
 
 func GetElecRoomStrConcat(yxyUid, campus string) (*string, error) {
 	cacheKey := "elec:room_str_concat:" + campus + ":" + yxyUid
-	cachedRoomStrConcat, err := r.RedisClient.Get(ctx, cacheKey).Result()
+	cachedRoomStrConcat, err := nedis.Pick().Get(ctx, cacheKey).Result()
 	if errors.Is(err, redis.Nil) {
 		balance, err := ElectricityBalance(yxyUid, campus)
 		if err != nil {
 			return nil, err
 		}
-		err = r.RedisClient.Set(ctx, cacheKey, balance.RoomStrConcat, 7*24*time.Hour).Err()
+		err = nedis.Pick().Set(ctx, cacheKey, balance.RoomStrConcat, 7*24*time.Hour).Err()
 		if err != nil {
 			return nil, err
 		}
@@ -35,7 +35,7 @@ func GetElecRoomStrConcat(yxyUid, campus string) (*string, error) {
 
 func GetElecConsumptionRecords(yxyUid, campus, roomStrConcat string) (*EleConsumptionRecords, error) {
 	cacheKey := "elec:consumption_records:" + roomStrConcat
-	cachedRecords, err := r.RedisClient.Get(ctx, cacheKey).Result()
+	cachedRecords, err := nedis.Pick().Get(ctx, cacheKey).Result()
 	if errors.Is(err, redis.Nil) {
 		records, err := ElectricityConsumptionRecords(yxyUid, campus, roomStrConcat)
 		if err != nil {
@@ -48,7 +48,7 @@ func GetElecConsumptionRecords(yxyUid, campus, roomStrConcat string) (*EleConsum
 		now := time.Now()
 		midnight := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, now.Location())
 		ttl := time.Until(midnight)
-		err = r.RedisClient.Set(ctx, cacheKey, recordsJSON, ttl).Err()
+		err = nedis.Pick().Set(ctx, cacheKey, recordsJSON, ttl).Err()
 		if err != nil {
 			return nil, err
 		}

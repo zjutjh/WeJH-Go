@@ -7,7 +7,8 @@ import (
 	"wejh-go/app/apiException"
 	"wejh-go/app/models"
 	"wejh-go/app/services/userCenterServices"
-	"wejh-go/config/database"
+
+	"github.com/zjutjh/mygo/ndb"
 )
 
 func CreateStudentUser(username, password, studentID, IDCardNumber, email string, userType uint) (*models.User, error) {
@@ -36,7 +37,7 @@ func CreateStudentUser(username, password, studentID, IDCardNumber, email string
 	}
 
 	EncryptUserKeyInfo(user)
-	res := database.DB.Create(&user)
+	res := ndb.Pick().Create(&user)
 
 	return user, res.Error
 }
@@ -50,7 +51,7 @@ func CreateStudentUserWechat(username, password, studentID, IDCardNumber, email,
 		return nil, err
 	}
 	user.WechatOpenID = wechatOpenID
-	database.DB.Save(user)
+	ndb.Pick().Save(user)
 	return user, nil
 }
 
@@ -69,6 +70,6 @@ func CreateAdmin(userName, password string, adminType int) error {
 		DeviceID:    "",
 		CreateTime:  time.Now(),
 	}
-	res := database.DB.Create(&admin)
+	res := ndb.Pick().Create(&admin)
 	return res.Error
 }

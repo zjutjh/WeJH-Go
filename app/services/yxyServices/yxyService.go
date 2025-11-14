@@ -17,7 +17,7 @@ type YxyResponse struct {
 func FetchHandleOfPost(form map[string]any, url yxyApi.YxyApi) (*YxyResponse, error) {
 	f := fetch.Fetch{}
 	f.Init()
-	res, err := f.PostJsonForm(yxyApi.YxyHost+string(url), form)
+	res, err := f.PostJsonForm(yxyApi.GetYxyHost()+string(url), form)
 	if err != nil {
 		fmt.Println(err)
 		return nil, apiException.RequestError
@@ -34,7 +34,7 @@ func FetchHandleOfPost(form map[string]any, url yxyApi.YxyApi) (*YxyResponse, er
 func FetchHandleOfGet(url yxyApi.YxyApi) (*YxyResponse, error) {
 	f := fetch.Fetch{}
 	f.Init()
-	res, err := f.Get(yxyApi.YxyHost + string(url))
+	res, err := f.Get(yxyApi.GetYxyHost() + string(url))
 	if err != nil {
 		fmt.Println(err)
 		return nil, apiException.RequestError

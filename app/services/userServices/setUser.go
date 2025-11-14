@@ -6,7 +6,8 @@ import (
 	"wejh-go/app/models"
 	"wejh-go/app/services/funnelServices"
 	"wejh-go/config/api/funnelApi"
-	"wejh-go/config/database"
+
+	"github.com/zjutjh/mygo/ndb"
 )
 
 func SetZFPassword(user *models.User, password, api string) error {
@@ -16,7 +17,7 @@ func SetZFPassword(user *models.User, password, api string) error {
 		return err
 	}
 	EncryptUserKeyInfo(user)
-	database.DB.Save(user)
+	ndb.Pick().Save(user)
 	return nil
 }
 
@@ -27,26 +28,26 @@ func SetOauthPassword(user *models.User, password, api string) error {
 		return err
 	}
 	EncryptUserKeyInfo(user)
-	database.DB.Save(user)
+	ndb.Pick().Save(user)
 	return nil
 }
 
 func SetPhoneNum(user *models.User, phoneNum string) {
 	user.PhoneNum = phoneNum
 	EncryptUserKeyInfo(user)
-	database.DB.Save(user)
+	ndb.Pick().Save(user)
 }
 
 func SetYxyUid(user *models.User, yxyUid string) {
 	user.YxyUid = yxyUid
 	EncryptUserKeyInfo(user)
-	database.DB.Save(user)
+	ndb.Pick().Save(user)
 }
 
 func SetDeviceID(user *models.User, deviceID string) {
 	user.DeviceID = deviceID
 	EncryptUserKeyInfo(user)
-	database.DB.Save(user)
+	ndb.Pick().Save(user)
 }
 
 func DelPassword(err error, user *models.User, passwordType string) {
@@ -60,6 +61,6 @@ func DelPassword(err error, user *models.User, passwordType string) {
 			user.LibPassword = ""
 		}
 		EncryptUserKeyInfo(user)
-		database.DB.Save(user)
+		ndb.Pick().Save(user)
 	}
 }
