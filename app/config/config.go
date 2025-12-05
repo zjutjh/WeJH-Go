@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 	"wejh-go/app/models"
 
@@ -33,6 +34,7 @@ func setConfig(key, value string) error {
 	nedis.Pick().Set(ctx, key, value, 0)
 	var config models.Config
 	result := ndb.Pick().Where("`key` = ?", key).First(&config)
+	fmt.Print(config)
 	if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return result.Error
 	}

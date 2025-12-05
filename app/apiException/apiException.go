@@ -2,10 +2,11 @@ package apiException
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	"net/http"
-	"wejh-go/config/logger"
+
+	"github.com/bytedance/gopkg/util/logger"
+	"github.com/gin-gonic/gin"
+	"github.com/zjutjh/mygo/nlog"
 )
 
 type Error struct {
@@ -62,7 +63,13 @@ func NewError(Code int, level logger.Level, msg string) *Error {
 
 // AbortWithException 用于返回自定义错误信息
 func AbortWithException(c *gin.Context, apiError *Error, err error) {
-	logError(c, apiError, err)
+	if apiError.Level == 4 {
+		nlog.Pick().WithContext(c).WithError(err).Info(apiError.Msg)
+	} else if apiError.Level == 3 {
+		nlog.Pick().WithContext(c).WithError(err).Warn(apiError.Msg)
+	} else if apiError.Level == 2 {
+		nlog.Pick().WithContext(c).WithError(err).Error(apiError.Msg)
+	}
 	_ = c.AbortWithError(200, apiError)
 }
 
@@ -70,23 +77,9 @@ func AbortWithException(c *gin.Context, apiError *Error, err error) {
 func AbortWithError(c *gin.Context, err error) {
 	var apiError *Error
 	if errors.As(err, &apiError) {
-		logError(c, apiError, nil)
-		_ = c.AbortWithError(200, apiError)
+		AbortWithException(c, apiError, err)
 	} else {
-		logError(c, ServerError, err)
+		nlog.Pick().WithContext(c).WithError(err).Error(ServerError.Msg)
 		_ = c.AbortWithError(200, ServerError)
 	}
-}
-
-// logError 记录错误日志
-func logError(c *gin.Context, apiErr *Error, err error) {
-	// 构建日志字段
-	logFields := []zap.Field{
-		zap.Int("error_code", apiErr.Code),
-		zap.String("path", c.Request.URL.Path),
-		zap.String("method", c.Request.Method),
-		zap.String("ip", c.ClientIP()),
-		zap.Error(err), // 记录原始错误信息
-	}
-	logger.GetLogFunc(apiErr.Level)(apiErr.Msg, logFields...)
 }

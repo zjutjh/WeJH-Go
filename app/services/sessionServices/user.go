@@ -11,19 +11,17 @@ import (
 )
 
 func SetUserSession(c *gin.Context, user *models.User) error {
-	id:=strconv.Itoa(user.ID)
-	err:=session.SetUid(c,id)
+	id := strconv.Itoa(user.ID)
+	err := session.SetUid(c, id)
 	return err
 }
 
-
-
 func GetUserSession(c *gin.Context) (*models.User, error) {
-	id,_:=session.GetUid(c)
+	id, _ := session.GetUid(c)
 	if id == "" {
 		return nil, errors.New("")
 	}
-	idInt,_:=strconv.Atoi(id)
+	idInt, _ := strconv.Atoi(id)
 	user, _ := userServices.GetUserID(idInt)
 	if user == nil {
 		ClearUserSession(c)
@@ -45,6 +43,6 @@ func UpdateUserSession(c *gin.Context) (*models.User, error) {
 }
 
 func ClearUserSession(c *gin.Context) {
-	_=session.DeleteUid(c)
+	_ = session.DeleteUid(c)
 	return
 }

@@ -1,8 +1,6 @@
 package router
 
 import (
-	//"slices"
-
 	"wejh-go/app/midwares"
 
 	"github.com/gin-gonic/gin"
@@ -32,4 +30,3 @@ func Route(router *gin.Engine) {
 func routePrefix() string {
 	return "/api"
 }
-

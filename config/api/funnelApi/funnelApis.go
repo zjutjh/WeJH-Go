@@ -2,8 +2,7 @@ package funnelApi
 
 import "github.com/zjutjh/mygo/config"
 
-
-func GetFunnelHost()string{
+func GetFunnelHost() string {
 	return config.Pick().GetString("funnel.host")
 }
 

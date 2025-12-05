@@ -6,9 +6,9 @@ import (
 	"wejh-go/config/api/userCenterApi"
 )
 
-func RegWithoutVerify(stu_id string, pass string, iid string, email string) error {
+func Register(stu_id string, pass string, iid string, email string) error {
 	params := url.Values{}
-	Url, err := url.Parse(string(userCenterApi.UCRegWithoutVerify))
+	Url, err := url.Parse(string(userCenterApi.Register))
 	if err != nil {
 		return err
 	}

@@ -2,8 +2,9 @@
 .DS_Store
 cspell.json
 .vscode*
-config.yaml
 wejh-go
 wejh-go.exe
 wejh
 logs
+vendor
+config.yaml

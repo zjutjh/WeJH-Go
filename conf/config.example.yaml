@@ -57,15 +57,11 @@ user:
 yxy:
   host: 
 
+# 应用业务日志配置
 log:
-  disableStacktrace: false
-  level: 5
-  name: "wjh"
-  writer: "all"
-  loggerDir: "./logs"
-  logMaxSize: 10
-  logMaxAge: 7
-  logCompress: false
+  level: 4 # 日志级别 0: panic 1: fatal 2: error 3: warn 4: info 5: debug 6: trace
+  # 仅在本地开发调试时打开
+  # filename: "/dev/stdout"
 
 
 feishu:

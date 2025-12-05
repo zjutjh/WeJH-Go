@@ -2,8 +2,7 @@ package yxyApi
 
 import "github.com/zjutjh/mygo/config"
 
-
-func GetYxyHost()string{
+func GetYxyHost() string {
 	return config.Pick().GetString("yxy.host")
 }
 
@@ -21,4 +20,3 @@ const (
 	RechargeRecords        YxyApi = "api/v1/electricity/recharge-records"
 	ElectricityConsumption YxyApi = "api/v1/electricity/usage-records"
 )
-

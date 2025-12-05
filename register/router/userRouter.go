@@ -20,7 +20,7 @@ func userRouterInit(r *gin.RouterGroup) {
 		user.POST("/info", midsession.Auth(), userController.GetUserInfo)
 
 		user.POST("/del", midsession.Auth(), userController.DelAccount)
-		user.POST("/repass",midsession.Auth(), userController.ResetPass)
+		user.POST("/repass", midsession.Auth(), userController.ResetPass)
 
 		bind := user.Group("/bind", midsession.Auth())
 		{
