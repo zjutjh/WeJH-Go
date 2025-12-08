@@ -25,6 +25,7 @@ type SubscribeLowBatteryAlertReq struct {
 	Threshold int    `json:"threshold"`
 }
 
+// GetBalance 获取电费余额
 func GetBalance(c *gin.Context) {
 	var postForm CampusForm
 	err := c.ShouldBindQuery(&postForm)
@@ -41,15 +42,10 @@ func GetBalance(c *gin.Context) {
 		apiException.AbortWithException(c, apiException.NotBindYxy, nil)
 		return
 	}
-	token, err := yxyServices.GetElecAuthToken(user.YxyUid)
-	if err != nil {
-		apiException.AbortWithException(c, apiException.ServerError, err)
-		return
-	}
 	if postForm.Campus != "mgs" {
 		postForm.Campus = "zhpf"
 	}
-	balance, err := yxyServices.ElectricityBalance(*token, postForm.Campus)
+	balance, err := yxyServices.ElectricityBalance(user.YxyUid, postForm.Campus)
 	if errors.Is(err, apiException.NotBindCard) {
 		_ = yxyServices.Unbind(user.ID, user.YxyUid, true)
 		apiException.AbortWithError(c, err)
@@ -64,6 +60,7 @@ func GetBalance(c *gin.Context) {
 	utils.JsonSuccessResponse(c, balance)
 }
 
+// GetRechargeRecords 获取充值记录
 func GetRechargeRecords(c *gin.Context) {
 	var postForm recordForm
 	err := c.ShouldBindJSON(&postForm)
@@ -80,15 +77,10 @@ func GetRechargeRecords(c *gin.Context) {
 		apiException.AbortWithException(c, apiException.NotBindYxy, nil)
 		return
 	}
-	token, err := yxyServices.GetElecAuthToken(user.YxyUid)
-	if err != nil {
-		apiException.AbortWithException(c, apiException.ServerError, err)
-		return
-	}
 	if postForm.Campus != "mgs" {
 		postForm.Campus = "zhpf"
 	}
-	roomStrConcat, err := yxyServices.GetElecRoomStrConcat(*token, postForm.Campus, user.YxyUid)
+	roomStrConcat, err := yxyServices.GetElecRoomStrConcat(user.YxyUid, postForm.Campus)
 	if errors.Is(err, apiException.NotBindCard) {
 		_ = yxyServices.Unbind(user.ID, user.YxyUid, true)
 		apiException.AbortWithError(c, err)
@@ -100,7 +92,7 @@ func GetRechargeRecords(c *gin.Context) {
 		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
-	records, err := yxyServices.ElectricityRechargeRecords(*token, postForm.Campus, postForm.Page, *roomStrConcat)
+	records, err := yxyServices.ElectricityRechargeRecords(user.YxyUid, postForm.Campus, postForm.Page, *roomStrConcat)
 	if errors.Is(err, apiException.CampusMismatch) {
 		apiException.AbortWithError(c, err)
 		return
@@ -111,10 +103,10 @@ func GetRechargeRecords(c *gin.Context) {
 	utils.JsonSuccessResponse(c, records.List)
 }
 
+// GetConsumptionRecords 获取电费使用记录
 func GetConsumptionRecords(c *gin.Context) {
 	var postForm CampusForm
-	err := c.ShouldBindQuery(&postForm)
-	if err != nil {
+	if err := c.ShouldBindQuery(&postForm); err != nil {
 		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
@@ -127,15 +119,10 @@ func GetConsumptionRecords(c *gin.Context) {
 		apiException.AbortWithException(c, apiException.NotBindYxy, nil)
 		return
 	}
-	token, err := yxyServices.GetElecAuthToken(user.YxyUid)
-	if err != nil {
-		apiException.AbortWithException(c, apiException.ServerError, err)
-		return
-	}
 	if postForm.Campus != "mgs" {
 		postForm.Campus = "zhpf"
 	}
-	roomStrConcat, err := yxyServices.GetElecRoomStrConcat(*token, postForm.Campus, user.YxyUid)
+	roomStrConcat, err := yxyServices.GetElecRoomStrConcat(user.YxyUid, postForm.Campus)
 	if errors.Is(err, apiException.NotBindCard) {
 		_ = yxyServices.Unbind(user.ID, user.YxyUid, true)
 		apiException.AbortWithError(c, err)
@@ -147,7 +134,7 @@ func GetConsumptionRecords(c *gin.Context) {
 		apiException.AbortWithException(c, apiException.ServerError, err)
 		return
 	}
-	records, err := yxyServices.GetElecConsumptionRecords(*token, postForm.Campus, *roomStrConcat)
+	records, err := yxyServices.GetElecConsumptionRecords(user.YxyUid, postForm.Campus, *roomStrConcat)
 	if errors.Is(err, apiException.CampusMismatch) {
 		apiException.AbortWithError(c, err)
 		return

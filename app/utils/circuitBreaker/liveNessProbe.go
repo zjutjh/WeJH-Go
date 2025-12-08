@@ -18,10 +18,6 @@ import (
 
 var Probe *LiveNessProbe
 
-func init() {
-	Probe = NewLiveNessProbe(cbConfig.GetLiveNessConfig())
-}
-
 type LiveNessProbe struct {
 	sync.Mutex
 	ApiMap   map[string]funnelApi.LoginType

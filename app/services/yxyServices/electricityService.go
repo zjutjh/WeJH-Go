@@ -8,10 +8,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-type AuthResp struct {
-	Token string `json:"token" mapstructure:"token"`
-}
-
 type ElecBalance struct {
 	DisplayRoomName string  `json:"display_room_name" mapstructure:"display_room_name"`
 	RoomStrConcat   string  `json:"room_str_concat" mapstructure:"room_str_concat"`
@@ -32,34 +28,13 @@ type EleConsumptionRecords struct {
 	} `json:"list" mapstructure:"list"`
 }
 
-func Auth(uid string) (*string, error) {
-	params := url.Values{}
-	Url, err := url.Parse(string(yxyApi.Auth))
-	if err != nil {
-		return nil, err
-	}
-	params.Set("uid", uid)
-	Url.RawQuery = params.Encode()
-	urlPath := Url.String()
-	resp, err := FetchHandleOfGet(yxyApi.YxyApi(urlPath))
-	if err != nil {
-		return nil, err
-	}
-	var data AuthResp
-	err = mapstructure.Decode(resp.Data, &data)
-	if err != nil {
-		return nil, err
-	}
-	return &data.Token, nil
-}
-
-func ElectricityBalance(token, campus string) (*ElecBalance, error) {
+func ElectricityBalance(uid, campus string) (*ElecBalance, error) {
 	params := url.Values{}
 	Url, err := url.Parse(string(yxyApi.ElectricityBalance))
 	if err != nil {
 		return nil, err
 	}
-	params.Set("token", token)
+	params.Set("uid", uid)
 	params.Set("campus", campus)
 	Url.RawQuery = params.Encode()
 	urlPath := Url.String()
@@ -82,13 +57,13 @@ func ElectricityBalance(token, campus string) (*ElecBalance, error) {
 	return &data, nil
 }
 
-func ElectricityRechargeRecords(token, campus, page, roomStrConcat string) (*RechargeRecords, error) {
+func ElectricityRechargeRecords(uid, campus, page, roomStrConcat string) (*RechargeRecords, error) {
 	params := url.Values{}
 	Url, err := url.Parse(string(yxyApi.RechargeRecords))
 	if err != nil {
 		return nil, err
 	}
-	params.Set("token", token)
+	params.Set("uid", uid)
 	params.Set("campus", campus)
 	params.Set("page", page)
 	params.Set("room_str_concat", roomStrConcat)
@@ -111,13 +86,13 @@ func ElectricityRechargeRecords(token, campus, page, roomStrConcat string) (*Rec
 	return &data, nil
 }
 
-func ElectricityConsumptionRecords(token, campus, roomStrConcat string) (*EleConsumptionRecords, error) {
+func ElectricityConsumptionRecords(uid, campus, roomStrConcat string) (*EleConsumptionRecords, error) {
 	params := url.Values{}
 	Url, err := url.Parse(string(yxyApi.ElectricityConsumption))
 	if err != nil {
 		return nil, err
 	}
-	params.Set("token", token)
+	params.Set("uid", uid)
 	params.Set("campus", campus)
 	params.Set("room_str_concat", roomStrConcat)
 	Url.RawQuery = params.Encode()

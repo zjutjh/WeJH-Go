@@ -17,7 +17,7 @@ const (
 
 var MiniProgram *miniprogram.MiniProgram
 
-func init() {
+func Init() {
 	config := getConfigs()
 
 	wc := wechat.NewWechat()
@@ -25,10 +25,8 @@ func init() {
 	switch config.Driver {
 	case string(Redis):
 		wcCache = setRedis(wcCache)
-		break
 	case string(Memory):
 		wcCache = cache.NewMemory()
-		break
 	default:
 		zap.L().Fatal("Config Error")
 	}

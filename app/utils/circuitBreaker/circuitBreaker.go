@@ -14,6 +14,9 @@ type CircuitBreaker struct {
 }
 
 func Init() {
+
+	Probe = NewLiveNessProbe(cbConfig.GetLiveNessConfig())
+
 	lb := LoadBalance{
 		zfLB:    &randomLB{},
 		oauthLB: &randomLB{},

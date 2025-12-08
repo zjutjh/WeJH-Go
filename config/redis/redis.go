@@ -12,7 +12,7 @@ type redisConfig struct {
 var RedisClient *redis.Client
 var RedisInfo redisConfig
 
-func init() {
+func Init() {
 	info := getConfig()
 
 	RedisClient = redis.NewClient(&redis.Options{
