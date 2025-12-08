@@ -3,9 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"os/signal"
@@ -19,6 +16,9 @@ import (
 	"wejh-go/config/logger"
 	"wejh-go/config/router"
 	"wejh-go/config/session"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -53,6 +53,7 @@ func main() {
 
 	wg.Add(1)
 	go func() {
+		circuitBreaker.Init()
 		defer wg.Done()
 		circuitBreaker.Probe.Start(ctx)
 	}()

@@ -54,20 +54,30 @@ func (l *LiveNessProbe) Remove(key string) {
 	delete(l.ApiMap, key)
 }
 
+func (l *LiveNessProbe) probeTogether() {
+	var wg sync.WaitGroup
+	for apiKey, loginType := range l.ApiMap {
+		wg.Add(1)
+		go func(apikey string, lt funnelApi.LoginType) {
+			defer wg.Done()
+			api := strings.TrimSuffix(apikey, string(lt))
+			if err := liveNess(l.User, api, lt); err == nil {
+				CB.LB.Add(api, lt)
+				CB.Success(api, lt)
+				l.Remove(apikey)
+			}
+		}(apiKey, loginType)
+	}
+	wg.Wait()
+}
 func (l *LiveNessProbe) Start(ctx context.Context) {
+	l.probeTogether()
 	ticker := time.NewTicker(l.Duration)
 	defer ticker.Stop()
 	for {
 		select {
 		case <-ticker.C:
-			for apiKey, loginType := range l.ApiMap {
-				api := strings.TrimSuffix(apiKey, string(loginType))
-				if err := liveNess(l.User, api, loginType); err == nil {
-					CB.LB.Add(api, loginType)
-					CB.Success(api, loginType)
-					l.Remove(apiKey)
-				}
-			}
+			l.probeTogether()
 		case <-ctx.Done():
 			return
 		}
