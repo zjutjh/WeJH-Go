@@ -8,7 +8,7 @@ import (
 
 func Register(stu_id string, pass string, iid string, email string) error {
 	params := url.Values{}
-	Url, err := url.Parse(string(userCenterApi.Register))
+	Url, err := url.Parse(string(userCenterApi.UCRegWithoutVerify))
 	if err != nil {
 		return err
 	}

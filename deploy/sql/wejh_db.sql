@@ -1,0 +1,164 @@
+CREATE TABLE `announcements`  (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `title` VARCHAR(32) NOT NULL COMMENT '标题',
+  `content` VARCHAR(512) NOT NULL COMMENT '内容',
+  `publish_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发布时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '公告表';
+
+CREATE TABLE `app_lists`  (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `title` VARCHAR(32) NOT NULL COMMENT '应用名',
+  `route` VARCHAR(255) NOT NULL COMMENT 'page路由',
+  `background_color` VARCHAR(32) NOT NULL COMMENT '背景颜色',
+  `icon` VARCHAR(255) NOT NULL COMMENT 'icon URL',
+  `require` VARCHAR(32) NOT NULL COMMENT '绑定依赖 zf、oauth、yxy、null(无需绑定)',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '应用列表';
+
+CREATE TABLE `borrow_records`  (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `name` VARCHAR(32) NOT NULL COMMENT '姓名',
+  `gender` VARCHAR(16) NOT NULL COMMENT '性别',
+  `student_id` VARCHAR(32) NOT NULL COMMENT '学号',
+  `college` VARCHAR(64) NOT NULL COMMENT '学院',
+  `dormitory` VARCHAR(64) NOT NULL COMMENT '宿舍',
+  `contact` VARCHAR(64) NOT NULL COMMENT '联系方式(加密)',
+  `campus` TINYINT NOT NULL COMMENT '校区',
+  `supplies_id` BIGINT NOT NULL COMMENT '借用物资ID',
+  `count` INT NOT NULL COMMENT '借用数量',
+  `organization` VARCHAR(32) NOT NULL COMMENT '物资所属组织',
+  `status` TINYINT NOT NULL COMMENT '借用状态',
+  `apply_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '申请时间',
+  `borrow_time` TIMESTAMP DEFAULT NULL COMMENT '借出时间',
+  `return_time` TIMESTAMP DEFAULT NULL COMMENT '归还时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '物资借用记录表';
+
+CREATE TABLE `configs`  (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `key` VARCHAR(32) NOT NULL COMMENT '配置key',
+  `value` VARCHAR(255) NOT NULL COMMENT '配置value',
+  `update_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '配置表';
+
+CREATE TABLE `lost_and_found_records`  (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `type` TINYINT NOT NULL COMMENT '类型',
+  `campus` VARCHAR(16) NOT NULL COMMENT '校区',
+  `kind` VARCHAR(16) NOT NULL COMMENT '种类',
+  `is_processed` TINYINT NOT NULL DEFAULT 0 COMMENT '是否处理',
+  `img1` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '图片1',
+  `img2` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '图片2',
+  `img3` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '图片3',
+  `publisher` VARCHAR(32) NOT NULL COMMENT '发布人',
+  `item_name` VARCHAR(64) NOT NULL COMMENT '物品名称',
+  `content` VARCHAR(512) DEFAULT NULL COMMENT '内容',
+  `introduction` VARCHAR(512) NOT NULL DEFAULT '' COMMENT '说明',
+  `lost_or_found_place` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '遗失或拾获地点',
+  `pickup_place` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '领取地点',
+  `contact` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '联系方式',
+  `lost_or_found_time` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '遗失或拾获时间',
+  `publish_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发布时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '失物招领记录表';
+
+CREATE TABLE `lost_kinds`  (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `kind_name` VARCHAR(64) NOT NULL COMMENT '种类名称',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '失物种类表';
+
+CREATE TABLE `low_battery_alert_subscriptions`  (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `user_id` BIGINT NOT NULL COMMENT '用户ID',
+  `campus` VARCHAR(16) NOT NULL COMMENT '校区',
+  `threshold` INT NOT NULL COMMENT '电量阈值',
+  `count` INT NOT NULL COMMENT '剩余提醒次数',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '低电量提醒订阅表';
+
+CREATE TABLE `notices`  (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `title` VARCHAR(64) NOT NULL COMMENT '标题',
+  `img1` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '图片1',
+  `img2` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '图片2',
+  `img3` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '图片3',
+  `publisher` VARCHAR(32) NOT NULL COMMENT '发布人',
+  `content` VARCHAR(512) NOT NULL COMMENT '内容',
+  `publish_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发布时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '通知表';
+
+CREATE TABLE `personal_infos`  (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `name` VARCHAR(32) NOT NULL COMMENT '姓名',
+  `gender` VARCHAR(16) NULL COMMENT '性别',
+  `student_id` varchar(32) NOT NULL COMMENT '学号',
+  `college` VARCHAR(64) NULL COMMENT '学院',
+  `dormitory` VARCHAR(64) NULL COMMENT '宿舍',
+  `contact` VARCHAR(64) NULL COMMENT '联系方式',
+  PRIMARY KEY (`student_id`) USING BTREE,
+  UNIQUE KEY `uk_id`(`id`) USING BTREE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '个人信息表';
+
+CREATE TABLE `qas`  (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `title` VARCHAR(64) NULL COMMENT '标题',
+  `content` VARCHAR(512) NULL COMMENT '内容',
+  `publisher` VARCHAR(32) NULL COMMENT '发布人',
+  `publish_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发布时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '问答表';
+
+CREATE TABLE `supplies`  (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `name` VARCHAR(32) NULL COMMENT '名称',
+  `kind` VARCHAR(16) NULL COMMENT '种类',
+  `spec` VARCHAR(16) NULL COMMENT '规格',
+  `campus` TINYINT NOT NULL COMMENT '校区',
+  `organization` VARCHAR(64) NOT NULL COMMENT '组织',
+  `stock` INT NOT NULL COMMENT '库存',
+  `borrowed` INT NOT NULL COMMENT '借出数量',
+  `img` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '图片',
+  `deleted_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_deleted_at`(`deleted_at`) USING BTREE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '物资表';
+
+CREATE TABLE `theme_permissions`  (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `student_id` VARCHAR(32) NOT NULL COMMENT '学生ID',
+  `current_theme_id` BIGINT NOT NULL COMMENT '当前主题ID',
+  `current_theme_dark_id` BIGINT NOT NULL COMMENT '当前暗黑主题ID',
+  `theme_permission` VARCHAR(255) NULL COMMENT '主题权限',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '主题权限表';
+
+CREATE TABLE `themes`  (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `name` VARCHAR(16) NOT NULL COMMENT '名称',
+  `type` VARCHAR(16) NOT NULL COMMENT '类型',
+  `is_dark_mode` TINYINT NOT NULL COMMENT '是否暗黑模式',
+  `theme_config` VARCHAR(4096) NOT NULL COMMENT '主题配置',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '主题表';
+
+CREATE TABLE `users`  (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `username` VARCHAR(32) NOT NULL COMMENT '用户名',
+  `student_id` VARCHAR(32) NOT NULL COMMENT '学号',
+  `type` TINYINT NOT NULL COMMENT '类型',
+  `wechat_open_id` VARCHAR(64) NOT NULL COMMENT '微信OpenID',
+  `union_id` VARCHAR(64) NOT NULL COMMENT '微信UnionID',
+  `jh_password` VARCHAR(255) NOT NULL COMMENT '密码',
+  `zf_password` VARCHAR(255) NOT NULL COMMENT '正方密码',
+  `oauth_password` VARCHAR(255) NOT NULL COMMENT '统一密码',
+  `lib_password` VARCHAR(255) NOT NULL COMMENT '图书馆密码',
+  `phone_num` VARCHAR(32) NOT NULL COMMENT '手机号(加密)',
+  `yxy_uid` VARCHAR(32) NOT NULL COMMENT '易校园UID',
+  `device_id` VARCHAR(64) NULL COMMENT '设备ID',
+  `create_time` datetime(3) NOT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT '用户表';

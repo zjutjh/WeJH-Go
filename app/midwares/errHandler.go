@@ -6,6 +6,7 @@ import (
 	"wejh-go/app/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"github.com/zjutjh/mygo/nlog"
 )
 
@@ -28,7 +29,7 @@ func ErrHandler() gin.HandlerFunc {
 				// 如果转换失败，则使用 ServerError
 				if !ok {
 					apiErr = apiException.ServerError
-					nlog.Pick().WithContext(c).WithError(err).Info("Unknown Error Occurred")
+					nlog.Pick().WithContext(c).WithError(err).Error("Unknown Error Occurred")
 				}
 				utils.JsonErrorResponse(c, apiErr.Code, apiErr.Msg)
 				return
@@ -41,6 +42,9 @@ func ErrHandler() gin.HandlerFunc {
 func HandleNotFound(c *gin.Context) {
 	err := apiException.NotFound
 	// 记录 404 错误日志
-	nlog.Pick().WithContext(c).WithError(err).Warn("404 Not Found")
+	nlog.Pick().WithContext(c).WithError(err).WithFields(logrus.Fields{
+		"path":   c.Request.URL.Path,
+		"method": c.Request.Method,
+	}).Warn("404 Not Found")
 	utils.JsonErrorResponse(c, err.Code, err.Msg)
 }

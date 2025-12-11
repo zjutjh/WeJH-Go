@@ -6,6 +6,7 @@ import (
 
 	"github.com/bytedance/gopkg/util/logger"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"github.com/zjutjh/mygo/nlog"
 )
 
@@ -64,11 +65,26 @@ func NewError(Code int, level logger.Level, msg string) *Error {
 // AbortWithException 用于返回自定义错误信息
 func AbortWithException(c *gin.Context, apiError *Error, err error) {
 	if apiError.Level == 4 {
-		nlog.Pick().WithContext(c).WithError(err).Info(apiError.Msg)
+		nlog.Pick().WithContext(c).WithError(err).WithFields(logrus.Fields{
+			"error_code": apiError.Code,
+			"path":       c.Request.URL.Path,
+			"method":     c.Request.Method,
+			"ip":         c.ClientIP(),
+		}).Info(apiError.Msg)
 	} else if apiError.Level == 3 {
-		nlog.Pick().WithContext(c).WithError(err).Warn(apiError.Msg)
+		nlog.Pick().WithContext(c).WithError(err).WithFields(logrus.Fields{
+			"error_code": apiError.Code,
+			"path":       c.Request.URL.Path,
+			"method":     c.Request.Method,
+			"ip":         c.ClientIP(),
+		}).Warn(apiError.Msg)
 	} else if apiError.Level == 2 {
-		nlog.Pick().WithContext(c).WithError(err).Error(apiError.Msg)
+		nlog.Pick().WithContext(c).WithError(err).WithFields(logrus.Fields{
+			"error_code": apiError.Code,
+			"path":       c.Request.URL.Path,
+			"method":     c.Request.Method,
+			"ip":         c.ClientIP(),
+		}).Error(apiError.Msg)
 	}
 	_ = c.AbortWithError(200, apiError)
 }
@@ -79,7 +95,12 @@ func AbortWithError(c *gin.Context, err error) {
 	if errors.As(err, &apiError) {
 		AbortWithException(c, apiError, err)
 	} else {
-		nlog.Pick().WithContext(c).WithError(err).Error(ServerError.Msg)
+		nlog.Pick().WithContext(c).WithError(err).WithFields(logrus.Fields{
+			"error_code": apiError.Code,
+			"path":       c.Request.URL.Path,
+			"method":     c.Request.Method,
+			"ip":         c.ClientIP(),
+		}).Error(ServerError.Msg)
 		_ = c.AbortWithError(200, ServerError)
 	}
 }
