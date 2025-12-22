@@ -22,7 +22,6 @@ func main() {
 		register.Boot,    // 应用引导注册器
 		register.Command, // 应用命令注册器
 		func(cmd *cobra.Command, args []string) error {
-			circuitBreaker.Init()
 			ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 			defer stop()
 			wg := &sync.WaitGroup{}
@@ -36,7 +35,7 @@ func main() {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				circuitBreaker.Probe.Start(ctx)
+				circuitBreaker.Probe.Start(ctx)//circuitBreaker 后面放到 cron
 			}()
 
 			// 启动HTTP Server伴生定时任务

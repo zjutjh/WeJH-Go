@@ -1,11 +1,21 @@
+# 应用基础配置
 app:
   name: "wejh" # 应用名称
-  env: "test" # 应用环境 dev|test|prod
+  env: "dev" # 应用环境 dev|test|prod
 
+# HTTP 服务配置
 http_server:
   addr: ":8080"
   log:
+    # 仅在本地开发调试时打开
+    # access_filename: "/dev/stdout"
+    # error_filename: "/dev/stderr"
 
+# 应用业务日志配置
+log:
+  level: 4 # 日志级别 0: panic 1: fatal 2: error 3: warn 4: info 5: debug 6: trace
+  # 仅在本地开发调试时打开
+  # filename: "/dev/stdout"
 
 # HTTP Client 配置
 resty:
@@ -22,60 +32,52 @@ mid_cors:
       "https://prod.*.com",
     ]
 
+# 数据库配置
 db:
-  database: wejh_db
   host: "127.0.0.1"
   port: 3306
-  username: root
-  password: 
+  username: "jh_user"
+  password: "jh_pass"
+  database: "wejh_db"
 
+# Redis 配置
 redis:
-  host: "127.0.0.1"
-  port: 6379
+  addrs:
+    - "127.0.0.1:6379"
   db: 0
-  user: root
-  pass: 
+  password: "jh_pass"
 
-wechat: # 微信小程序相关配置 (切记不能泄漏）
-  appid: 
-  appsecret: 
-
-funnel: 
-  host: 
-
-zfCircuit:
-  studentId: 
-  oauthPassword: 
-  zfPassword: 
-  duration: 
-  apis: 
-    -
-
-user:
-  host: 
-
-yxy:
-  host: 
-
-# 应用业务日志配置
-log:
-  level: 4 # 日志级别 0: panic 1: fatal 2: error 3: warn 4: info 5: debug 6: trace
-  # 仅在本地开发调试时打开
-  # filename: "/dev/stdout"
-
-
+# 飞书告警配置
 feishu:
   enable: false
   notice_webhook: ""
   notice_secret: ""
 
+# 微信小程序配置 (切记不能泄漏）
+wechat_mini_program:
+  app_id: "app_id"
+  secret: "secret"
 
+# Session 配置
 session:
   driver: "redis"
-  name: "session"
-  secret: 
-  redis: 
-    address: "127.0.0.1:6379"
-    password: 
-    db: "0"
-  max_age:
+  name: "wejh-session"
+  secret: "secret"
+  redis: ""
+
+funnel:
+  host:
+
+zfCircuit:
+  studentId:
+  oauthPassword:
+  zfPassword:
+  duration:
+  apis:
+    -
+
+user:
+  host:
+
+yxy:
+  host:
