@@ -13,6 +13,7 @@ import (
 	"wejh-go/config/redis"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type form struct {
@@ -42,6 +43,10 @@ func GetClassTable(c *gin.Context) {
 
 	result, err := funnelServices.GetClassTable(user, postForm.Year, postForm.Term, api, loginType)
 	if err != nil {
+		zap.L().Error("获取课表失败", zap.Error(err),
+			zap.String("studentID", user.StudentID),
+			zap.String("loginType", string(loginType)),
+			zap.String("api", api))
 		userServices.DelPassword(err, user, string(loginType))
 		apiException.AbortWithError(c, err)
 		return
@@ -71,6 +76,10 @@ func GetScore(c *gin.Context) {
 
 	result, err := funnelServices.GetScore(user, postForm.Year, postForm.Term, api, loginType)
 	if err != nil {
+		zap.L().Error("获取期末分数失败", zap.Error(err),
+			zap.String("studentID", user.StudentID),
+			zap.String("loginType", string(loginType)),
+			zap.String("api", api))
 		userServices.DelPassword(err, user, string(loginType))
 		apiException.AbortWithError(c, err)
 		return
@@ -100,6 +109,10 @@ func GetMidTermScore(c *gin.Context) {
 
 	result, err := funnelServices.GetMidTermScore(user, postForm.Year, postForm.Term, api, loginType)
 	if err != nil {
+		zap.L().Error("获取期中分数失败", zap.Error(err),
+			zap.String("studentID", user.StudentID),
+			zap.String("loginType", string(loginType)),
+			zap.String("api", api))
 		userServices.DelPassword(err, user, string(loginType))
 		apiException.AbortWithError(c, err)
 		return
@@ -129,6 +142,10 @@ func GetExam(c *gin.Context) {
 
 	result, err := funnelServices.GetExam(user, postForm.Year, postForm.Term, api, loginType)
 	if err != nil {
+		zap.L().Error("获取考试信息失败", zap.Error(err),
+			zap.String("studentID", user.StudentID),
+			zap.String("loginType", string(loginType)),
+			zap.String("api", api))
 		userServices.DelPassword(err, user, string(loginType))
 		apiException.AbortWithError(c, err)
 		return
@@ -183,6 +200,10 @@ func GetRoom(c *gin.Context) {
 
 	result, err := funnelServices.GetRoom(user, postForm.Year, postForm.Term, postForm.Campus, postForm.Weekday, postForm.Week, postForm.Sections, api, loginType)
 	if err != nil {
+		zap.L().Error("获取空教室失败", zap.Error(err),
+			zap.String("studentID", user.StudentID),
+			zap.String("loginType", string(loginType)),
+			zap.String("api", api))
 		userServices.DelPassword(err, user, string(loginType))
 		apiException.AbortWithError(c, err)
 		return
