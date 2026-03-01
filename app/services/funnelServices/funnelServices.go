@@ -106,7 +106,10 @@ func FetchHandleOfPost(form url.Values, host string, api funnelApi.FunnelApi) (i
 	}
 
 	// 拿出当前健康的节点集合
-	hosts := circuitBreaker.CB.LB.List(loginType)
+	hosts, err := circuitBreaker.CB.LB.List(loginType)
+	if err != nil {
+		return nil, err
+	}
 
 	// 调用方通过 GetApi 传进来的 host 优先级最高，把它挪到列表最前面
 	if host != "" {

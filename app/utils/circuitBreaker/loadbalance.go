@@ -6,6 +6,7 @@ import (
 	"github.com/bytedance/gopkg/lang/fastrand"
 	"wejh-go/app/apiException"
 	"wejh-go/config/api/funnelApi"
+	"wejh-go/config/logger"
 )
 
 type LoadBalanceType int
@@ -45,19 +46,23 @@ func (lb *LoadBalance) Pick(zfFlag, oauthFlag bool) (string, funnelApi.LoginType
 
 // List 返回当前可用后端节点的快照
 // - loginType 为 Oauth：返回 OAuth 池
-// - 其它（ZF / Unknown）：统一返回 ZF 池
-func (lb *LoadBalance) List(loginType funnelApi.LoginType) []string {
+// - loginType 为 ZF：返回 ZF 池
+// - Unknown/非法值：返回错误并记录告警日志
+func (lb *LoadBalance) List(loginType funnelApi.LoginType) ([]string, error) {
 	switch loginType {
 	case funnelApi.Oauth:
 		if lb.oauthLB == nil {
-			return nil
+			return nil, nil
 		}
-		return lb.oauthLB.list()
-	default:
+		return lb.oauthLB.list(), nil
+	case funnelApi.ZF:
 		if lb.zfLB == nil {
-			return nil
+			return nil, nil
 		}
-		return lb.zfLB.list()
+		return lb.zfLB.list(), nil
+	default:
+		logger.GetLogFunc(logger.LevelWarn)("unknown login type for load balancer list: " + string(loginType))
+		return nil, apiException.ParamError
 	}
 }
 
