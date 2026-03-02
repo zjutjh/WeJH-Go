@@ -1,12 +1,13 @@
 package libraryController
 
 import (
-	"github.com/gin-gonic/gin"
 	"wejh-go/app/apiException"
 	"wejh-go/app/services/funnelServices"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetCurrent(c *gin.Context) {

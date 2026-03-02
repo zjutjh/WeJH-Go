@@ -2,7 +2,6 @@ package userController
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
 	"strings"
 	"wejh-go/app/apiException"
 	"wejh-go/app/services/sessionServices"
@@ -10,6 +9,8 @@ import (
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
 	"wejh-go/config/wechat"
+
+	"github.com/gin-gonic/gin"
 )
 
 type createStudentUserForm struct {

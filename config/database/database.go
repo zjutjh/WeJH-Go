@@ -2,10 +2,11 @@ package database
 
 import (
 	"fmt"
+	"wejh-go/config/config"
+
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"wejh-go/config/config"
 )
 
 var DB *gorm.DB

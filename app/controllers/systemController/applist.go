@@ -1,10 +1,11 @@
 package systemController
 
 import (
-	"github.com/gin-gonic/gin"
 	"wejh-go/app/apiException"
 	"wejh-go/app/services/applistServices"
 	"wejh-go/app/utils"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetAppList(c *gin.Context) {

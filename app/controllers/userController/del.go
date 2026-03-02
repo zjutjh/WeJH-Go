@@ -1,11 +1,12 @@
 package userController
 
 import (
-	"github.com/gin-gonic/gin"
 	"wejh-go/app/apiException"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
+
+	"github.com/gin-gonic/gin"
 )
 
 type DelForm struct {

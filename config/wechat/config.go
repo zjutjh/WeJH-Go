@@ -1,9 +1,10 @@
 package wechat
 
 import (
-	"go.uber.org/zap"
 	"strings"
 	"wejh-go/config/config"
+
+	"go.uber.org/zap"
 )
 
 type wechatConfig struct {

@@ -2,10 +2,11 @@ package apiException
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	"net/http"
 	"wejh-go/config/logger"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type Error struct {

@@ -1,11 +1,12 @@
 package adminController
 
 import (
-	"github.com/gin-gonic/gin"
 	"wejh-go/app/apiException"
 	"wejh-go/app/models"
 	"wejh-go/app/services/applistServices"
 	"wejh-go/app/utils"
+
+	"github.com/gin-gonic/gin"
 )
 
 type createAppListForm struct {

@@ -3,11 +3,12 @@ package config
 import (
 	"context"
 	"errors"
-	"gorm.io/gorm"
 	"time"
 	"wejh-go/app/models"
 	"wejh-go/config/database"
 	"wejh-go/config/redis"
+
+	"gorm.io/gorm"
 )
 
 var ctx = context.Background()

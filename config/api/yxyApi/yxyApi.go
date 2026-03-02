@@ -13,8 +13,9 @@ const (
 	SlientLogin            YxyApi = "api/v1/login/silent"
 	CardBalance            YxyApi = "api/v1/card/balance"
 	ConsumptionRecords     YxyApi = "api/v1/card/consumption-records"
-	Auth                   YxyApi = "api/v1/electricity/auth"
 	ElectricityBalance     YxyApi = "api/v1/electricity/surplus"
 	RechargeRecords        YxyApi = "api/v1/electricity/recharge-records"
 	ElectricityConsumption YxyApi = "api/v1/electricity/usage-records"
+	BusInfo                YxyApi = "api/v1/bus/info"
+	BusAnnouncement        YxyApi = "api/v1/bus/announcement"
 )

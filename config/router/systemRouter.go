@@ -1,8 +1,9 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
 	"wejh-go/app/controllers/systemController"
+
+	"github.com/gin-gonic/gin"
 )
 
 // 注册杂项路由

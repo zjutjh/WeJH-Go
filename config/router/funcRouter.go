@@ -6,10 +6,10 @@ import (
 	"wejh-go/app/controllers/funcControllers/libraryController"
 	"wejh-go/app/controllers/funcControllers/lostAndFoundRecordController"
 	"wejh-go/app/controllers/funcControllers/noticeController"
-	"wejh-go/app/controllers/funcControllers/schoolBusController"
 	"wejh-go/app/controllers/funcControllers/suppliesController"
 	"wejh-go/app/controllers/funcControllers/themeController"
 	"wejh-go/app/controllers/funcControllers/zfController"
+	"wejh-go/app/controllers/yxyController/busController"
 	"wejh-go/app/controllers/yxyController/electricityController"
 	"wejh-go/app/controllers/yxyController/schoolCardController"
 	"wejh-go/app/midwares"
@@ -45,10 +45,9 @@ func funcRouterInit(r *gin.RouterGroup) {
 
 		bus := fun.Group("/bus", midwares.CheckLogin)
 		{
-			bus.GET("/list", schoolBusController.GetBusList)
-			bus.POST("/get", schoolBusController.GetBus)
-			bus.GET("/recommend", schoolBusController.RecommendBus)
-			bus.POST("/time", schoolBusController.GetTimeList)
+			bus.GET("/info", busController.GetBusInfo)
+			bus.GET("/announcement", busController.GetBusAnnouncement)
+			bus.GET("/config", busController.GetBusConfig)
 		}
 
 		card := fun.Group("/card", midwares.CheckLogin)

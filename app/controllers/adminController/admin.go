@@ -1,12 +1,13 @@
 package adminController
 
 import (
-	"github.com/gin-gonic/gin"
 	"wejh-go/app/apiException"
 	"wejh-go/app/models"
 	"wejh-go/app/services/adminServices"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/utils"
+
+	"github.com/gin-gonic/gin"
 )
 
 type GetUserBindStatusData struct {

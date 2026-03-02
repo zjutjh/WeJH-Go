@@ -1,9 +1,10 @@
 package logger
 
 import (
+	"wejh-go/config/config"
+
 	"github.com/zjutjh/WeJH-SDK/zapHelper"
 	"go.uber.org/zap"
-	"wejh-go/config/config"
 )
 
 func Init() error {

@@ -1,9 +1,10 @@
 package utils
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"wejh-go/app/utils/stateCode"
+
+	"github.com/gin-gonic/gin"
 )
 
 func JsonResponse(c *gin.Context, httpStatusCode int, code int, msg string, data any) {

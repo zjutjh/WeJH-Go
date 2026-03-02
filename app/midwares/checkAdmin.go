@@ -1,10 +1,11 @@
 package midwares
 
 import (
-	"github.com/gin-gonic/gin"
 	"wejh-go/app/apiException"
 	"wejh-go/app/models"
 	"wejh-go/app/services/sessionServices"
+
+	"github.com/gin-gonic/gin"
 )
 
 func CheckAdmin(c *gin.Context) {

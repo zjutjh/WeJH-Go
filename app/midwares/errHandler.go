@@ -2,10 +2,11 @@ package midwares
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	"wejh-go/app/apiException"
 	"wejh-go/app/utils"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // ErrHandler 中间件用于处理请求错误。

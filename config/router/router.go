@@ -1,8 +1,9 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
 	"wejh-go/app/midwares"
+
+	"github.com/gin-gonic/gin"
 )
 
 func Init(r *gin.Engine) {
