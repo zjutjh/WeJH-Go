@@ -51,8 +51,14 @@ func (l *LiveNessProbe) Remove(key string) {
 }
 
 func (l *LiveNessProbe) probeTogether() {
+	l.Lock()
+	tasks := make(map[string]funnelApi.LoginType, len(l.ApiMap))
+	for k, v := range l.ApiMap {
+		tasks[k] = v
+	}
+	l.Unlock()
 	var wg sync.WaitGroup
-	for apiKey, loginType := range l.ApiMap {
+	for apiKey, loginType := range tasks {
 		wg.Add(1)
 		go func(apikey string, lt funnelApi.LoginType) {
 			defer wg.Done()

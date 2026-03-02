@@ -60,7 +60,6 @@ func main() {
 
 	wg.Add(1)
 	go func() {
-		circuitBreaker.Init()
 		defer wg.Done()
 		circuitBreaker.Probe.Start(ctx)
 	}()
