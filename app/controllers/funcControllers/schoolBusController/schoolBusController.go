@@ -3,8 +3,6 @@ package schoolBusController
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"time"
 	"wejh-go/app/apiException"
 	"wejh-go/app/models"
@@ -12,6 +10,9 @@ import (
 	"wejh-go/app/services/schoolBusServices"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/utils"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type SchoolBusForm struct {

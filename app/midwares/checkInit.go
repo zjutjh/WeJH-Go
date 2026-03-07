@@ -1,9 +1,10 @@
 package midwares
 
 import (
-	"github.com/gin-gonic/gin"
 	"wejh-go/app/apiException"
 	"wejh-go/app/config"
+
+	"github.com/gin-gonic/gin"
 )
 
 func CheckInit(c *gin.Context) {

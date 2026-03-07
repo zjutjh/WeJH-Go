@@ -1,8 +1,9 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
 	"wejh-go/app/controllers/adminController"
+
+	"github.com/gin-gonic/gin"
 )
 
 func initRouterInit(r *gin.RouterGroup) {

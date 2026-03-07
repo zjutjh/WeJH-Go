@@ -2,7 +2,6 @@ package suppliesController
 
 import (
 	"errors"
-	"gorm.io/gorm"
 	"os"
 	"strconv"
 	"strings"
@@ -11,6 +10,8 @@ import (
 	"wejh-go/app/models"
 	"wejh-go/app/services/suppliesServices"
 	"wejh-go/app/utils"
+
+	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )

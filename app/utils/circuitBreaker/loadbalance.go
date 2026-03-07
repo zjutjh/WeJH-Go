@@ -1,10 +1,11 @@
 package circuitBreaker
 
 import (
-	"github.com/bytedance/gopkg/lang/fastrand"
 	"sync"
 	"wejh-go/app/apiException"
 	"wejh-go/config/api/funnelApi"
+
+	"github.com/bytedance/gopkg/lang/fastrand"
 )
 
 type LoadBalanceType int

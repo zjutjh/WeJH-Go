@@ -2,14 +2,15 @@ package customizeHomeController
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"strings"
 	"wejh-go/app/apiException"
 	"wejh-go/app/models"
 	"wejh-go/app/services/customizeHomeServices"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/utils"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type updateForm struct {
