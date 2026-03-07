@@ -5,10 +5,10 @@ import (
 	"wejh-go/app/apiException"
 	"wejh-go/app/models"
 	"wejh-go/config/api/yxyApi"
-	"wejh-go/config/database"
-	r "wejh-go/config/redis"
 
 	"github.com/mitchellh/mapstructure"
+	"github.com/zjutjh/mygo/ndb"
+	"github.com/zjutjh/mygo/nedis"
 )
 
 type securityToken struct {
@@ -128,12 +128,12 @@ func Unbind(id int, uid string, isNotBindCard bool) error {
 	if isNotBindCard {
 		updates["yxy_uid"] = ""
 	}
-	if err := database.DB.Model(&models.User{}).
+	if err := ndb.Pick().Model(&models.User{}).
 		Where("id = ?", id).
 		Updates(updates).Error; err != nil {
 		return err
 	}
 	cacheKey := "card:auth_token:" + uid
-	_ = r.RedisClient.Del(ctx, cacheKey)
+	_ = nedis.Pick().Del(ctx, cacheKey)
 	return nil
 }

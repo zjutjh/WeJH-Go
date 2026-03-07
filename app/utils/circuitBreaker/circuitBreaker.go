@@ -22,14 +22,19 @@ func Init() {
 		oauthLB: &randomLB{},
 	}
 	snapShot := &sync.Map{}
-
 	for _, api := range cbConfig.GetLoadBalanceConfig().Apis {
-		lb.Add(api, funnelApi.Oauth)
-		lb.Add(api, funnelApi.ZF)
-		snapShot.Store(api+string(funnelApi.Oauth), NewApiSnapShot())
-		snapShot.Store(api+string(funnelApi.ZF), NewApiSnapShot())
-	}
+		oauthKey := api + string(funnelApi.Oauth)
+		zfKey := api + string(funnelApi.ZF)
 
+		oauthSnap := NewApiSnapShot()
+		zfSnap := NewApiSnapShot()
+
+		Probe.Add(api, funnelApi.Oauth)
+		Probe.Add(api, funnelApi.ZF)
+
+		snapShot.Store(oauthKey, oauthSnap)
+		snapShot.Store(zfKey, zfSnap)
+	}
 	CB = CircuitBreaker{
 		LB:       lb,
 		SnapShot: snapShot,

@@ -3,13 +3,14 @@ package userController
 import (
 	"errors"
 	"wejh-go/app/apiException"
+
 	"wejh-go/app/models"
 	"wejh-go/app/services/sessionServices"
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
-	"wejh-go/config/wechat"
 
 	"github.com/gin-gonic/gin"
+	"github.com/zjutjh/mygo/wechat/miniProgram"
 	"gorm.io/gorm"
 )
 
@@ -103,7 +104,7 @@ func WeChatLogin(c *gin.Context) {
 		return
 	}
 
-	session, err := wechat.MiniProgram.GetAuth().Code2Session(postForm.Code)
+	session, err := miniProgram.Pick().Auth.Session(c, postForm.Code)
 	if err != nil {
 		apiException.AbortWithException(c, apiException.OpenIDError, err)
 		return

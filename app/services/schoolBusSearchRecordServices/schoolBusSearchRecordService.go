@@ -2,12 +2,13 @@ package schoolBusSearchRecordServices
 
 import (
 	"wejh-go/app/models"
-	"wejh-go/config/database"
+
+	"github.com/zjutjh/mygo/ndb"
 )
 
 func GetRecord(username string) (models.SchoolBusSearchRecord, error) {
 	var record models.SchoolBusSearchRecord
-	result := database.DB.Where(models.SchoolBusSearchRecord{
+	result := ndb.Pick().Where(models.SchoolBusSearchRecord{
 		Username: username,
 	}).First(&record)
 	if result.Error != nil {
@@ -17,7 +18,7 @@ func GetRecord(username string) (models.SchoolBusSearchRecord, error) {
 }
 
 func CreateRecord(record models.SchoolBusSearchRecord) error {
-	result := database.DB.Create(&record)
+	result := ndb.Pick().Create(&record)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -25,7 +26,7 @@ func CreateRecord(record models.SchoolBusSearchRecord) error {
 }
 
 func UpdateRecord(id int, record models.SchoolBusSearchRecord) error {
-	result := database.DB.Model(models.SchoolBusSearchRecord{}).Where(
+	result := ndb.Pick().Model(models.SchoolBusSearchRecord{}).Where(
 		&models.SchoolBusSearchRecord{
 			ID: id,
 		}).Updates(&record)
@@ -37,7 +38,7 @@ func UpdateRecord(id int, record models.SchoolBusSearchRecord) error {
 }
 
 func DeleteRecord(id int) error {
-	result := database.DB.Delete(models.SchoolBusSearchRecord{
+	result := ndb.Pick().Delete(models.SchoolBusSearchRecord{
 		ID: id,
 	})
 	if result.Error != nil {

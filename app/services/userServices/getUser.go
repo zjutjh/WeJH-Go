@@ -4,12 +4,13 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"wejh-go/app/models"
-	"wejh-go/config/database"
+
+	"github.com/zjutjh/mygo/ndb"
 )
 
 func GetUserByWechatOpenID(openid string) *models.User {
 	user := models.User{}
-	result := database.DB.Where(
+	result := ndb.Pick().Where(
 		&models.User{
 			WechatOpenID: openid,
 		},
@@ -24,7 +25,7 @@ func GetUserByWechatOpenID(openid string) *models.User {
 
 func GetUserID(id int) (*models.User, error) {
 	user := models.User{}
-	result := database.DB.Where(
+	result := ndb.Pick().Where(
 		&models.User{
 			ID: id,
 		},
@@ -42,7 +43,7 @@ func GetUserByUsernameAndPassword(username, password string) (*models.User, erro
 	h.Write([]byte(password))
 	user := models.User{}
 	pass := hex.EncodeToString(h.Sum(nil))
-	result := database.DB.Where(
+	result := ndb.Pick().Where(
 		&models.User{
 			Username:   username,
 			JHPassword: pass,
@@ -58,7 +59,7 @@ func GetUserByUsernameAndPassword(username, password string) (*models.User, erro
 
 func GetUserByUsername(username string) (*models.User, error) {
 	user := models.User{}
-	result := database.DB.Where(
+	result := ndb.Pick().Where(
 		&models.User{
 			Username: username,
 		},
@@ -73,7 +74,7 @@ func GetUserByUsername(username string) (*models.User, error) {
 
 func GetUserByStudentID(studentID string) (*models.User, error) {
 	user := models.User{}
-	result := database.DB.Where(
+	result := ndb.Pick().Where(
 		&models.User{
 			StudentID: studentID,
 		},

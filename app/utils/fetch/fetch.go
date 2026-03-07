@@ -85,8 +85,14 @@ func (f *Fetch) PostForm(url string, requestData url.Values) ([]byte, error) {
 }
 
 func (f *Fetch) PostJsonFormRaw(url string, requestData map[string]any) (*http.Response, error) {
-	bytesData, _ := json.Marshal(requestData)
-	request, _ := http.NewRequest("POST", url, bytes.NewReader(bytesData))
+	bytesData, err := json.Marshal(requestData)
+	if err != nil {
+		return nil, err
+	}
+	request, err := http.NewRequest("POST", url, bytes.NewReader(bytesData))
+	if err != nil {
+		return nil, err
+	}
 	request.Header.Set("Content-Type", "application/json")
 	for _, v := range f.Cookie {
 		request.AddCookie(v)

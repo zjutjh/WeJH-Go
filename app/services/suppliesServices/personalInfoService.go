@@ -4,14 +4,14 @@ import (
 	"wejh-go/app/config"
 	"wejh-go/app/models"
 	"wejh-go/app/utils"
-	"wejh-go/config/database"
 
+	"github.com/zjutjh/mygo/ndb"
 	"gorm.io/gorm"
 )
 
 func GetPersonalInfoByStudentID(studentID string) (*models.PersonalInfo, error) {
 	var info models.PersonalInfo
-	result := database.DB.Where(&models.PersonalInfo{
+	result := ndb.Pick().Where(&models.PersonalInfo{
 		StudentID: studentID,
 	}).First(&info)
 	if result.Error == gorm.ErrRecordNotFound {
@@ -26,7 +26,7 @@ func GetPersonalInfoByStudentID(studentID string) (*models.PersonalInfo, error) 
 
 func SavePersonalInfo(info models.PersonalInfo) error {
 	aesEncryptInfo(&info)
-	result := database.DB.Omit("id").Save(&info)
+	result := ndb.Pick().Omit("id").Save(&info)
 	return result.Error
 }
 

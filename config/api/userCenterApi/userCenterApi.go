@@ -1,8 +1,10 @@
 package userCenterApi
 
-import "wejh-go/config/config"
+import "github.com/zjutjh/mygo/config"
 
-var UserCenterHost = config.Config.GetString("user.host")
+func GetUserCenterHost() string {
+	return config.Pick().GetString("user.host")
+}
 
 type UserCenterApi string
 

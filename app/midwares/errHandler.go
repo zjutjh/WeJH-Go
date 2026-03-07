@@ -6,7 +6,8 @@ import (
 	"wejh-go/app/utils"
 
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
+	"github.com/sirupsen/logrus"
+	"github.com/zjutjh/mygo/nlog"
 )
 
 // ErrHandler 中间件用于处理请求错误。
@@ -28,9 +29,8 @@ func ErrHandler() gin.HandlerFunc {
 				// 如果转换失败，则使用 ServerError
 				if !ok {
 					apiErr = apiException.ServerError
-					zap.L().Error("Unknown Error Occurred", zap.Error(err))
+					nlog.Pick().WithContext(c).WithError(err).Error("Unknown Error Occurred")
 				}
-
 				utils.JsonErrorResponse(c, apiErr.Code, apiErr.Msg)
 				return
 			}
@@ -42,9 +42,9 @@ func ErrHandler() gin.HandlerFunc {
 func HandleNotFound(c *gin.Context) {
 	err := apiException.NotFound
 	// 记录 404 错误日志
-	zap.L().Warn("404 Not Found",
-		zap.String("path", c.Request.URL.Path),
-		zap.String("method", c.Request.Method),
-	)
+	nlog.Pick().WithContext(c).WithError(err).WithFields(logrus.Fields{
+		"path":   c.Request.URL.Path,
+		"method": c.Request.Method,
+	}).Warn("404 Not Found")
 	utils.JsonErrorResponse(c, err.Code, err.Msg)
 }

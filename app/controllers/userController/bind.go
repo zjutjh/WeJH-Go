@@ -9,7 +9,6 @@ import (
 	"wejh-go/app/utils/circuitBreaker"
 
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 )
 
 type bindForm struct {
@@ -44,10 +43,6 @@ func BindZFPassword(c *gin.Context) {
 	}
 	err = userServices.SetZFPassword(user, postForm.PassWord, api)
 	if err != nil {
-		zap.L().Error("绑定账号失败", zap.Error(err),
-			zap.String("studentID", user.StudentID),
-			zap.String("loginType", "ZF"),
-			zap.String("api", api))
 		apiException.AbortWithError(c, err)
 		return
 	}
@@ -73,10 +68,6 @@ func BindOauthPassword(c *gin.Context) {
 	}
 	err = userServices.SetOauthPassword(user, postForm.PassWord, api)
 	if err != nil {
-		zap.L().Error("绑定账号失败", zap.Error(err),
-			zap.String("studentID", user.StudentID),
-			zap.String("loginType", "OAUTH"),
-			zap.String("api", api))
 		apiException.AbortWithError(c, err)
 		return
 	}

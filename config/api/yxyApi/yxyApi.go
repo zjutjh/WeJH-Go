@@ -1,8 +1,10 @@
 package yxyApi
 
-import "wejh-go/config/config"
+import "github.com/zjutjh/mygo/config"
 
-var YxyHost = config.Config.GetString("yxy.host")
+func GetYxyHost() string {
+	return config.Pick().GetString("yxy.host")
+}
 
 type YxyApi string
 

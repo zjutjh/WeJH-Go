@@ -2,78 +2,52 @@ package main
 
 import (
 	"context"
-	"errors"
-	"log"
-	"net/http"
 	"os/signal"
 	"sync"
 	"syscall"
-	"time"
-	"wejh-go/app/midwares"
-	"wejh-go/app/utils/circuitBreaker"
-	"wejh-go/config/config"
-	"wejh-go/config/database"
-	"wejh-go/config/logger"
-	"wejh-go/config/redis"
-	"wejh-go/config/router"
-	"wejh-go/config/session"
-	"wejh-go/config/wechat"
 
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
+	"wejh-go/app/utils/circuitBreaker"
+	"wejh-go/register"
+	"wejh-go/register/router"
+
+	"github.com/spf13/cobra"
+	"github.com/zjutjh/mygo/foundation/command"
+	"github.com/zjutjh/mygo/foundation/crontab"
+	"github.com/zjutjh/mygo/foundation/httpserver"
 )
 
 func main() {
-	if err := logger.Init(); err != nil {
-		log.Fatal(err.Error())
-	}
-	redis.Init()
-	database.Init()
-	circuitBreaker.Init()
-	wechat.Init()
 
-	r := gin.Default()
-	r.Use(cors.Default())
-	r.Use(midwares.ErrHandler())
-	r.NoMethod(midwares.HandleNotFound)
-	r.NoRoute(midwares.HandleNotFound)
-	session.Init(r)
-	router.Init(r)
+	command.Execute(
+		register.Boot,    // 应用引导注册器
+		register.Command, // 应用命令注册器
+		func(cmd *cobra.Command, args []string) error {
+			ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+			defer stop()
+			wg := &sync.WaitGroup{}
 
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
+			// 启动HTTP Server
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				httpserver.StartHTTPServer(router.Route)
+			}()
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				circuitBreaker.Probe.Start(ctx)//circuitBreaker 后面放到 cron
+			}()
 
-	var wg sync.WaitGroup
+			// 启动HTTP Server伴生定时任务
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				crontab.Run(register.CronWithHTTPServer)
+			}()
 
-	srv := &http.Server{
-		Addr:              ":" + config.Config.GetString("server.port"),
-		Handler:           r,
-		ReadHeaderTimeout: 2 * time.Second,
-	}
+			wg.Wait()
+			return nil
+		},
+	)
 
-	go func() {
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			zap.L().Fatal("Server Error Occurred", zap.Error(err))
-		}
-	}()
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		circuitBreaker.Probe.Start(ctx)
-	}()
-
-	<-ctx.Done()
-	zap.L().Info("Shutdown Server...")
-	wg.Wait()
-
-	// 关闭服务器（5秒超时时间）
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
-		zap.L().Error("Server Shutdown Failed", zap.Error(err))
-	}
-
-	zap.L().Info("Server Closed")
 }

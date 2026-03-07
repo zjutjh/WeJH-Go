@@ -8,9 +8,9 @@ import (
 	"wejh-go/app/services/themeServices"
 	"wejh-go/app/services/userServices"
 	"wejh-go/app/utils"
-	"wejh-go/config/wechat"
 
 	"github.com/gin-gonic/gin"
+	"github.com/zjutjh/mygo/wechat/miniProgram"
 )
 
 type createStudentUserForm struct {
@@ -39,8 +39,7 @@ func BindOrCreateStudentUserFromWechat(c *gin.Context) {
 		return
 	}
 
-	session, err := wechat.MiniProgram.GetAuth().Code2Session(postForm.Code)
-
+	session, err := miniProgram.Pick().Auth.Session(c, postForm.Code)
 	if err != nil {
 		apiException.AbortWithException(c, apiException.OpenIDError, err)
 		return

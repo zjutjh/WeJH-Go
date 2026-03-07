@@ -1,0 +1,83 @@
+# 应用基础配置
+app:
+  name: "wejh" # 应用名称
+  env: "dev" # 应用环境 dev|test|prod
+
+# HTTP 服务配置
+http_server:
+  addr: ":8080"
+  log:
+    # 仅在本地开发调试时打开
+    # access_filename: "/dev/stdout"
+    # error_filename: "/dev/stderr"
+
+# 应用业务日志配置
+log:
+  level: 4 # 日志级别 0: panic 1: fatal 2: error 3: warn 4: info 5: debug 6: trace
+  # 仅在本地开发调试时打开
+  # filename: "/dev/stdout"
+
+# HTTP Client 配置
+resty:
+  timeout: "5s"
+
+# 跨域中间件配置
+mid_cors:
+  allow_origins: [
+      # 本地/测试等环境配置 正式环境须去除
+      "*",
+      "https://test.*.com",
+
+      # 生产环境配置
+      "https://prod.*.com",
+    ]
+
+# 数据库配置
+db:
+  host: "127.0.0.1"
+  port: 3306
+  username: "jh_user"
+  password: "jh_pass"
+  database: "wejh_db"
+
+# Redis 配置
+redis:
+  addrs:
+    - "127.0.0.1:6379"
+  db: 0
+  password: "jh_pass"
+
+# 飞书告警配置
+feishu:
+  enable: false
+  notice_webhook: ""
+  notice_secret: ""
+
+# 微信小程序配置 (切记不能泄漏）
+wechat_mini_program:
+  app_id: "app_id"
+  secret: "secret"
+
+# Session 配置
+session:
+  driver: "redis"
+  name: "wejh-session"
+  secret: "secret"
+  redis: ""
+
+funnel:
+  host:
+
+zfCircuit:
+  studentId:
+  oauthPassword:
+  zfPassword:
+  duration:
+  apis:
+    -
+
+user:
+  host:
+
+yxy:
+  host:

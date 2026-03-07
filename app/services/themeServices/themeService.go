@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"wejh-go/app/models"
-	"wejh-go/config/database"
 
+	"github.com/zjutjh/mygo/ndb"
 	"gorm.io/gorm"
 )
 
 func CheckThemeExist(ids ...int) error {
 	var themes []models.Theme
-	result := database.DB.Model(&models.Theme{}).
+	result := ndb.Pick().Model(&models.Theme{}).
 		Where("id IN ?", ids).
 		Find(&themes)
 	if result.Error != nil {
@@ -28,7 +28,7 @@ func CreateTheme(themeName, themeType string, isDarkMode bool, themeConfig model
 	if err != nil {
 		return err
 	}
-	result := database.DB.Create(&models.Theme{
+	result := ndb.Pick().Create(&models.Theme{
 		Name:        themeName,
 		Type:        themeType,
 		IsDarkMode:  isDarkMode,
@@ -42,7 +42,7 @@ func UpdateTheme(themeID int, themeName string, isDarkMode bool, themeConfig mod
 	if err != nil {
 		return err
 	}
-	result := database.DB.Model(&models.Theme{}).
+	result := ndb.Pick().Model(&models.Theme{}).
 		Where("id = ?", themeID).
 		Select("name", "is_dark_mode", "theme_config").
 		Updates(&models.Theme{
@@ -55,7 +55,7 @@ func UpdateTheme(themeID int, themeName string, isDarkMode bool, themeConfig mod
 
 func GetThemeByID(id int) (models.Theme, error) {
 	var theme models.Theme
-	if err := database.DB.Model(models.Theme{}).
+	if err := ndb.Pick().Model(models.Theme{}).
 		Where(&models.Theme{ID: id}).
 		First(&theme).Error; err != nil {
 		return theme, err
@@ -65,7 +65,7 @@ func GetThemeByID(id int) (models.Theme, error) {
 
 func GetAllTheme() ([]models.FormatTheme, error) {
 	var themes []models.Theme
-	result := database.DB.Model(models.Theme{}).Find(&themes)
+	result := ndb.Pick().Model(models.Theme{}).Find(&themes)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -89,7 +89,7 @@ func GetAllTheme() ([]models.FormatTheme, error) {
 }
 
 func DeleteTheme(id int, themeType string, isDarkMode bool) error {
-	return database.DB.Transaction(func(tx *gorm.DB) error {
+	return ndb.Pick().Transaction(func(tx *gorm.DB) error {
 		if err := tx.Delete(&models.Theme{}, id).Error; err != nil {
 			return err
 		}

@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"wejh-go/app/models"
-	"wejh-go/config/database"
 
 	"slices"
 
+	"github.com/zjutjh/mygo/ndb"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +20,7 @@ func AddThemePermission(themeID int, reqStudentIDs []string, themeType string) (
 	var invalidStudentIDs []string
 	if len(reqStudentIDs) > 0 {
 		var existingUsers []models.User
-		if err := database.DB.Select("student_id").
+		if err := ndb.Pick().Select("student_id").
 			Where("student_id IN ?", reqStudentIDs).
 			Find(&existingUsers).Error; err != nil {
 			return nil, err
@@ -46,7 +46,7 @@ func AddThemePermission(themeID int, reqStudentIDs []string, themeType string) (
 	}
 
 	var permissions []models.ThemePermission
-	if err := database.DB.Where("student_id IN ?", studentIDs).Find(&permissions).Error; err != nil {
+	if err := ndb.Pick().Where("student_id IN ?", studentIDs).Find(&permissions).Error; err != nil {
 		return nil, err
 	}
 	permissionMap := make(map[string]*models.ThemePermission)
@@ -79,7 +79,7 @@ func AddThemePermission(themeID int, reqStudentIDs []string, themeType string) (
 		}
 	}
 
-	if err := database.DB.Save(&permissions).Error; err != nil {
+	if err := ndb.Pick().Save(&permissions).Error; err != nil {
 		return nil, err
 	}
 	return invalidStudentIDs, nil
@@ -98,7 +98,7 @@ func UpdateCurrentTheme(id int, darkID int, studentID string) error {
 		return errors.New("the dark theme ID is not in the user's permission list")
 	}
 
-	err = database.DB.Model(&models.ThemePermission{}).
+	err = ndb.Pick().Model(&models.ThemePermission{}).
 		Where("student_id = ?", studentID).
 		Updates(models.ThemePermission{
 			CurrentThemeID:     id,
@@ -109,7 +109,7 @@ func UpdateCurrentTheme(id int, darkID int, studentID string) error {
 
 func GetThemePermissionByStudentID(studentID string) (models.ThemePermission, error) {
 	var permission models.ThemePermission
-	result := database.DB.Model(&models.ThemePermission{}).Where("student_id = ?", studentID).First(&permission)
+	result := ndb.Pick().Model(&models.ThemePermission{}).Where("student_id = ?", studentID).First(&permission)
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
 			newPermission, err := AddDefaultThemePermission(studentID)
@@ -175,7 +175,7 @@ func GetPermittedThemeNames(studentID string) ([]string, error) {
 
 func AddDefaultThemePermission(studentID string) (models.ThemePermission, error) {
 	var existingPermission models.ThemePermission
-	err := database.DB.Where("student_id = ?", studentID).First(&existingPermission).Error
+	err := ndb.Pick().Where("student_id = ?", studentID).First(&existingPermission).Error
 	if err == nil {
 		return existingPermission, nil
 	}
@@ -192,13 +192,13 @@ func AddDefaultThemePermission(studentID string) (models.ThemePermission, error)
 	}
 
 	var defaultThemeLightID, defaultThemeDarkID int
-	if err := database.DB.Model(models.Theme{}).
+	if err := ndb.Pick().Model(models.Theme{}).
 		Select("id").
 		Where("type = ? AND is_dark_mode = ?", "all", false).
 		First(&defaultThemeLightID).Error; err != nil {
 		return models.ThemePermission{}, err
 	}
-	if err := database.DB.Model(models.Theme{}).
+	if err := ndb.Pick().Model(models.Theme{}).
 		Select("id").
 		Where("type = ? AND is_dark_mode = ?", "all", true).
 		First(&defaultThemeDarkID).Error; err != nil {
@@ -212,7 +212,7 @@ func AddDefaultThemePermission(studentID string) (models.ThemePermission, error)
 		ThemePermission:    string(permission),
 	}
 
-	err = database.DB.Create(&newPermission).Error
+	err = ndb.Pick().Create(&newPermission).Error
 	return newPermission, err
 }
 
@@ -220,7 +220,7 @@ func getPermittedThemes(studentID string) ([]models.Theme, error) {
 	var themePermission models.ThemePermission
 	var themePermissionData models.ThemePermissionData
 
-	if err := database.DB.Where("student_id = ?", studentID).First(&themePermission).Error; err != nil {
+	if err := ndb.Pick().Where("student_id = ?", studentID).First(&themePermission).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			_, err := AddDefaultThemePermission(studentID)
 			if err != nil {
@@ -239,7 +239,7 @@ func getPermittedThemes(studentID string) ([]models.Theme, error) {
 	}
 
 	var themes []models.Theme
-	query := database.DB.Where("type = ?", "all")
+	query := ndb.Pick().Where("type = ?", "all")
 	if len(themePermissionData.ThemeIDs) > 0 {
 		query = query.Or("id IN ?", themePermissionData.ThemeIDs)
 	}

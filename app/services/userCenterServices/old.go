@@ -17,7 +17,7 @@ func OldAuthStudent(username, password string) error {
 	form.Add("action", "login")
 	form.Add("username", username)
 	form.Add("password", password)
-	res, err := f.Get(userCenterApi.UserCenterHost + "?" + form.Encode())
+	res, err := f.Get(userCenterApi.GetUserCenterHost() + "?" + form.Encode())
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func OldActiveStudent(username, password, iid, email string) error {
 	form.Add("password", password)
 	form.Add("iid", iid)
 	form.Add("email", email)
-	res, err := f.Get(userCenterApi.UserCenterHost + "api.php?" + form.Encode())
+	res, err := f.Get(userCenterApi.GetUserCenterHost() + "api.php?" + form.Encode())
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func OldResetStudent(username, password, iid string) error {
 	form.Add("username", username)
 	form.Add("password", password)
 	form.Add("iid", iid)
-	res, err := f.Get(userCenterApi.UserCenterHost + "?" + form.Encode())
+	res, err := f.Get(userCenterApi.GetUserCenterHost() + "?" + form.Encode())
 	if err != nil {
 		return err
 	}

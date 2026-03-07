@@ -22,7 +22,6 @@ func DelAccount(c *gin.Context) {
 		return
 	}
 	user, err := sessionServices.GetUserSession(c)
-
 	if err != nil {
 		apiException.AbortWithException(c, apiException.NotLogin, err)
 		return

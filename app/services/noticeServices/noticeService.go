@@ -2,11 +2,12 @@ package noticeServices
 
 import (
 	"wejh-go/app/models"
-	"wejh-go/config/database"
+
+	"github.com/zjutjh/mygo/ndb"
 )
 
 func CreateRecord(record models.Notice) error {
-	result := database.DB.Create(&record)
+	result := ndb.Pick().Create(&record)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -14,7 +15,7 @@ func CreateRecord(record models.Notice) error {
 }
 
 func DeleteNotice(id int) error {
-	result := database.DB.Delete(models.Notice{ID: id})
+	result := ndb.Pick().Delete(models.Notice{ID: id})
 	if result.Error != nil {
 		return result.Error
 	}
@@ -22,7 +23,7 @@ func DeleteNotice(id int) error {
 }
 
 func UpdateNotice(id int, record models.Notice) error {
-	result := database.DB.Model(models.Notice{}).
+	result := ndb.Pick().Model(models.Notice{}).
 		Select("title", "content").
 		Where(&models.LostAndFoundRecord{ID: id}).Updates(&record)
 	if result.Error != nil {
@@ -33,7 +34,7 @@ func UpdateNotice(id int, record models.Notice) error {
 
 func GetNoticeBySuperAdmin() ([]models.Notice, error) {
 	var record []models.Notice
-	result := database.DB.Order("publish_time desc").Find(&record)
+	result := ndb.Pick().Order("publish_time desc").Find(&record)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -42,7 +43,7 @@ func GetNoticeBySuperAdmin() ([]models.Notice, error) {
 
 func GetRecordByAdmin(publisher string) ([]models.Notice, error) {
 	var record []models.Notice
-	result := database.DB.Where(models.Notice{
+	result := ndb.Pick().Where(models.Notice{
 		Publisher: publisher,
 	}).Order("publish_time desc").Find(&record)
 	if result.Error != nil {
@@ -53,7 +54,7 @@ func GetRecordByAdmin(publisher string) ([]models.Notice, error) {
 
 func GetNoticeById(id int) (models.Notice, error) {
 	var record models.Notice
-	result := database.DB.Where(models.LostAndFoundRecord{
+	result := ndb.Pick().Where(models.LostAndFoundRecord{
 		ID: id,
 	}).First(&record)
 	if result.Error != nil {
