@@ -66,5 +66,5 @@ func BindPassword(u *models.User, year, term, host string, loginType funnelApi.L
 	form.Add("type", string(loginType))
 	form.Add("year", year)
 	form.Add("term", term)
-	return FetchHandleOfPost(form, host, funnelApi.ZFExam)
+	return FetchHandleOfPost(form, host, funnelApi.ZFClassTable)
 }
