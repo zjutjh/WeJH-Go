@@ -45,6 +45,7 @@ var (
 	OAuthNotUpdate            = NewError(200526, logger.LevelInfo, "统一身份认证密码未更新")
 	NoApiAvailable            = NewError(200527, logger.LevelInfo, "正方相关服务暂不可用")
 	NotBindCard               = NewError(200528, logger.LevelInfo, "请先在易校园APP绑定浙工大校园卡")
+	UpdateSame                = NewError(200529, logger.LevelInfo, "密码不能与原密码一致")
 	NotInit                   = NewError(200404, logger.LevelWarn, http.StatusText(http.StatusNotFound))
 	NotFound                  = NewError(200404, logger.LevelWarn, http.StatusText(http.StatusNotFound))
 )

@@ -27,6 +27,8 @@ func ResetPass(stuID, iid, password string) error {
 		return apiException.StudentNumAndIidError
 	} else if resp.Code == 401 {
 		return apiException.PwdError
+	} else if resp.Code == 413 {
+		return apiException.UpdateSame
 	} else if resp.Code != 200 {
 		return apiException.ServerError
 	}
