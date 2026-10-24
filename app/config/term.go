@@ -46,18 +46,29 @@ func SetSystemInfo(yearValue, termValue, termStartDateValue, scoreYearValue, sco
 	return err
 }
 
-func GetTermInfo() (string, string, string, string, string) {
-	return getConfig(termYearKey), getConfig(termKey), getConfig(termStartDate), getConfig(scoreTermYearKey), getConfig(scoreTermKey)
+
+func GetTermInfo() (year, term, startDate, scoreYear, scoreTerm string) {
+	return getConfig(termYearKey), getConfig(termKey), getConfig(termStartDate),
+		getConfig(scoreTermYearKey), getConfig(scoreTermKey)
+}
+
+func GetScoreTermInfo() (scoreYear, scoreTerm string) {
+	return getConfig(scoreTermYearKey), getConfig(scoreTermKey)
 }
 
 func IsSetTermInfo() bool {
-	return checkConfig(termYearKey) && checkConfig(termKey) && checkConfig(termStartDate)
+	return checkConfig(termYearKey) && checkConfig(termKey) && checkConfig(termStartDate) &&
+		checkConfig(scoreTermYearKey) && checkConfig(scoreTermKey)
 }
 
 func DelTermInfo() []error {
 	var result []error
-	errTermYear := delConfig(termYearKey)
-	errTerm := delConfig(termKey)
-	errStartDate := delConfig(termStartDate)
-	return append(result, errTermYear, errTerm, errStartDate)
+	result = append(result,
+		delConfig(termYearKey),
+		delConfig(termKey),
+		delConfig(termStartDate),
+		delConfig(scoreTermYearKey),
+		delConfig(scoreTermKey),
+	)
+	return result
 }

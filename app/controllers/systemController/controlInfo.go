@@ -9,7 +9,8 @@ import (
 )
 
 func Info(c *gin.Context) {
-	year, term, startTimeString, scoreYear, scoreTerm := config.GetTermInfo()
+	year, term, startTimeString, _, _ := config.GetTermInfo()
+	scoreYear, scoreTerm := config.GetScoreTermInfo()
 	startTime, _ := time.Parse("2006-01-02", startTimeString) // 学期开始的时间
 	currentTime := time.Now()
 	schoolBusUrl := config.GetSchoolBusUrl()
