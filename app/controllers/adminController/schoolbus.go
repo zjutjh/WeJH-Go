@@ -29,8 +29,6 @@ type deleteSchoolBusForm struct {
 	ID int `json:"id" binding:"required"`
 }
 
-var cstZone = time.FixedZone("GMT", 8*3600)
-
 func CreateSchoolBus(c *gin.Context) {
 	var postForm createSchoolBusForm
 	err := c.ShouldBindJSON(&postForm)
@@ -38,7 +36,7 @@ func CreateSchoolBus(c *gin.Context) {
 		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
-	_, err = time.ParseInLocation("15:04:05", postForm.StartTime, cstZone)
+	_, err = time.ParseInLocation("15:04:05", postForm.StartTime, time.Local)
 	if err != nil {
 		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
@@ -63,7 +61,7 @@ func UpdateSchoolBus(c *gin.Context) {
 		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
 	}
-	_, err = time.ParseInLocation("15:04:05", postForm.StartTime, cstZone)
+	_, err = time.ParseInLocation("15:04:05", postForm.StartTime, time.Local)
 	if err != nil {
 		apiException.AbortWithException(c, apiException.ParamError, err)
 		return

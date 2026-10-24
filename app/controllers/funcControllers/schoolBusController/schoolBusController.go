@@ -28,8 +28,6 @@ type SchoolBusTimeForm struct {
 	Destination string `json:"destination"`
 }
 
-var cstZone = time.FixedZone("GMT", 8*3600)
-
 func GetBusList(c *gin.Context) {
 	busList, err := schoolBusServices.GetSchoolBusList()
 	if err != nil {
@@ -52,7 +50,7 @@ func GetBus(c *gin.Context) {
 		return
 	}
 	var busType models.SchoolBusType
-	startDate, err := time.Parse("2006-01-02", postForm.Date)
+	startDate, err := time.ParseInLocation("2006-01-02", postForm.Date, time.Local)
 	if err != nil {
 		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
@@ -62,7 +60,7 @@ func GetBus(c *gin.Context) {
 	} else {
 		busType = models.Weekday
 	}
-	_, err = time.ParseInLocation("15:04:05", postForm.StartTime, cstZone)
+	_, err = time.ParseInLocation("15:04:05", postForm.StartTime, time.Local)
 	if err != nil {
 		apiException.AbortWithException(c, apiException.ParamError, err)
 		return
@@ -174,7 +172,7 @@ func GetTimeList(c *gin.Context) {
 		return
 	}
 	var busType models.SchoolBusType
-	startDate, err := time.Parse("2006-01-02", postForm.Date)
+	startDate, err := time.ParseInLocation("2006-01-02", postForm.Date, time.Local)
 	if err != nil {
 		apiException.AbortWithException(c, apiException.ParamError, err)
 		return

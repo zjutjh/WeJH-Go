@@ -25,6 +25,8 @@ import (
 )
 
 func main() {
+	time.Local = time.FixedZone("CST", 8*3600)
+
 	if err := logger.Init(); err != nil {
 		log.Fatal(err.Error())
 	}
