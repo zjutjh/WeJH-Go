@@ -41,3 +41,7 @@ func SetRegisterTipsKey(url string) error { return setConfig(registerTipsKey, ur
 func GetBusConfigUrl() string {
 	return getConfig(busConfigUrlKey)
 }
+
+func SetBusConfigUrl(url string) error {
+	return setConfig(busConfigUrlKey, url)
+}
