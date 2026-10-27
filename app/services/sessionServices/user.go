@@ -55,5 +55,5 @@ func ClearUserSession(c *gin.Context) {
 	webSession := sessions.Default(c)
 	webSession.Delete("id")
 	webSession.Save()
-	return
+
 }
