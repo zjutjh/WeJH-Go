@@ -17,7 +17,7 @@ type User struct {
 	YxyUid          string // 易校园uid
 	OauthPassword   string // 统一身份认证密码
 	CreateTime      time.Time
-	ThemePreference string `gorm:"type:varchar(10);default:'auto';comment:'主题偏好'" json:"theme_preference"` //用户主题偏好 (light:浅色, dark:深色, auto:自动)默认设置为 auto
+	ThemePreference string `gorm:"type:varchar(10);default:'auto';comment:'主题偏好'" json:"theme_preference"` // 用户主题偏好 (light:浅色, dark:深色, auto:自动)默认设置为 auto
 }
 
 type UserType int
