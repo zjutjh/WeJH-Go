@@ -21,6 +21,7 @@ func userRouterInit(r *gin.RouterGroup) {
 
 		user.POST("/del", midwares.CheckLogin, userController.DelAccount)
 		user.POST("/repass", midwares.CheckLogin, userController.ResetPass)
+		user.POST("/theme", midwares.CheckLogin, userController.SetThemePreference)
 
 		bind := user.Group("/bind", midwares.CheckLogin)
 		{

@@ -61,13 +61,14 @@ func AuthByPassword(c *gin.Context) {
 			"studentID": user.StudentID,
 			"bind": gin.H{
 				"zf": user.ZFPassword != "",
-				//"lib":   user.LibPassword != "",
+				// "lib":   user.LibPassword != "",
 				"yxy":   user.YxyUid != "",
 				"oauth": user.OauthPassword != "",
 			},
-			"userType":   user.Type,
-			"phoneNum":   user.PhoneNum,
-			"createTime": user.CreateTime,
+			"userType":        user.Type,
+			"phoneNum":        user.PhoneNum,
+			"createTime":      user.CreateTime,
+			"themePreference": user.ThemePreference,
 		},
 	})
 }
@@ -85,12 +86,13 @@ func AuthBySession(c *gin.Context) {
 			"studentID": user.StudentID,
 			"bind": gin.H{
 				"zf": user.ZFPassword != "",
-				//"lib": user.LibPassword != "" //已废弃
+				// "lib": user.LibPassword != "" // 已废弃
 				"yxy": user.YxyUid != "",
 			},
-			"userType":   user.Type,
-			"phoneNum":   user.PhoneNum,
-			"createTime": user.CreateTime,
+			"userType":        user.Type,
+			"phoneNum":        user.PhoneNum,
+			"createTime":      user.CreateTime,
+			"themePreference": user.ThemePreference,
 		},
 	})
 }
@@ -127,7 +129,7 @@ func WeChatLogin(c *gin.Context) {
 			"studentID": user.StudentID,
 			"bind": gin.H{
 				"zf": user.ZFPassword != "",
-				//"lib":   user.LibPassword != "",
+				//  "lib":   user.LibPassword != "",
 				"yxy":   user.YxyUid != "",
 				"oauth": user.OauthPassword != "",
 			},
