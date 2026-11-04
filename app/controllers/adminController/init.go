@@ -1,6 +1,7 @@
 package adminController
 
 import (
+	"net/url"
 	"wejh-go/app/apiException"
 	"wejh-go/app/config"
 	"wejh-go/app/utils"
@@ -22,6 +23,28 @@ type SystemInfoForm struct {
 
 type encryptForm struct {
 	EncryptKey string `json:"encryptKey"`
+}
+
+type busConfigForm struct {
+	URL string `json:"url" binding:"required"`
+}
+
+func SetBusConfig(c *gin.Context) {
+	var form busConfigForm
+	if err := c.ShouldBindJSON(&form); err != nil {
+		apiException.AbortWithException(c, apiException.ParamError, err)
+		return
+	}
+	u, err := url.Parse(form.URL)
+	if err != nil || u.Hostname() == "" || (u.Scheme != "http" && u.Scheme != "https") {
+		apiException.AbortWithException(c, apiException.ParamError, err)
+		return
+	}
+	if err := config.SetBusConfigUrl(form.URL); err != nil {
+		apiException.AbortWithException(c, apiException.ServerError, err)
+		return
+	}
+	utils.JsonSuccessResponse(c, nil)
 }
 
 func SetInit(c *gin.Context) {
